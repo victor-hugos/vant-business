@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { getAllPosts } from '../utils/posts.js';
 import { recursos } from '../data/recursos.js';
+import SocialLinks from '../components/SocialLinks.jsx';
 
 function HomePage() {
   const recentPosts = getAllPosts().slice(0, 3);
@@ -19,7 +20,9 @@ function HomePage() {
         <p className="mt-5 text-lg text-slate-400 max-w-2xl leading-relaxed">
           Aqui você encontra os melhores recursos de IA curados, tutoriais com ebook e consultoria de automação para pequenos negócios.
         </p>
-        <div className="mt-8 flex flex-col sm:flex-row gap-3">
+        <SocialLinks className="mt-6" />
+
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
           <Link
             to="/recursos"
             className="inline-flex items-center justify-center rounded-full bg-cyan-400 px-7 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition"

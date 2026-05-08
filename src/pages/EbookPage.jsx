@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAllPosts } from '../utils/posts.js';
+import EbookCover from '../components/EbookCover.jsx';
 
 function EbookPage() {
   const { slug } = useParams();
@@ -67,6 +68,9 @@ function EbookPage() {
         </div>
       ) : (
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
+          <div className="flex justify-center mb-6">
+            <EbookCover width={200} />
+          </div>
           <p className="text-xs uppercase tracking-widest text-cyan-400 mb-3">Ebook grátis</p>
           <h1 className="text-2xl font-bold text-white leading-snug">
             {post.title}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import VantLogo from './VantLogo.jsx';
 
 const navItems = [
   { label: 'Blog', to: '/blog' },
@@ -22,14 +23,17 @@ function Header() {
           <Link
             to="/"
             onClick={closeMenu}
-            className="flex flex-col transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+            className="flex items-center gap-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
           >
-            <span className="text-lg font-bold text-white tracking-tight">
-              VANT<span className="text-cyan-400">.business</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
-              IA · Automação · Ferramentas
-            </span>
+            <VantLogo size={36} />
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-white tracking-tight leading-none">
+                VANT<span className="text-cyan-400">.business</span>
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                IA · Automação · Ferramentas
+              </span>
+            </div>
           </Link>
 
           <nav className="hidden items-center gap-1 text-sm text-slate-300 md:flex">
