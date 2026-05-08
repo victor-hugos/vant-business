@@ -4,7 +4,7 @@ slug: "ferramentas-ia-para-produtividade-2026"
 date: "2026-05-08"
 description: "Tutorial prático com as ferramentas de IA que fazem parte da minha operação como desenvolvedor e empreendedor digital."
 tags: "IA,Produtividade"
-ebook: "https://gumroad.com/l/ferramentas-ia-2026"
+ebook: "true"
 tempo: "8 min"
 ---
 

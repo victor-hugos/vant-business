@@ -6,6 +6,7 @@ import BlogPage from './pages/BlogPage.jsx';
 import BlogPostPage from './pages/BlogPostPage.jsx';
 import RecursosPage from './pages/RecursosPage.jsx';
 import AutomatizePage from './pages/AutomatizePage.jsx';
+import EbookPage from './pages/EbookPage.jsx';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/recursos" element={<RecursosPage />} />
             <Route path="/automatize" element={<AutomatizePage />} />
+            <Route path="/ebook/:slug" element={<EbookPage />} />
           </Routes>
         </main>
         <Footer />

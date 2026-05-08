@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getPostBySlug } from '../utils/posts.js';
 
 function BlogPostPage() {
@@ -51,7 +51,7 @@ function BlogPostPage() {
 
         <p className="mt-3 text-xs text-slate-500">{post.date}</p>
 
-        {post.ebook && (
+        {post.ebook !== undefined && (
           <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <p className="text-sm font-semibold text-cyan-300">📥 Ebook grátis</p>
@@ -59,14 +59,12 @@ function BlogPostPage() {
                 Guia completo com prompts e fluxos prontos para usar.
               </p>
             </div>
-            <a
-              href={post.ebook}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to={`/ebook/${post.slug}`}
               className="shrink-0 rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition text-center"
             >
               Baixar grátis
-            </a>
+            </Link>
           </div>
         )}
 
@@ -75,20 +73,18 @@ function BlogPostPage() {
           dangerouslySetInnerHTML={{ __html: post.html }}
         />
 
-        {post.ebook && (
+        {post.ebook !== undefined && (
           <div className="mt-12 rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 to-slate-900/80 p-8 text-center">
             <p className="text-xl font-bold text-white">Quer o guia completo?</p>
             <p className="mt-2 text-slate-400 text-sm">
               Baixe o ebook com passo a passo, prompts prontos e fluxos de automação.
             </p>
-            <a
-              href={post.ebook}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to={`/ebook/${post.slug}`}
               className="mt-5 inline-block rounded-full bg-cyan-400 px-8 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition"
             >
               Baixar ebook grátis →
-            </a>
+            </Link>
           </div>
         )}
       </article>
