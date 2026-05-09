@@ -900,7 +900,9 @@ function AdminPage() {
     });
 
     setRunning(null);
-    if (response.ok) {
+    const contentType = response.headers.get('content-type') || '';
+
+    if (response.ok && contentType.includes('application/json')) {
       const payload = await response.json();
 
       if (payload?.response) {
@@ -920,7 +922,30 @@ function AdminPage() {
       if (payload?.stored) {
         await loadData();
       }
+      return;
     }
+
+    const fallbackPayload = createLocalAgentPayload(agentId);
+    const currentResponses = readLocalResponses().filter((item) => item.item_id !== agentId);
+    saveLocalResponses([fallbackPayload, ...currentResponses]);
+
+    setData((current) => {
+      if (!current) return current;
+
+      const nextResponses = [
+        fallbackPayload,
+        ...(current.agentResponses || []).filter((item) => item.item_id !== agentId),
+      ];
+
+      return {
+        ...current,
+        agentResponses: nextResponses,
+        warnings: [
+          ...(current.warnings || []),
+          'A API publica de execucao ainda nao respondeu; foi usado o modo de fallback para manter a bancada funcional.',
+        ],
+      };
+    });
   }
 
   async function reviewNews(item, status) {
