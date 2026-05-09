@@ -5,6 +5,8 @@ import { getSupabaseAdmin } from './_supabaseAdmin.js';
 import { affiliateTools, ebookTools } from '../src/data/aiPipeline.js';
 import { agentWorkflow } from './admin-data.js';
 
+// Keeps the agent execution route present in the production deploy.
+
 function getAgentIndex(agentId) {
   return agentWorkflow.findIndex((agent) => agent.id === agentId);
 }
