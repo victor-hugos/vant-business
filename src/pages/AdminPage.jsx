@@ -857,6 +857,9 @@ function AgentWorkspace({
   const activeAgent = workflow.find((agent) => agent.id === activeSection) || workflow[0];
   const activeResponse = responses.find((item) => item.item_id === activeSection);
   const selectedDay = schedule.find((item) => item.day === activeDay) || schedule[0];
+  const activeIndex = workflow.findIndex((agent) => agent.id === activeSection);
+  const nextAgent = workflow[activeIndex + 1] || null;
+  const previousAgent = workflow[activeIndex - 1] || null;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
@@ -888,6 +891,9 @@ function AgentWorkspace({
                       {item.index + 1}. {item.name}
                     </p>
                     <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.goal}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
+                      Proxima: {workflow[item.index + 1]?.name || 'fim da fila'}
+                    </p>
                   </div>
                   <StatusPill tone={item.response ? 'emerald' : item.index === allowedIndex ? 'cyan' : 'slate'}>
                     {item.status}
@@ -907,6 +913,9 @@ function AgentWorkspace({
             >
               <p className="text-sm font-semibold text-white">Planejamento</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">Dias da semana, ordem e cadencia do ciclo.</p>
+              <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
+                Proxima: {workflow[0]?.name || 'nenhum agente'}
+              </p>
             </button>
 
             <button
@@ -920,6 +929,9 @@ function AgentWorkspace({
             >
               <p className="text-sm font-semibold text-white">Dashboard de interacao</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">Cliques, logs e confirmacao do que foi salvo.</p>
+              <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
+                Proxima: monitoramento continuo
+              </p>
             </button>
           </div>
         </aside>
@@ -1031,37 +1043,50 @@ function AgentWorkspace({
                 </StatusPill>
               </div>
 
-              <div className="grid gap-4 xl:grid-cols-[1fr_0.92fr]">
+              <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
                 <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Saida do agente</p>
-                  {activeResponse?.payload ? (
-                    <>
-                      <h4 className="mt-3 text-lg font-bold text-white">{activeResponse.payload.title}</h4>
-                      <p className="mt-3 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
-                      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                        <p className="text-xs uppercase tracking-widest text-emerald-300">Proxima acao</p>
-                        <p className="mt-2 text-sm leading-relaxed text-emerald-100">
-                          {activeResponse.payload.nextStep}
-                        </p>
-                      </div>
-                      <p className="mt-4 text-xs text-slate-500">
-                        Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
-                      </p>
-                    </>
-                  ) : (
-                    <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
-                      Nenhuma saida registrada ainda. Ative este agente para gerar a primeira resposta.
+                  <div className="flex flex-wrap gap-2">
+                    <StatusPill tone="cyan">Tela do agente</StatusPill>
+                    <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
+                      {activeResponse ? 'saida disponivel' : 'aguardando geracao'}
+                    </StatusPill>
+                    <StatusPill tone="slate">
+                      Proxima: {nextAgent?.name || 'fim da fila'}
+                    </StatusPill>
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-xs uppercase tracking-widest text-cyan-400">Resumo do agente</p>
+                    <h4 className="mt-2 text-lg font-bold text-white">{activeAgent?.name}</h4>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeAgent?.goal}</p>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa anterior</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{previousAgent?.name || 'inicio da fila'}</p>
                     </div>
-                  )}
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">Próxima etapa</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{nextAgent?.name || 'nenhuma etapa pendente'}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-xs uppercase tracking-widest text-emerald-300">Quando avanca</p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                      Este agente entra agora. Depois dele, a fila libera {nextAgent?.name || 'o final do ciclo'}.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Controle</p>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Controle da etapa</p>
                   <div className="mt-3 space-y-3">
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                       <p className="text-sm font-semibold text-white">Estado da fila</p>
                       <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                        Apenas o proximo agente liberado pode ser executado. Os demais ficam visiveis, mas travados.
+                        O processo anda um agente por vez. As demais etapas ficam visiveis, mas não entram antes da vez.
                       </p>
                     </div>
 
@@ -1074,35 +1099,24 @@ function AgentWorkspace({
                       {running === activeAgent?.id ? 'Executando...' : activeResponse ? 'Reexecutar agente' : 'Ativar agente'}
                     </button>
 
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa seguinte</p>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                        {workflow[allowedIndex + 1]?.name || activeAgent?.name || 'Nenhuma etapa pendente'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-xs uppercase tracking-widest text-cyan-400">Sequencia completa</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                  {workflow.map((agent, index) => {
-                    const response = responses.find((item) => item.item_id === agent.id);
-                    return (
-                      <div key={agent.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <p className="text-sm font-semibold text-white">
-                            {index + 1}. {agent.name}
-                          </p>
-                          <StatusPill tone={response ? 'emerald' : index === allowedIndex ? 'cyan' : 'slate'}>
-                            {response ? 'feito' : index === allowedIndex ? 'liberado' : 'bloqueado'}
-                          </StatusPill>
-                        </div>
-                        <p className="mt-2 text-xs leading-relaxed text-slate-500">{agent.goal}</p>
+                    {activeResponse?.payload ? (
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-xs uppercase tracking-widest text-cyan-400">Saída atual</p>
+                        <h5 className="mt-2 text-sm font-semibold text-white">{activeResponse.payload.title}</h5>
+                        <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
+                        <p className="mt-3 text-sm leading-relaxed text-emerald-100">
+                          {activeResponse.payload.nextStep}
+                        </p>
+                        <p className="mt-3 text-xs text-slate-500">
+                          Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
+                        </p>
                       </div>
-                    );
-                  })}
+                    ) : (
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
+                        Nenhuma saída registrada ainda. Ative este agente para gerar a primeira resposta.
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
