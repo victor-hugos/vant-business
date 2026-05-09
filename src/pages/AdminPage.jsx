@@ -830,12 +830,33 @@ function AgentWorkspace({
   schedule = [],
   clicks = [],
   activityLog = [],
+  toolAffiliateItems = [],
+  toolEbookItems = [],
+  toolLocalMode = false,
+  onToolSaved,
+  contentAffiliateItems = [],
+  contentEbookItems = [],
+  newsItems = [],
+  contentLocalMode = false,
+  contentRefreshSignal = 0,
+  onContentAction,
+  onReviewNews,
+  reviewingNews = null,
   onRun,
   running,
   activeDay,
   onSelectDay,
 }) {
-  const [activeSection, setActiveSection] = useState(workflow[0]?.id || 'planejamento');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState('avaliacao');
+  const [activeAgentId, setActiveAgentId] = useState(workflow[0]?.id || '');
+
+  useEffect(() => {
+    if (workflow.length === 0) return;
+    if (!workflow.some((agent) => agent.id === activeAgentId)) {
+      setActiveAgentId(workflow[0].id);
+    }
+  }, [workflow, activeAgentId]);
 
   const completed = new Set(responses.map((response) => response.item_id));
   const nextIndex = workflow.findIndex((agent) => !completed.has(agent.id));
@@ -849,209 +870,201 @@ function AgentWorkspace({
       goal: agent.goal,
       index,
       response,
-      locked: !response && index > allowedIndex,
       status: response ? 'respondido' : index === allowedIndex ? 'proximo' : 'travado',
     };
   });
 
-  const activeAgent = workflow.find((agent) => agent.id === activeSection) || workflow[0];
-  const activeResponse = responses.find((item) => item.item_id === activeSection);
-  const selectedDay = schedule.find((item) => item.day === activeDay) || schedule[0];
-  const activeIndex = workflow.findIndex((agent) => agent.id === activeSection);
+  const activeAgent = workflow.find((agent) => agent.id === activeAgentId) || workflow[0];
+  const activeResponse = responses.find((item) => item.item_id === activeAgentId);
+  const activeIndex = workflow.findIndex((agent) => agent.id === activeAgentId);
   const nextAgent = workflow[activeIndex + 1] || null;
   const previousAgent = workflow[activeIndex - 1] || null;
+  const selectedDay = schedule.find((item) => item.day === activeDay) || schedule[0];
+
+  const tabs = [
+    {
+      id: 'avaliacao',
+      label: 'Avaliação',
+      hint: 'Agentes em sequência',
+    },
+    {
+      id: 'gerenciamento',
+      label: 'Gerenciamento',
+      hint: 'Publicação e fila',
+    },
+  ];
 
   return (
     <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
-      <div className="grid lg:grid-cols-[280px_1fr]">
-        <aside className="border-b border-white/10 bg-slate-950/45 p-4 lg:border-b-0 lg:border-r">
-          <div className="mb-4">
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Bancada dos agentes</p>
-            <h2 className="mt-2 text-xl font-bold text-white">Navegacao lateral</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              Abra um agente por vez, veja a saida e avance so quando fizer sentido.
-            </p>
+      <div
+        className="grid"
+        style={{ '--sidebar-width': sidebarOpen ? '280px' : '72px' }}
+      >
+        <aside className="border-b border-white/10 bg-slate-950/45 p-4 lg:border-b-0 lg:border-r lg:grid lg:grid-cols-[var(--sidebar-width)_1fr]">
+          <div className={sidebarOpen ? 'block' : 'hidden lg:block'}>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Navegação</p>
+                <h2 className="mt-2 text-xl font-bold text-white">Bancada lateral</h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                  Alterne entre avaliação e gerenciamento, ou entre em cada agente da fila.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen((current) => !current)}
+                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
+              >
+                Recolher
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                      activeTab === tab.id
+                        ? 'border-cyan-400/30 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-white">{tab.label}</p>
+                    <p className="mt-1 text-xs text-slate-500">{tab.hint}</p>
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === 'avaliacao' && (
+                <div className="space-y-2">
+                  <p className="pt-2 text-[11px] uppercase tracking-widest text-slate-600">Agentes</p>
+                  {agentButtons.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('avaliacao');
+                        setActiveAgentId(item.id);
+                      }}
+                      className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                        activeAgentId === item.id
+                          ? 'border-cyan-400/30 bg-cyan-400/10'
+                          : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-white">
+                            {item.index + 1}. {item.name}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.goal}</p>
+                          <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
+                            Próxima: {workflow[item.index + 1]?.name || 'fim da fila'}
+                          </p>
+                        </div>
+                        <StatusPill tone={item.response ? 'emerald' : item.index === allowedIndex ? 'cyan' : 'slate'}>
+                          {item.status}
+                        </StatusPill>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'gerenciamento' && (
+                <div className="space-y-2">
+                  <p className="pt-2 text-[11px] uppercase tracking-widest text-slate-600">Sessões</p>
+                  <button
+                    type="button"
+                    onClick={() => setSidebarOpen((current) => !current)}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+                  >
+                    <p className="text-sm font-semibold text-white">Publicação</p>
+                    <p className="mt-1 text-xs text-slate-500">Conteúdo, fila e revisão</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onSelectDay ? () => onSelectDay(activeDay) : undefined}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+                  >
+                    <p className="text-sm font-semibold text-white">Cronograma</p>
+                    <p className="mt-1 text-xs text-slate-500">{selectedDay?.day || 'sem dia ativo'}</p>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            {agentButtons.map((item) => (
+          {!sidebarOpen && (
+            <div className="flex flex-col items-center gap-2 py-2 lg:items-stretch">
               <button
-                key={item.id}
                 type="button"
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full rounded-xl border px-3 py-3 text-left transition ${
-                  activeSection === item.id
-                    ? 'border-cyan-400/30 bg-cyan-400/10'
-                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                onClick={() => setSidebarOpen(true)}
+                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
+              >
+                Abrir
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('avaliacao')}
+                className={`rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-widest transition ${
+                  activeTab === 'avaliacao'
+                    ? 'bg-cyan-400/15 text-cyan-200'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      {item.index + 1}. {item.name}
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.goal}</p>
-                    <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
-                      Proxima: {workflow[item.index + 1]?.name || 'fim da fila'}
-                    </p>
-                  </div>
-                  <StatusPill tone={item.response ? 'emerald' : item.index === allowedIndex ? 'cyan' : 'slate'}>
-                    {item.status}
-                  </StatusPill>
-                </div>
+                Av
               </button>
-            ))}
-
-            <button
-              type="button"
-              onClick={() => setActiveSection('planejamento')}
-              className={`mt-3 w-full rounded-xl border px-3 py-3 text-left transition ${
-                activeSection === 'planejamento'
-                  ? 'border-cyan-400/30 bg-cyan-400/10'
-                  : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
-              }`}
-            >
-              <p className="text-sm font-semibold text-white">Planejamento</p>
-              <p className="mt-1 text-xs leading-relaxed text-slate-500">Dias da semana, ordem e cadencia do ciclo.</p>
-              <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
-                Proxima: {workflow[0]?.name || 'nenhum agente'}
-              </p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveSection('interacao')}
-              className={`w-full rounded-xl border px-3 py-3 text-left transition ${
-                activeSection === 'interacao'
-                  ? 'border-cyan-400/30 bg-cyan-400/10'
-                  : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
-              }`}
-            >
-              <p className="text-sm font-semibold text-white">Dashboard de interacao</p>
-              <p className="mt-1 text-xs leading-relaxed text-slate-500">Cliques, logs e confirmacao do que foi salvo.</p>
-              <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
-                Proxima: monitoramento continuo
-              </p>
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('gerenciamento')}
+                className={`rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-widest transition ${
+                  activeTab === 'gerenciamento'
+                    ? 'bg-cyan-400/15 text-cyan-200'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Ge
+              </button>
+            </div>
+          )}
         </aside>
 
         <div className="min-w-0 p-5">
-          {activeSection === 'planejamento' ? (
+          {activeTab === 'avaliacao' ? (
             <div className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Planejamento</p>
-                  <h3 className="mt-2 text-xl font-bold text-white">Ordem da semana e ritmo de publicacao</h3>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Avaliação</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">Tela de cada agente</h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    Acompanhe o dia ativo e veja o que cada etapa deve entregar.
+                    Cada agente tem sua própria tela. A lateral mostra a fila e a próxima etapa.
                   </p>
-                </div>
-                <StatusPill tone="slate">{schedule.length} dias organizados</StatusPill>
-              </div>
-
-              <div className="grid gap-4 xl:grid-cols-[1.12fr_0.88fr]">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                    {schedule.map((item) => {
-                      const isActive = item.day === activeDay;
-                      return (
-                        <button
-                          key={item.day}
-                          type="button"
-                          onClick={() => onSelectDay(item.day)}
-                          className={`rounded-xl border px-4 py-3 text-left transition ${
-                            isActive
-                              ? 'border-cyan-400/30 bg-cyan-400/10'
-                              : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
-                          }`}
-                        >
-                          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
-                          <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
-                          <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {selectedDay && (
-                    <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-xs uppercase tracking-widest text-cyan-400">Dia ativo</p>
-                      <h4 className="mt-2 text-lg font-bold text-white">
-                        {selectedDay.day} - {selectedDay.owner}
-                      </h4>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-300">{selectedDay.output}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo do ciclo</p>
-                  <div className="mt-4 space-y-3">
-                    {workflow.map((agent, index) => {
-                      const response = responses.find((item) => item.item_id === agent.id);
-                      return (
-                        <div key={agent.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-semibold text-white">
-                                {index + 1}. {agent.name}
-                              </p>
-                              <p className="mt-1 text-xs text-slate-500">{agent.goal}</p>
-                            </div>
-                            <StatusPill tone={response ? 'emerald' : 'slate'}>{response ? 'ok' : 'pendente'}</StatusPill>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : activeSection === 'interacao' ? (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Dashboard de interacao</p>
-                  <h3 className="mt-2 text-xl font-bold text-white">Cliques, logs e confirmacoes</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    Veja o que foi salvo, o que foi publicado e onde houve acao de usuario.
-                  </p>
-                </div>
-                <StatusPill tone="slate">
-                  {activityLog.length} logs · {clicks.length} cliques
-                </StatusPill>
-              </div>
-
-              <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-                <ClicksPanel clicks={clicks} />
-                <ActivityLogPanel entries={activityLog} />
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Agente em foco</p>
-                  <h3 className="mt-2 text-xl font-bold text-white">
-                    {activeAgent ? activeAgent.name : 'Agente'}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{activeAgent?.goal}</p>
                 </div>
                 <StatusPill tone={activeResponse ? 'emerald' : 'cyan'}>
-                  {activeResponse ? 'resposta carregada' : 'aguardando execucao'}
+                  {activeResponse ? 'resposta carregada' : 'aguardando execução'}
                 </StatusPill>
               </div>
+
+              <ToolRoutingBoard
+                affiliateItems={toolAffiliateItems}
+                ebookItems={toolEbookItems}
+                localMode={toolLocalMode}
+                onSaved={onToolSaved}
+              />
 
               <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
                 <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
                   <div className="flex flex-wrap gap-2">
-                    <StatusPill tone="cyan">Tela do agente</StatusPill>
+                    <StatusPill tone="cyan">Agente em foco</StatusPill>
                     <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
-                      {activeResponse ? 'saida disponivel' : 'aguardando geracao'}
+                      {activeResponse ? 'saída disponível' : 'aguardando geração'}
                     </StatusPill>
                     <StatusPill tone="slate">
-                      Proxima: {nextAgent?.name || 'fim da fila'}
+                      Próxima: {nextAgent?.name || 'fim da fila'}
                     </StatusPill>
                   </div>
 
@@ -1064,7 +1077,7 @@ function AgentWorkspace({
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                       <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa anterior</p>
-                      <p className="mt-2 text-sm font-semibold text-white">{previousAgent?.name || 'inicio da fila'}</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{previousAgent?.name || 'início da fila'}</p>
                     </div>
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                       <p className="text-xs uppercase tracking-widest text-cyan-400">Próxima etapa</p>
@@ -1073,7 +1086,7 @@ function AgentWorkspace({
                   </div>
 
                   <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                    <p className="text-xs uppercase tracking-widest text-emerald-300">Quando avanca</p>
+                    <p className="text-xs uppercase tracking-widest text-emerald-300">Quando avança</p>
                     <p className="mt-2 text-sm leading-relaxed text-slate-300">
                       Este agente entra agora. Depois dele, a fila libera {nextAgent?.name || 'o final do ciclo'}.
                     </p>
@@ -1086,7 +1099,7 @@ function AgentWorkspace({
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                       <p className="text-sm font-semibold text-white">Estado da fila</p>
                       <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                        O processo anda um agente por vez. As demais etapas ficam visiveis, mas não entram antes da vez.
+                        O processo anda um agente por vez. As demais etapas ficam visíveis, mas não entram antes da vez.
                       </p>
                     </div>
 
@@ -1119,6 +1132,81 @@ function AgentWorkspace({
                   </div>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Gerenciamento</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">Publicação, fila e cronograma</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                    Aqui ficam os blocos que alimentam o site e a revisão antes da publicação.
+                  </p>
+                </div>
+                <StatusPill tone="slate">
+                  {activityLog.length} logs · {clicks.length} cliques
+                </StatusPill>
+              </div>
+
+              <ContentLabPanel
+                affiliateItems={contentAffiliateItems}
+                ebookItems={contentEbookItems}
+                newsItems={newsItems}
+                localMode={contentLocalMode}
+                refreshSignal={contentRefreshSignal}
+                onAction={onContentAction}
+              />
+
+              <NewsOutputPanel items={newsItems} />
+
+              <NewsReviewPanel items={newsItems} onReview={onReviewNews} reviewing={reviewingNews} />
+
+              <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-cyan-400">Cronograma</p>
+                    <h3 className="mt-2 text-xl font-bold text-white">Sequência operacional</h3>
+                  </div>
+                  <StatusPill tone="slate">{schedule.length} dias</StatusPill>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                  {schedule.map((item) => (
+                    <button
+                      key={item.day}
+                      type="button"
+                      onClick={() => onSelectDay(item.day)}
+                      className={`rounded-xl border px-4 py-3 text-left transition ${
+                        item.day === activeDay
+                          ? 'border-cyan-400/30 bg-cyan-400/10'
+                          : 'border-white/10 bg-slate-950/45 hover:border-white/20 hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
+                      <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
+                      <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-300">
+                  {selectedDay ? (
+                    <>
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">Dia ativo</p>
+                      <p className="mt-2 font-semibold text-white">
+                        {selectedDay.day} - {selectedDay.owner}
+                      </p>
+                      <p className="mt-2 leading-relaxed text-slate-300">{selectedDay.output}</p>
+                    </>
+                  ) : (
+                    <p className="text-slate-500">Nenhum dia selecionado.</p>
+                  )}
+                </div>
+              </section>
+
+              <ClicksPanel clicks={clicks} />
+              <ActivityLogPanel entries={activityLog} />
             </div>
           )}
         </div>
@@ -1628,51 +1716,27 @@ function AdminPage() {
           schedule={agentScheduleSafe}
           clicks={clicks}
           activityLog={activityLog}
+          toolAffiliateItems={affiliateToolsSafe}
+          toolEbookItems={ebookToolsSafe}
+          toolLocalMode={Boolean(data.localPreview)}
+          onToolSaved={(entries) => {
+            appendActivityLog(entries);
+            setContentRefreshKey((value) => value + 1);
+          }}
+          contentAffiliateItems={affiliateToolsSafe}
+          contentEbookItems={ebookToolsSafe}
+          newsItems={newsItems}
+          contentLocalMode={Boolean(data.localPreview)}
+          contentRefreshSignal={contentRefreshKey}
+          onContentAction={appendActivityLog}
+          onReviewNews={reviewNews}
+          reviewingNews={reviewingNews}
           onRun={runAgent}
           running={running}
           activeDay={selectedWeekday}
           onSelectDay={setSelectedWeekday}
         />
       )}
-
-      <ToolRoutingBoard
-        affiliateItems={affiliateToolsSafe}
-        ebookItems={ebookToolsSafe}
-        localMode={Boolean(data.localPreview)}
-        onSaved={(entries) => {
-          appendActivityLog(entries);
-          setContentRefreshKey((value) => value + 1);
-        }}
-      />
-
-      <ContentLabPanel
-        affiliateItems={affiliateToolsSafe}
-        ebookItems={ebookToolsSafe}
-        newsItems={newsItems}
-        localMode={Boolean(data.localPreview)}
-        refreshSignal={contentRefreshKey}
-        onAction={appendActivityLog}
-      />
-
-      <NewsOutputPanel items={newsItems} />
-
-      <NewsReviewPanel items={newsItems} onReview={reviewNews} reviewing={reviewingNews} />
-
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <h2 className="text-base font-bold text-white">Cronograma operacional</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {agentScheduleSafe.map((item) => (
-            <div key={item.day} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
-              <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
-              <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <ClicksPanel clicks={clicks} />
     </div>
   );
 }
