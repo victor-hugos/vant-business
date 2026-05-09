@@ -155,7 +155,7 @@ function BlogPage() {
                   Últimas notícias de IA
                 </span>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
-                  Curadoria aprovada no admin
+                  Curadoria liberada no admin
                 </span>
               </div>
 
