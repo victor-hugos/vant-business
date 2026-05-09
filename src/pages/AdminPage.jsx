@@ -7,6 +7,7 @@ import AdminOverviewScreen from '../components/AdminOverviewScreen.jsx';
 const localAuthKey = 'vant_admin_local_auth';
 const localNewsStatusesKey = 'vant_admin_news_statuses';
 const localContentDraftStatusKey = 'vant_admin_content_draft_statuses';
+const localAgentReviewsKey = 'vant_admin_agent_reviews';
 
 const localAgentWorkflow = [
   {
@@ -86,6 +87,18 @@ function saveLocalContentDraftStatuses(statuses) {
   window.localStorage.setItem(localContentDraftStatusKey, JSON.stringify(statuses));
 }
 
+function readLocalAgentReviews() {
+  try {
+    return JSON.parse(window.localStorage.getItem(localAgentReviewsKey) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalAgentReviews(reviews) {
+  window.localStorage.setItem(localAgentReviewsKey, JSON.stringify(reviews));
+}
+
 function buildContentDrafts(affiliateItems, ebookItems) {
   const allTools = [...affiliateItems, ...ebookItems];
   const ebookDrafts = allTools.map((tool) => ({
@@ -162,6 +175,11 @@ const draftStatusStyles = {
   },
   'pronto para postar': {
     label: 'pronto para postar',
+    tone: 'emerald',
+    className: 'border-emerald-300/20 bg-emerald-300/10 text-emerald-100',
+  },
+  publicado: {
+    label: 'publicado',
     tone: 'emerald',
     className: 'border-emerald-300/20 bg-emerald-300/10 text-emerald-100',
   },
@@ -699,6 +717,478 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
   );
 }
 
+function PublishApprovalPanel({ affiliateItems, ebookItems, localMode, refreshSignal = 0, onAction }) {
+  const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
+  const [drafts, setDrafts] = useState(baseDrafts);
+  const [selectedDraftIds, setSelectedDraftIds] = useState([]);
+  const [loadingError, setLoadingError] = useState('');
+  const [publishing, setPublishing] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDrafts() {
+      if (localMode) {
+        const localStatuses = readLocalContentDraftStatuses();
+        const localDrafts = baseDrafts.map((draft) => ({
+          ...draft,
+          status: localStatuses[draft.id] || draft.status,
+        }));
+
+        if (!cancelled) {
+          setDrafts(localDrafts);
+          setLoadingError('');
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin-content-drafts', { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Falha ao carregar fila de publicação');
+        }
+
+        const payload = await response.json();
+        if (!cancelled) {
+          setDrafts(payload.items || baseDrafts);
+          setLoadingError('');
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLoadingError(error.message);
+          setDrafts(baseDrafts);
+        }
+      }
+    }
+
+    loadDrafts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [baseDrafts, localMode, refreshSignal]);
+
+  const readyDrafts = drafts.filter(
+    (draft) => draft.status === 'pronto para postar' || draft.status === 'publicado'
+  );
+  const selectedDrafts = readyDrafts.filter((draft) => selectedDraftIds.includes(draft.id));
+
+  function toggleDraft(draftId) {
+    setSelectedDraftIds((current) =>
+      current.includes(draftId) ? current.filter((item) => item !== draftId) : [...current, draftId]
+    );
+  }
+
+  async function publishSelected() {
+    if (!selectedDrafts.length) return;
+
+    setPublishing(true);
+    const logEntries = [];
+
+    try {
+      for (const draft of selectedDrafts) {
+        if (localMode) {
+          const nextStatuses = { ...readLocalContentDraftStatuses(), [draft.id]: 'publicado' };
+          saveLocalContentDraftStatuses(nextStatuses);
+          logEntries.push(`Liberado para publicar no site: ${draft.title}`);
+          continue;
+        }
+
+        const response = await fetch('/api/admin-content-drafts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ draft, status: 'publicado' }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Falha ao publicar ${draft.title}`);
+        }
+
+        logEntries.push(`Liberado para publicar no site: ${draft.title}`);
+      }
+
+      setDrafts((current) =>
+        current.map((item) => (selectedDraftIds.includes(item.id) ? { ...item, status: 'publicado' } : item))
+      );
+      setSelectedDraftIds([]);
+      onAction?.(logEntries);
+    } catch (error) {
+      setLoadingError(error.message);
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Avaliação</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Fila final de publicação</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Selecione os ebooks e roteiros já aprovados para enviar ao site.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusPill tone="emerald">{readyDrafts.length} prontos</StatusPill>
+          <StatusPill tone="cyan">{selectedDraftIds.length} selecionados</StatusPill>
+        </div>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa 1</p>
+          <p className="mt-2 text-sm font-semibold text-white">Escolher itens aprovados</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Aqui entram somente itens prontos para publicação.</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa 2</p>
+          <p className="mt-2 text-sm font-semibold text-white">Marcar com checkbox</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Selecione um ou vários itens para o site.</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa 3</p>
+          <p className="mt-2 text-sm font-semibold text-white">Aprovar e publicar</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">O comando confirma o que entra no ar.</p>
+        </div>
+      </div>
+
+      {loadingError && (
+        <p className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+          {loadingError}
+        </p>
+      )}
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Itens prontos</p>
+            <StatusPill tone="slate">{readyDrafts.length}</StatusPill>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {readyDrafts.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
+                Nenhum ebook ou roteiro aprovado ainda.
+              </p>
+            ) : (
+              readyDrafts.map((draft) => {
+                const isSelected = selectedDraftIds.includes(draft.id);
+
+                return (
+                  <label
+                    key={draft.id}
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                      isSelected
+                        ? 'border-cyan-400/30 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleDraft(draft.id)}
+                      className="mt-1 h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-white">{draft.title}</p>
+                        <StatusPill tone={draft.kind === 'ebook' ? 'cyan' : 'emerald'}>
+                          {draft.kind === 'ebook' ? 'ebook' : 'roteiro'}
+                        </StatusPill>
+                        <StatusPill tone="slate">{draft.sourceName}</StatusPill>
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-400">{draft.summary}</p>
+                      <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
+                        Pronto para subir no site
+                      </p>
+                    </div>
+                  </label>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Publicação final</p>
+          <h3 className="mt-2 text-lg font-bold text-white">Confirmar o que entra no ar</h3>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Depois da seleção, você confirma a publicação e o item fica liberado para o site.
+          </p>
+
+          <div className="mt-4 space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-sm font-semibold text-white">Selecionados</p>
+            {selectedDrafts.length === 0 ? (
+              <p className="text-sm text-slate-500">Nenhum item escolhido ainda.</p>
+            ) : (
+              selectedDrafts.map((draft) => (
+                <div key={draft.id} className="rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2">
+                  <p className="text-sm text-white">{draft.title}</p>
+                  <p className="mt-1 text-xs text-slate-500">{draft.sourceName}</p>
+                </div>
+              ))
+            )}
+          </div>
+
+          <button
+            type="button"
+            disabled={!selectedDrafts.length || publishing}
+            onClick={publishSelected}
+            className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {publishing ? 'Publicando...' : 'Aprovar e publicar no site'}
+          </button>
+
+          <p className="mt-4 text-xs leading-relaxed text-slate-500">
+            O painel confirma quais peças vão para o site antes da publicação.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AgentManagementPanel({
+  workflow = [],
+  responses = [],
+  schedule = [],
+  activeDay,
+  onSelectDay,
+  onRun,
+  running,
+  activityLog = [],
+  onLog,
+}) {
+  const [activeAgentId, setActiveAgentId] = useState(workflow[0]?.id || '');
+  const [reviews, setReviews] = useState(() => readLocalAgentReviews());
+
+  useEffect(() => {
+    if (workflow.length > 0 && !workflow.some((agent) => agent.id === activeAgentId)) {
+      setActiveAgentId(workflow[0].id);
+    }
+  }, [workflow, activeAgentId]);
+
+  useEffect(() => {
+    setReviews(readLocalAgentReviews());
+  }, []);
+
+  const activeAgent = workflow.find((agent) => agent.id === activeAgentId) || workflow[0];
+  const activeResponse = responses.find((item) => item.item_id === activeAgentId);
+  const activeIndex = workflow.findIndex((agent) => agent.id === activeAgentId);
+  const nextAgent = workflow[activeIndex + 1] || null;
+  const selectedDay = schedule.find((item) => item.day === activeDay) || schedule[0];
+  const review = reviews[activeAgentId] || {
+    outcome: 'bom',
+    notes: '',
+    nextStep: activeResponse?.payload?.nextStep || '',
+  };
+
+  function updateReview(field, value) {
+    setReviews((current) => {
+      const next = {
+        ...current,
+        [activeAgentId]: {
+          ...(current[activeAgentId] || review),
+          [field]: value,
+        },
+      };
+      saveLocalAgentReviews(next);
+      return next;
+    });
+  }
+
+  function saveReview() {
+    const selected = reviews[activeAgentId] || review;
+    const outcomeLabel = selected.outcome === 'refazer' ? 'deve ser refeito' : 'bem feito';
+    const nextStepLabel = selected.nextStep?.trim() || activeResponse?.payload?.nextStep || 'sem próximo passo';
+    onLog?.(
+      `Revisão salva: ${activeAgent?.name} · ${outcomeLabel} · próximo passo: ${nextStepLabel}`
+    );
+  }
+
+  const currentLogCount = activityLog.length;
+
+  return (
+    <section className="space-y-4">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Cronograma</p>
+            <h3 className="mt-2 text-xl font-bold text-white">Primeiro elemento da tela</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              O cronograma abre a área de gerenciamento e orienta a ordem dos agentes.
+            </p>
+          </div>
+          <StatusPill tone="slate">{schedule.length} dias</StatusPill>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {schedule.map((item) => (
+            <button
+              key={item.day}
+              type="button"
+              onClick={() => onSelectDay(item.day)}
+              className={`rounded-xl border px-4 py-3 text-left transition ${
+                item.day === activeDay
+                  ? 'border-cyan-400/30 bg-cyan-400/10'
+                  : 'border-white/10 bg-slate-950/45 hover:border-white/20 hover:bg-white/[0.04]'
+              }`}
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
+              <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
+              <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
+              <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Gerenciamento</p>
+            <h3 className="mt-2 text-xl font-bold text-white">Agentes, execução e revisão</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              Clique em um agente, rode a execução e marque o que ficou bom ou o que precisa ser refeito.
+            </p>
+          </div>
+          <StatusPill tone={activeResponse ? 'emerald' : 'cyan'}>
+            {activeResponse ? 'resposta disponível' : 'aguardando execução'}
+          </StatusPill>
+        </div>
+
+        <div className="mt-5 grid gap-4 xl:grid-cols-[0.86fr_1.14fr]">
+          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Agentes</p>
+            <div className="mt-4 space-y-2">
+              {workflow.map((agent, index) => {
+                const response = responses.find((item) => item.item_id === agent.id);
+                return (
+                  <button
+                    key={agent.id}
+                    type="button"
+                    onClick={() => setActiveAgentId(agent.id)}
+                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                      activeAgentId === agent.id
+                        ? 'border-cyan-400/30 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {index + 1}. {agent.name}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-slate-500">{agent.goal}</p>
+                        <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
+                          Próxima: {workflow[index + 1]?.name || 'fim da fila'}
+                        </p>
+                      </div>
+                      <StatusPill tone={response ? 'emerald' : 'slate'}>
+                        {response ? 'respondido' : 'pendente'}
+                      </StatusPill>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+            <div className="flex flex-wrap gap-2">
+              <StatusPill tone="cyan">Agente em foco</StatusPill>
+              <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
+                {activeResponse ? 'saída carregada' : 'aguardando geração'}
+              </StatusPill>
+              <StatusPill tone="slate">Próxima: {nextAgent?.name || 'fim da fila'}</StatusPill>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-xs uppercase tracking-widest text-cyan-400">O que este agente faz</p>
+              <h4 className="mt-2 text-lg font-bold text-white">{activeAgent?.name}</h4>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeAgent?.goal}</p>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-xs uppercase tracking-widest text-cyan-400">Execução</p>
+              {activeResponse?.payload ? (
+                <>
+                  <p className="mt-2 text-sm font-semibold text-white">{activeResponse.payload.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-emerald-100">
+                    Próximo passo sugerido: {activeResponse.payload.nextStep}
+                  </p>
+                  <p className="mt-3 text-xs text-slate-500">
+                    Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
+                  </p>
+                </>
+              ) : (
+                <p className="mt-2 text-sm text-slate-500">
+                  Nenhuma saída registrada ainda. Ative este agente para gerar a primeira resposta.
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-xs uppercase tracking-widest text-cyan-400">Revisão</p>
+              <div className="mt-3 grid gap-3">
+                <label className="flex items-center gap-3 text-sm text-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={review.outcome === 'bom'}
+                    onChange={(event) => updateReview('outcome', event.target.checked ? 'bom' : 'refazer')}
+                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                  />
+                  Foi bem feito
+                </label>
+                <label className="flex items-center gap-3 text-sm text-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={review.outcome === 'refazer'}
+                    onChange={(event) => updateReview('outcome', event.target.checked ? 'refazer' : 'bom')}
+                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                  />
+                  Deve ser refeito
+                </label>
+
+                <div>
+                  <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">
+                    Próximo passo
+                  </label>
+                  <textarea
+                    value={review.nextStep || ''}
+                    onChange={(event) => updateReview('nextStep', event.target.value)}
+                    rows={4}
+                    className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                    placeholder="Descreva o próximo passo do fluxo"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={saveReview}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+              >
+                Salvar revisão
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo sugerido</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">
+            {activeResponse?.payload?.nextStep || 'Execute o agente selecionado para ver o próximo passo do fluxo.'}
+          </p>
+        </div>
+      </section>
+    </section>
+  );
+}
+
 function ActivityLogPanel({ entries }) {
   return (
     <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
@@ -846,7 +1336,7 @@ function AdminSidebar({
       id: 'gerenciamento',
       label: 'Gerenciamento',
       hint: 'Publicação e revisão',
-      description: 'Publicação, fila de avaliação, notícias, cronograma e interação.',
+      description: 'Cronograma, agentes, resposta executada, revisão e próximo passo do fluxo.',
     },
   ];
 
@@ -1002,8 +1492,6 @@ function AgentWorkspace({
   toolEbookItems = [],
   toolLocalMode = false,
   onToolSaved,
-  contentAffiliateItems = [],
-  contentEbookItems = [],
   newsItems = [],
   contentLocalMode = false,
   contentRefreshSignal = 0,
@@ -1059,9 +1547,30 @@ function AgentWorkspace({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-cyan-400">Avaliação</p>
-                  <h3 className="mt-2 text-xl font-bold text-white">Tela de cada agente</h3>
+                  <h3 className="mt-2 text-xl font-bold text-white">Fila final de publicação</h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    Cada agente tem sua própria tela. A lateral mostra a fila e a próxima etapa.
+                    Aqui ficam os ebooks e roteiros já aprovados. Marque o que vai para o site e publique em lote.
+                  </p>
+                </div>
+                <StatusPill tone="emerald">itens prontos para publicar</StatusPill>
+              </div>
+
+              <PublishApprovalPanel
+                affiliateItems={toolAffiliateItems}
+                ebookItems={toolEbookItems}
+                localMode={toolLocalMode}
+                refreshSignal={contentRefreshSignal}
+                onAction={onToolSaved}
+              />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Gerenciamento</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">Cronograma e agentes</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                    O cronograma vem primeiro. Depois cada agente abre sua tela com saída, revisão e próximo passo.
                   </p>
                 </div>
                 <StatusPill tone={activeResponse ? 'emerald' : 'cyan'}>
@@ -1069,160 +1578,17 @@ function AgentWorkspace({
                 </StatusPill>
               </div>
 
-              <ToolRoutingBoard
-                affiliateItems={toolAffiliateItems}
-                ebookItems={toolEbookItems}
-                localMode={toolLocalMode}
-                onSaved={onToolSaved}
+              <AgentManagementPanel
+                workflow={workflow}
+                responses={responses}
+                schedule={schedule}
+                activeDay={activeDay}
+                onSelectDay={onSelectDay}
+                onRun={onRun}
+                running={running}
+                activityLog={activityLog}
+                onLog={onContentAction}
               />
-
-              <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <div className="flex flex-wrap gap-2">
-                    <StatusPill tone="cyan">Agente em foco</StatusPill>
-                    <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
-                      {activeResponse ? 'saída disponível' : 'aguardando geração'}
-                    </StatusPill>
-                    <StatusPill tone="slate">
-                      Próxima: {nextAgent?.name || 'fim da fila'}
-                    </StatusPill>
-                  </div>
-
-                  <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                    <p className="text-xs uppercase tracking-widest text-cyan-400">Resumo do agente</p>
-                    <h4 className="mt-2 text-lg font-bold text-white">{activeAgent?.name}</h4>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeAgent?.goal}</p>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa anterior</p>
-                      <p className="mt-2 text-sm font-semibold text-white">{previousAgent?.name || 'início da fila'}</p>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-xs uppercase tracking-widest text-cyan-400">Próxima etapa</p>
-                      <p className="mt-2 text-sm font-semibold text-white">{nextAgent?.name || 'nenhuma etapa pendente'}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                    <p className="text-xs uppercase tracking-widest text-emerald-300">Quando avança</p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                      Este agente entra agora. Depois dele, a fila libera {nextAgent?.name || 'o final do ciclo'}.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Controle da etapa</p>
-                  <div className="mt-3 space-y-3">
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-sm font-semibold text-white">Estado da fila</p>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                        O processo anda um agente por vez. As demais etapas ficam visíveis, mas não entram antes da vez.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={running === activeAgent?.id}
-                      onClick={() => activeAgent && onRun(activeAgent.id)}
-                      className="inline-flex w-full items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.03] disabled:text-slate-600"
-                    >
-                      {running === activeAgent?.id ? 'Executando...' : activeResponse ? 'Reexecutar agente' : 'Ativar agente'}
-                    </button>
-
-                    {activeResponse?.payload ? (
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                        <p className="text-xs uppercase tracking-widest text-cyan-400">Saída atual</p>
-                        <h5 className="mt-2 text-sm font-semibold text-white">{activeResponse.payload.title}</h5>
-                        <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
-                        <p className="mt-3 text-sm leading-relaxed text-emerald-100">
-                          {activeResponse.payload.nextStep}
-                        </p>
-                        <p className="mt-3 text-xs text-slate-500">
-                          Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
-                        Nenhuma saída registrada ainda. Ative este agente para gerar a primeira resposta.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Gerenciamento</p>
-                  <h3 className="mt-2 text-xl font-bold text-white">Publicação, fila e cronograma</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    Aqui ficam os blocos que alimentam o site e a revisão antes da publicação.
-                  </p>
-                </div>
-                <StatusPill tone="slate">
-                  {activityLog.length} logs · {clicks.length} cliques
-                </StatusPill>
-              </div>
-
-              <ContentLabPanel
-                affiliateItems={contentAffiliateItems}
-                ebookItems={contentEbookItems}
-                newsItems={newsItems}
-                localMode={contentLocalMode}
-                refreshSignal={contentRefreshSignal}
-                onAction={onContentAction}
-              />
-
-              <NewsOutputPanel items={newsItems} />
-              <NewsReviewPanel items={newsItems} onReview={onReviewNews} reviewing={reviewingNews} />
-
-              <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-cyan-400">Cronograma</p>
-                    <h3 className="mt-2 text-xl font-bold text-white">Sequência operacional</h3>
-                  </div>
-                  <StatusPill tone="slate">{schedule.length} dias</StatusPill>
-                </div>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                  {schedule.map((item) => (
-                    <button
-                      key={item.day}
-                      type="button"
-                      onClick={() => onSelectDay(item.day)}
-                      className={`rounded-xl border px-4 py-3 text-left transition ${
-                        item.day === activeDay
-                          ? 'border-cyan-400/30 bg-cyan-400/10'
-                          : 'border-white/10 bg-slate-950/45 hover:border-white/20 hover:bg-white/[0.04]'
-                      }`}
-                    >
-                      <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
-                      <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
-                      <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
-                      <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-300">
-                  {selectedDay ? (
-                    <>
-                      <p className="text-xs uppercase tracking-widest text-cyan-400">Dia ativo</p>
-                      <p className="mt-2 font-semibold text-white">
-                        {selectedDay.day} - {selectedDay.owner}
-                      </p>
-                      <p className="mt-2 leading-relaxed text-slate-300">{selectedDay.output}</p>
-                    </>
-                  ) : (
-                    <p className="text-slate-500">Nenhum dia selecionado.</p>
-                  )}
-                </div>
-              </section>
 
               <ClicksPanel clicks={clicks} />
               <ActivityLogPanel entries={activityLog} />
