@@ -43,14 +43,24 @@ function safeEqual(left = '', right = '') {
   return crypto.timingSafeEqual(leftHash, rightHash);
 }
 
-export function verifyAdminCredentials(email, password) {
-  const expectedEmail = process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL;
-  const expectedPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_ACCESS_CODE || DEFAULT_ADMIN_PASSWORD;
-
+function credentialsMatch(email, password, expectedEmail, expectedPassword) {
   return (
-    String(email || '').trim().toLowerCase() === expectedEmail.trim().toLowerCase() &&
-    safeEqual(String(password || ''), expectedPassword)
+    String(email || '').trim().toLowerCase() === String(expectedEmail || '').trim().toLowerCase() &&
+    safeEqual(String(password || ''), String(expectedPassword || ''))
   );
+}
+
+export function verifyAdminCredentials(email, password) {
+  const configuredEmail = process.env.ADMIN_EMAIL;
+  const configuredPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_ACCESS_CODE;
+
+  const defaultMatch = credentialsMatch(email, password, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD);
+  const configuredMatch =
+    configuredEmail && configuredPassword
+      ? credentialsMatch(email, password, configuredEmail, configuredPassword)
+      : false;
+
+  return defaultMatch || configuredMatch;
 }
 
 export function isAdminRequest(req) {
