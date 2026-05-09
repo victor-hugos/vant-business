@@ -102,3 +102,26 @@ create index if not exists ai_news_items_published_at_idx on ai_news_items (publ
 alter table ai_news_items enable row level security;
 drop policy if exists "service only" on ai_news_items;
 create policy "service only" on ai_news_items using (false) with check (false);
+
+create table if not exists ai_content_drafts (
+  id text primary key,
+  draft_type text not null,
+  source_id text not null,
+  source_name text not null,
+  title text not null,
+  audience text,
+  summary text,
+  focus text,
+  outline jsonb default '[]'::jsonb,
+  status text not null default 'rascunho',
+  payload jsonb default '{}'::jsonb,
+  reviewed_at timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index if not exists ai_content_drafts_status_idx on ai_content_drafts (status);
+create index if not exists ai_content_drafts_draft_type_idx on ai_content_drafts (draft_type);
+alter table ai_content_drafts enable row level security;
+drop policy if exists "service only" on ai_content_drafts;
+create policy "service only" on ai_content_drafts using (false) with check (false);

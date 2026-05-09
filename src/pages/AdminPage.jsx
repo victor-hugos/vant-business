@@ -6,6 +6,7 @@ import AdminOverviewScreen from '../components/AdminOverviewScreen.jsx';
 
 const localAuthKey = 'vant_admin_local_auth';
 const localNewsStatusesKey = 'vant_admin_news_statuses';
+const localContentDraftStatusKey = 'vant_admin_content_draft_statuses';
 
 const localAgentWorkflow = [
   {
@@ -71,6 +72,348 @@ function readLocalNewsStatuses() {
 function saveLocalNewsStatus(newsId, status) {
   const current = readLocalNewsStatuses();
   window.localStorage.setItem(localNewsStatusesKey, JSON.stringify({ ...current, [newsId]: status }));
+}
+
+function readLocalContentDraftStatuses() {
+  try {
+    return JSON.parse(window.localStorage.getItem(localContentDraftStatusKey) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalContentDraftStatuses(statuses) {
+  window.localStorage.setItem(localContentDraftStatusKey, JSON.stringify(statuses));
+}
+
+function buildContentDrafts(affiliateItems, ebookItems) {
+  const ebookDrafts = ebookItems.map((tool) => ({
+    id: `ebook-${tool.id}`,
+    kind: 'ebook',
+    sourceId: tool.id,
+    sourceName: tool.name,
+    title: `Ebook: ${tool.name}`,
+    audience: tool.category,
+    summary: tool.nextOutput || tool.description,
+    outline: [
+      'Quem deve usar',
+      ...(tool.relevantInfo || []).slice(0, 3),
+      'CTA de captura com email',
+    ],
+    focus: 'Rascunho de ebook',
+    status: 'rascunho',
+  }));
+
+  const videoDrafts = affiliateItems.map((tool) => ({
+    id: `video-${tool.id}`,
+    kind: 'video',
+    sourceId: tool.id,
+    sourceName: tool.name,
+    title: `Roteiro de video: ${tool.name}`,
+    audience: tool.category,
+    summary: tool.nextOutput || tool.description,
+    outline: [
+      'Gancho de abertura',
+      'Problema que a ferramenta resolve',
+      'Demonstracao pratica',
+      'CTA com afiliado',
+    ],
+    focus: 'Roteiro de video para afiliado',
+    status: 'rascunho',
+  }));
+
+  return [...ebookDrafts, ...videoDrafts];
+}
+
+const draftStatusStyles = {
+  rascunho: {
+    label: 'rascunho',
+    tone: 'slate',
+    className: 'border-white/10 bg-white/[0.04] text-slate-300',
+  },
+  'em revisao': {
+    label: 'em revisao',
+    tone: 'amber',
+    className: 'border-amber-300/20 bg-amber-300/10 text-amber-100',
+  },
+  'pronto para postar': {
+    label: 'pronto para postar',
+    tone: 'emerald',
+    className: 'border-emerald-300/20 bg-emerald-300/10 text-emerald-100',
+  },
+};
+
+function formatDraftStatus(status) {
+  return draftStatusStyles[status] || draftStatusStyles.rascunho;
+}
+
+function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
+  const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
+  const [selectedDraftId, setSelectedDraftId] = useState(null);
+  const [drafts, setDrafts] = useState(baseDrafts);
+  const [draftWarnings, setDraftWarnings] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDrafts() {
+      if (localMode) {
+        const localStatuses = readLocalContentDraftStatuses();
+        const localDrafts = baseDrafts.map((draft) => ({
+          ...draft,
+          status: localStatuses[draft.id] || draft.status,
+        }));
+
+        if (!cancelled) {
+          setDrafts(localDrafts);
+          setDraftWarnings([]);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin-content-drafts', { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Falha ao carregar rascunhos do servidor');
+        }
+
+        const payload = await response.json();
+        if (!cancelled) {
+          setDrafts(payload.items || baseDrafts);
+          setDraftWarnings(payload.warnings || []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setDraftWarnings([error.message]);
+          setDrafts(baseDrafts);
+        }
+      }
+    }
+
+    loadDrafts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [baseDrafts, localMode]);
+
+  useEffect(() => {
+    if (!drafts.length) {
+      setSelectedDraftId(null);
+      return;
+    }
+
+    setSelectedDraftId((current) => {
+      if (current && drafts.some((draft) => draft.id === current)) {
+        return current;
+      }
+      return drafts[0].id;
+    });
+  }, [drafts]);
+
+  const selectedDraft = drafts.find((draft) => draft.id === selectedDraftId) || drafts[0] || null;
+  const ebookDrafts = drafts.filter((draft) => draft.kind === 'ebook');
+  const videoDrafts = drafts.filter((draft) => draft.kind === 'video');
+  const pendingNews = (newsItems || []).filter((item) => item.status === 'aguardando_avaliacao');
+  const approvedNews = (newsItems || []).filter((item) => item.status === 'aprovada' || item.status === 'approved');
+
+  async function updateDraftStatus(draft, status) {
+    if (localMode) {
+      const nextStatuses = { ...readLocalContentDraftStatuses(), [draft.id]: status };
+      saveLocalContentDraftStatuses(nextStatuses);
+      setDrafts((current) => current.map((item) => (item.id === draft.id ? { ...item, status } : item)));
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin-content-drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ draft, status }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Nao foi possivel salvar o rascunho');
+      }
+
+      const payload = await response.json();
+      setDrafts((current) => current.map((item) => (item.id === draft.id ? payload.item : item)));
+      setDraftWarnings([]);
+    } catch (error) {
+      setDraftWarnings([error.message]);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Bancada de conteudo</p>
+          <h2 className="mt-2 text-xl font-bold text-white">O que o agente criou antes de publicar</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Aqui voce revisa ebooks, roteiros e noticias em estado bruto. Nada segue adiante sem sua leitura.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2">
+            <p className="text-lg font-bold text-cyan-100">{ebookDrafts.length}</p>
+            <p className="text-[11px] text-cyan-100/70">Ebooks</p>
+          </div>
+          <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
+            <p className="text-lg font-bold text-emerald-100">{videoDrafts.length}</p>
+            <p className="text-[11px] text-emerald-100/70">Roteiros</p>
+          </div>
+          <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2">
+            <p className="text-lg font-bold text-amber-100">{pendingNews.length}</p>
+            <p className="text-[11px] text-amber-100/70">Noticias pendentes</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 rounded-xl border border-white/10 bg-slate-950/45 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Fila de noticias</p>
+            <h3 className="mt-1 text-sm font-semibold text-white">Separacao entre o que entra e o que ainda falta avaliar</h3>
+          </div>
+          <StatusPill tone={pendingNews.length > 0 ? 'amber' : 'emerald'}>
+            {pendingNews.length > 0 ? `${pendingNews.length} aguardando` : 'sem pendencias'}
+          </StatusPill>
+        </div>
+
+        {pendingNews.length === 0 ? (
+          <p className="mt-4 text-sm text-slate-500">Nenhuma noticia aguardando avaliacao neste momento.</p>
+        ) : (
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {pendingNews.slice(0, 4).map((item) => (
+              <div key={item.id} className="rounded-xl border border-white/10 bg-slate-950/60 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{item.titlePt || item.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">{item.source || 'fonte nao informada'}</p>
+                  </div>
+                  <StatusPill tone="amber">{item.status}</StatusPill>
+                </div>
+                {item.summaryPt && <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.summaryPt}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {approvedNews.length > 0 && (
+          <p className="mt-4 text-xs text-emerald-300">
+            {approvedNews.length} noticias ja podem ser publicadas na area publica e no email diario.
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-cyan-400">Conteudos gerados</p>
+              <h3 className="mt-1 text-sm font-semibold text-white">Ebooks e roteiros</h3>
+            </div>
+            <StatusPill tone="slate">{drafts.length} itens</StatusPill>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {drafts.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
+                Nenhum rascunho gerado ainda.
+              </p>
+            ) : (
+              drafts.map((draft) => {
+                const current = formatDraftStatus(draft.status);
+                const active = selectedDraft?.id === draft.id;
+
+                return (
+                  <button
+                    key={draft.id}
+                    type="button"
+                    onClick={() => setSelectedDraftId(draft.id)}
+                    className={`w-full rounded-xl border p-4 text-left transition ${
+                      active
+                        ? 'border-cyan-400/40 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{draft.title}</p>
+                        <p className="mt-1 text-xs text-slate-500">{draft.audience}</p>
+                      </div>
+                      <StatusPill tone={current.tone}>{current.label}</StatusPill>
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-slate-400">{draft.summary}</p>
+                    <p className="mt-3 text-[11px] uppercase tracking-widest text-cyan-300">{draft.focus}</p>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          {selectedDraft ? (
+            <>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Previa do conteudo</p>
+                  <h3 className="mt-1 text-lg font-bold text-white">{selectedDraft.title}</h3>
+                  <p className="mt-1 text-xs text-slate-500">{selectedDraft.audience}</p>
+                </div>
+                <StatusPill tone={formatDraftStatus(selectedDraft.status).tone}>
+                  {formatDraftStatus(selectedDraft.status).label}
+                </StatusPill>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm leading-relaxed text-slate-300">{selectedDraft.summary}</p>
+              </div>
+
+              <div className="mt-4">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Estrutura sugerida</p>
+                <ul className="mt-3 space-y-2">
+                  {selectedDraft.outline.map((step) => (
+                    <li key={step} className="rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-300">
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-5 grid gap-2 sm:grid-cols-3">
+                {Object.entries(draftStatusStyles).map(([status, meta]) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => updateDraftStatus(selectedDraft, status)}
+                    className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${meta.className}`}
+                  >
+                    {meta.label}
+                  </button>
+                ))}
+              </div>
+
+              <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                O status fica salvo para sua revisao. O conteudo so deve seguir para publicacao depois da aprovacao manual.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-slate-500">Selecione um rascunho para visualizar a previa.</p>
+          )}
+        </div>
+      </div>
+
+      {draftWarnings.length > 0 && (
+        <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+          {draftWarnings.join(' · ')}
+        </div>
+      )}
+    </section>
+  );
 }
 
 async function loadLocalNewsItems() {
@@ -611,6 +954,13 @@ function AdminPage() {
       </section>
 
       <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
+
+      <ContentLabPanel
+        affiliateItems={affiliateTools}
+        ebookItems={ebookTools}
+        newsItems={data.newsItems || []}
+        localMode={Boolean(data.localPreview)}
+      />
 
       <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
 
