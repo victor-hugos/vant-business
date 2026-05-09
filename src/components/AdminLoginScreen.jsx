@@ -1,7 +1,14 @@
 import { useState } from 'react';
 
+const localAdminEmail = 'admin@vant.business';
+const localAdminPassword = 'qwe123';
+
+function isLocalPreview() {
+  return ['localhost', '127.0.0.1'].includes(window.location.hostname);
+}
+
 function AdminLoginScreen({ onAuthenticated }) {
-  const [form, setForm] = useState({ email: 'admin@vant.business', password: '' });
+  const [form, setForm] = useState({ email: localAdminEmail, password: '' });
   const [status, setStatus] = useState('idle');
 
   function updateField(field, value) {
@@ -13,22 +20,30 @@ function AdminLoginScreen({ onAuthenticated }) {
     setStatus('loading');
 
     try {
-      const response = await fetch('/api/admin-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
-      });
+      if (isLocalPreview()) {
+        const email = form.email.trim().toLowerCase();
+        if (email !== localAdminEmail || form.password !== localAdminPassword) {
+          throw new Error('invalid-local-credentials');
+        }
 
-      if (!response.ok) {
-        throw new Error('invalid-credentials');
+        window.localStorage.setItem('vant_admin_local_auth', 'true');
+      } else {
+        const response = await fetch('/api/admin-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(form),
+        });
+
+        if (!response.ok) {
+          throw new Error('invalid-remote-credentials');
+        }
       }
 
       const result = await onAuthenticated();
       if (result === false) {
-        throw new Error('post-login-load-failed');
+        throw new Error('authentication-failed');
       }
-
       setStatus('idle');
     } catch {
       setStatus('error');
@@ -47,22 +62,37 @@ function AdminLoginScreen({ onAuthenticated }) {
                 <span className="block text-cyan-300">administrativo</span>
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Entre para abrir a visão geral do fluxo, acompanhar cliques, leads e o estado dos agentes.
+                Entre para abrir a fila dos agentes, aprovar notícias e acompanhar cliques.
+                A tela foi simplificada para evitar travamento e deixar o login previsível.
               </p>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">Agentes</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">Cliques</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">Emails</span>
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+                Agentes
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+                Notícias
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+                Cliques
+              </span>
             </div>
+
+            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-slate-500">
+              {isLocalPreview() ? 'Ambiente local com credenciais de teste' : 'Ambiente protegido por autenticação'}
+            </p>
           </div>
 
           <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5 shadow-2xl shadow-cyan-950/20 sm:p-6">
             <div className="mb-5">
               <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Login</p>
-              <h2 className="font-display mt-2 text-2xl font-bold text-white">Entre com sua conta</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">Use o email administrativo para abrir o painel.</p>
+              <h2 className="font-display mt-2 text-2xl font-bold text-white">
+                Entre com sua conta
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                Use o email administrativo para abrir o painel.
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -83,7 +113,9 @@ function AdminLoginScreen({ onAuthenticated }) {
                 className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
               />
 
-              {status === 'error' && <p className="text-xs text-red-300">Email ou senha inválidos.</p>}
+              {status === 'error' && (
+                <p className="text-xs text-red-300">Email ou senha inválidos.</p>
+              )}
 
               <button
                 type="submit"
@@ -92,6 +124,12 @@ function AdminLoginScreen({ onAuthenticated }) {
               >
                 {status === 'loading' ? 'Entrando...' : 'Acessar painel'}
               </button>
+
+              {isLocalPreview() && (
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  Teste local: <span className="text-slate-300">{localAdminEmail}</span> / <span className="text-slate-300">{localAdminPassword}</span>
+                </p>
+              )}
             </form>
           </div>
         </div>
