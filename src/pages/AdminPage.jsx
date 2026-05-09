@@ -551,15 +551,33 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-widest text-cyan-400">Bancada de conteudo</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Ebooks e roteiros prontos para revisao</h2>
+          <h2 className="mt-2 text-xl font-bold text-white">Publicacao em etapas</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            Escolha a fila, abra o rascunho e publique somente o que fizer sentido.
+            Selecione a fila, revise o rascunho e libere somente o que estiver pronto para o site.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusPill tone="cyan">{ebookDrafts.length} ebooks</StatusPill>
           <StatusPill tone="emerald">{videoDrafts.length} roteiros</StatusPill>
           <StatusPill tone="amber">{drafts.filter((item) => item.status === 'pronto para postar').length} prontos</StatusPill>
+        </div>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa 1</p>
+          <p className="mt-2 text-sm font-semibold text-white">Selecionar fila</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Escolha entre ebooks e roteiros para ver apenas um fluxo por vez.</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa 2</p>
+          <p className="mt-2 text-sm font-semibold text-white">Revisar a saida</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Abra um card, confira descricao, estrutura e status antes de agir.</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa 3</p>
+          <p className="mt-2 text-sm font-semibold text-white">Publicar no site</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Quando estiver pronto para postar, confirme a liberacao manualmente.</p>
         </div>
       </div>
 
@@ -664,7 +682,7 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
               <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-xs uppercase tracking-widest text-cyan-400">Como usar</p>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  Essa ideia já está separada pela fila certa. Agora você revisa o texto, marca o status e só então deixa subir para o site, notícias ou email.
+                  Primeiro a fila, depois a revisao e por ultimo a publicacao. Assim o fluxo fica controlado e cada conteudo entra no site na hora certa.
                 </p>
               </div>
 
@@ -806,57 +824,290 @@ function formatDate(date) {
   }).format(new Date(date));
 }
 
-function AgentRunner({ workflow, responses, onRun, running }) {
+function AgentWorkspace({
+  workflow,
+  responses,
+  schedule,
+  clicks,
+  activityLog,
+  onRun,
+  running,
+  activeDay,
+  onSelectDay,
+}) {
+  const [activeSection, setActiveSection] = useState(workflow[0]?.id || 'planejamento');
+
   const completed = new Set(responses.map((response) => response.item_id));
   const nextIndex = workflow.findIndex((agent) => !completed.has(agent.id));
   const allowedIndex = nextIndex === -1 ? workflow.length - 1 : nextIndex;
+  const agentButtons = workflow.map((agent, index) => {
+    const response = responses.find((item) => item.item_id === agent.id);
+
+    return {
+      id: agent.id,
+      name: agent.name,
+      goal: agent.goal,
+      index,
+      response,
+      locked: !response && index > allowedIndex,
+      status: response ? 'respondido' : index === allowedIndex ? 'proximo' : 'travado',
+    };
+  });
+
+  const activeAgent = workflow.find((agent) => agent.id === activeSection) || workflow[0];
+  const activeResponse = responses.find((item) => item.item_id === activeSection);
+  const selectedDay = schedule.find((item) => item.day === activeDay) || schedule[0];
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="mb-5">
-        <p className="text-xs uppercase tracking-widest text-cyan-400">Execucao sincronizada</p>
-        <h2 className="mt-2 text-xl font-bold text-white">Agentes separados por etapa</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Ative um agente, revise a resposta e so depois passe para o proximo.
-        </p>
-      </div>
-      <div className="grid gap-3 lg:grid-cols-2">
-        {workflow.map((agent, index) => {
-          const response = responses.find((item) => item.item_id === agent.id);
-          const disabled = running === agent.id || (!response && index > allowedIndex);
-          const payload = response?.payload;
+    <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+      <div className="grid lg:grid-cols-[280px_1fr]">
+        <aside className="border-b border-white/10 bg-slate-950/45 p-4 lg:border-b-0 lg:border-r">
+          <div className="mb-4">
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Bancada dos agentes</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Navegacao lateral</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              Abra um agente por vez, veja a saida e avance so quando fizer sentido.
+            </p>
+          </div>
 
-          return (
-            <div key={agent.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-white">{index + 1}. {agent.name}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500">{agent.goal}</p>
+          <div className="space-y-2">
+            {agentButtons.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                  activeSection === item.id
+                    ? 'border-cyan-400/30 bg-cyan-400/10'
+                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {item.index + 1}. {item.name}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.goal}</p>
+                  </div>
+                  <StatusPill tone={item.response ? 'emerald' : item.index === allowedIndex ? 'cyan' : 'slate'}>
+                    {item.status}
+                  </StatusPill>
                 </div>
-                <StatusPill tone={response ? 'emerald' : index === allowedIndex ? 'cyan' : 'slate'}>
-                  {response ? 'respondido' : index === allowedIndex ? 'proximo' : 'travado'}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setActiveSection('planejamento')}
+              className={`mt-3 w-full rounded-xl border px-3 py-3 text-left transition ${
+                activeSection === 'planejamento'
+                  ? 'border-cyan-400/30 bg-cyan-400/10'
+                  : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+              }`}
+            >
+              <p className="text-sm font-semibold text-white">Planejamento</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500">Dias da semana, ordem e cadencia do ciclo.</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveSection('interacao')}
+              className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                activeSection === 'interacao'
+                  ? 'border-cyan-400/30 bg-cyan-400/10'
+                  : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+              }`}
+            >
+              <p className="text-sm font-semibold text-white">Dashboard de interacao</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500">Cliques, logs e confirmacao do que foi salvo.</p>
+            </button>
+          </div>
+        </aside>
+
+        <div className="min-w-0 p-5">
+          {activeSection === 'planejamento' ? (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Planejamento</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">Ordem da semana e ritmo de publicacao</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                    Acompanhe o dia ativo e veja o que cada etapa deve entregar.
+                  </p>
+                </div>
+                <StatusPill tone="slate">{schedule.length} dias organizados</StatusPill>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-[1.12fr_0.88fr]">
+                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                    {schedule.map((item) => {
+                      const isActive = item.day === activeDay;
+                      return (
+                        <button
+                          key={item.day}
+                          type="button"
+                          onClick={() => onSelectDay(item.day)}
+                          className={`rounded-xl border px-4 py-3 text-left transition ${
+                            isActive
+                              ? 'border-cyan-400/30 bg-cyan-400/10'
+                              : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                          }`}
+                        >
+                          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
+                          <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
+                          <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedDay && (
+                    <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">Dia ativo</p>
+                      <h4 className="mt-2 text-lg font-bold text-white">
+                        {selectedDay.day} - {selectedDay.owner}
+                      </h4>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-300">{selectedDay.output}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo do ciclo</p>
+                  <div className="mt-4 space-y-3">
+                    {workflow.map((agent, index) => {
+                      const response = responses.find((item) => item.item_id === agent.id);
+                      return (
+                        <div key={agent.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-white">
+                                {index + 1}. {agent.name}
+                              </p>
+                              <p className="mt-1 text-xs text-slate-500">{agent.goal}</p>
+                            </div>
+                            <StatusPill tone={response ? 'emerald' : 'slate'}>{response ? 'ok' : 'pendente'}</StatusPill>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activeSection === 'interacao' ? (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Dashboard de interacao</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">Cliques, logs e confirmacoes</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                    Veja o que foi salvo, o que foi publicado e onde houve acao de usuario.
+                  </p>
+                </div>
+                <StatusPill tone="slate">
+                  {activityLog.length} logs · {clicks.length} cliques
                 </StatusPill>
               </div>
 
-              {payload && (
-                <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-xs font-semibold text-cyan-300">{payload.title}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-400">{payload.summary}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-emerald-300">{payload.nextStep}</p>
-                </div>
-              )}
-
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => onRun(agent.id)}
-                className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.03] disabled:text-slate-600"
-              >
-                {running === agent.id ? 'Executando...' : response ? 'Reexecutar agente' : 'Ativar agente'}
-              </button>
+              <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+                <ClicksPanel clicks={clicks} />
+                <ActivityLogPanel entries={activityLog} />
+              </div>
             </div>
-          );
-        })}
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Agente em foco</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">
+                    {activeAgent ? activeAgent.name : 'Agente'}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{activeAgent?.goal}</p>
+                </div>
+                <StatusPill tone={activeResponse ? 'emerald' : 'cyan'}>
+                  {activeResponse ? 'resposta carregada' : 'aguardando execucao'}
+                </StatusPill>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-[1fr_0.92fr]">
+                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Saida do agente</p>
+                  {activeResponse?.payload ? (
+                    <>
+                      <h4 className="mt-3 text-lg font-bold text-white">{activeResponse.payload.title}</h4>
+                      <p className="mt-3 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
+                      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-xs uppercase tracking-widest text-emerald-300">Proxima acao</p>
+                        <p className="mt-2 text-sm leading-relaxed text-emerald-100">
+                          {activeResponse.payload.nextStep}
+                        </p>
+                      </div>
+                      <p className="mt-4 text-xs text-slate-500">
+                        Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
+                      </p>
+                    </>
+                  ) : (
+                    <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
+                      Nenhuma saida registrada ainda. Ative este agente para gerar a primeira resposta.
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Controle</p>
+                  <div className="mt-3 space-y-3">
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-sm font-semibold text-white">Estado da fila</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                        Apenas o proximo agente liberado pode ser executado. Os demais ficam visiveis, mas travados.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={running === activeAgent?.id}
+                      onClick={() => activeAgent && onRun(activeAgent.id)}
+                      className="inline-flex w-full items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.03] disabled:text-slate-600"
+                    >
+                      {running === activeAgent?.id ? 'Executando...' : activeResponse ? 'Reexecutar agente' : 'Ativar agente'}
+                    </button>
+
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">Etapa seguinte</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                        {workflow[allowedIndex + 1]?.name || activeAgent?.name || 'Nenhuma etapa pendente'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Sequencia completa</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {workflow.map((agent, index) => {
+                    const response = responses.find((item) => item.item_id === agent.id);
+                    return (
+                      <div key={agent.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm font-semibold text-white">
+                            {index + 1}. {agent.name}
+                          </p>
+                          <StatusPill tone={response ? 'emerald' : index === allowedIndex ? 'cyan' : 'slate'}>
+                            {response ? 'feito' : index === allowedIndex ? 'liberado' : 'bloqueado'}
+                          </StatusPill>
+                        </div>
+                        <p className="mt-2 text-xs leading-relaxed text-slate-500">{agent.goal}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -1345,7 +1596,17 @@ function AdminPage() {
         </div>
       )}
 
-      <WeekScheduleRail schedule={agentSchedule} activeDay={selectedWeekday} onSelectDay={setSelectedWeekday} />
+      <AgentWorkspace
+        workflow={data.agentWorkflow}
+        responses={data.agentResponses}
+        schedule={agentSchedule}
+        clicks={data.clicks || []}
+        activityLog={activityLog}
+        onRun={runAgent}
+        running={running}
+        activeDay={selectedWeekday}
+        onSelectDay={setSelectedWeekday}
+      />
 
       <ToolRoutingBoard
         affiliateItems={affiliateTools}
@@ -1366,13 +1627,9 @@ function AdminPage() {
         onAction={appendActivityLog}
       />
 
-      <ActivityLogPanel entries={activityLog} />
-
       <NewsOutputPanel items={data.newsItems || []} />
 
       <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
-
-      <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <h2 className="text-base font-bold text-white">Cronograma operacional</h2>
@@ -1387,8 +1644,6 @@ function AdminPage() {
           ))}
         </div>
       </section>
-
-      <ClicksPanel clicks={data.clicks || []} />
     </div>
   );
 }
