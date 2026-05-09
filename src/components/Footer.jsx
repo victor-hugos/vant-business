@@ -26,6 +26,12 @@ function Footer() {
           <p className="mt-2 text-xs text-slate-600">
             Alguns links são de afiliados — sem custo extra pra você.
           </p>
+          <Link
+            to="/admin-vant?view=login"
+            className="mt-6 inline-block text-[10px] lowercase text-slate-700 transition hover:text-slate-500"
+          >
+            admin
+          </Link>
         </div>
       </div>
     </footer>
