@@ -1492,12 +1492,8 @@ function AgentWorkspace({
   toolEbookItems = [],
   toolLocalMode = false,
   onToolSaved,
-  newsItems = [],
-  contentLocalMode = false,
   contentRefreshSignal = 0,
   onContentAction,
-  onReviewNews,
-  reviewingNews = null,
   onRun,
   running,
   activeDay,
@@ -2108,14 +2104,8 @@ function AdminPage() {
             appendActivityLog(entries);
             setContentRefreshKey((value) => value + 1);
           }}
-          contentAffiliateItems={affiliateToolsSafe}
-          contentEbookItems={ebookToolsSafe}
-          newsItems={newsItems}
-          contentLocalMode={Boolean(data.localPreview)}
           contentRefreshSignal={contentRefreshKey}
           onContentAction={appendActivityLog}
-          onReviewNews={reviewNews}
-          reviewingNews={reviewingNews}
           onRun={runAgent}
           running={running}
           activeDay={selectedWeekday}
