@@ -11,13 +11,13 @@ const localContentDraftStatusKey = 'vant_admin_content_draft_statuses';
 const localAgentWorkflow = [
   {
     id: 'pesquisa',
-    name: 'Agente Descobridor de Ferramentas',
+    name: 'Pesquisador',
     goal: 'Busca ferramentas de IA novas, remove duplicadas e entrega o lote bruto para triagem.',
   },
   {
     id: 'afiliados',
-    name: 'Subagente Classificador de Afiliados',
-    goal: 'Separa as ferramentas entre com programa de afiliados e sem programa de afiliados.',
+    name: 'Separador',
+    goal: 'Marca cada ferramenta com a etiqueta de afiliados ou sem afiliados antes de enviar para as filas.',
   },
   {
     id: 'ebook',
@@ -87,7 +87,8 @@ function saveLocalContentDraftStatuses(statuses) {
 }
 
 function buildContentDrafts(affiliateItems, ebookItems) {
-  const ebookDrafts = ebookItems.map((tool) => ({
+  const allTools = [...affiliateItems, ...ebookItems];
+  const ebookDrafts = allTools.map((tool) => ({
     id: `ebook-${tool.id}`,
     kind: 'ebook',
     sourceId: tool.id,
@@ -95,16 +96,12 @@ function buildContentDrafts(affiliateItems, ebookItems) {
     title: `Ebook: ${tool.name}`,
     audience: tool.category,
     summary: tool.nextOutput || tool.description,
-    outline: [
-      'Quem deve usar',
-      ...(tool.relevantInfo || []).slice(0, 3),
-      'CTA de captura com email',
-    ],
-    focus: 'Rascunho de ebook',
+    outline: ['Quem deve usar', ...(tool.relevantInfo || []).slice(0, 3), 'CTA de captura com email'],
+    focus: 'Fila para ebook',
     status: 'rascunho',
   }));
 
-  const videoDrafts = affiliateItems.map((tool) => ({
+  const videoDrafts = allTools.map((tool) => ({
     id: `video-${tool.id}`,
     kind: 'video',
     sourceId: tool.id,
@@ -112,24 +109,12 @@ function buildContentDrafts(affiliateItems, ebookItems) {
     title: `Roteiro de video: ${tool.name}`,
     audience: tool.category,
     summary: tool.nextOutput || tool.description,
-    outline: [
-      'Gancho de abertura',
-      'Problema que a ferramenta resolve',
-      'Demonstracao pratica',
-      'CTA com afiliado',
-    ],
-    focus: 'Roteiro de video para afiliado',
+    outline: ['Gancho de abertura', 'Problema que a ferramenta resolve', 'Demonstracao pratica', 'CTA rastreavel'],
+    focus: 'Fila para conteudo/roteiro',
     status: 'rascunho',
   }));
 
   return [...ebookDrafts, ...videoDrafts];
-}
-
-function splitPipelineByAffiliateStatus(affiliateItems, ebookItems) {
-  return {
-    withAffiliate: affiliateItems,
-    withoutAffiliate: ebookItems,
-  };
 }
 
 function buildRoutingDraft(tool, kind) {
@@ -190,18 +175,10 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
   const initialRouting = useMemo(() => {
     const routing = {};
 
-    for (const tool of affiliateItems) {
+    for (const tool of [...affiliateItems, ...ebookItems]) {
       routing[tool.id] = {
-        ebook: false,
-        content: true,
-        affiliateStatus: tool.affiliateStatus,
-      };
-    }
-
-    for (const tool of ebookItems) {
-      routing[tool.id] = {
-        ebook: true,
-        content: false,
+        ebook: tool.affiliateStatus !== 'com_link_configurado',
+        content: tool.affiliateStatus === 'com_link_configurado',
         affiliateStatus: tool.affiliateStatus,
       };
     }
@@ -281,21 +258,41 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
   }
 
   const cards = [...affiliateItems, ...ebookItems];
+  const ebookQueueCount = cards.filter((tool) => (routing[tool.id] || {}).ebook).length;
+  const contentQueueCount = cards.filter((tool) => (routing[tool.id] || {}).content).length;
 
   return (
     <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-widest text-cyan-400">Separador</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Fila por ferramenta com duas rotas</h2>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Central de avaliacao</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Pesquisador e Separador trabalhando em sincronia</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            Cada card mostra a ferramenta, a descrição, a etiqueta de afiliado e os dois caminhos possíveis: ebook ou conteudo.
+            O Pesquisador encontra as ferramentas. O Separador marca a etiqueta de afiliados e voce decide se cada ferramenta entra na fila de ebook, conteudo ou nas duas.
           </p>
         </div>
         <StatusPill tone="slate">{cards.length} ferramentas</StatusPill>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/8 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-300">Pesquisador</p>
+          <p className="mt-2 text-sm font-semibold text-white">Descobre ferramentas novas</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Entrega o lote bruto para triagem antes da classificacao.</p>
+        </div>
+        <div className="rounded-xl border border-amber-300/15 bg-amber-300/8 p-4">
+          <p className="text-xs uppercase tracking-widest text-amber-200">Separador</p>
+          <p className="mt-2 text-sm font-semibold text-white">Etiqueta afiliados</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Cada card mostra se a ferramenta tem ou nao programa de afiliados.</p>
+        </div>
+        <div className="rounded-xl border border-emerald-300/15 bg-emerald-300/8 p-4">
+          <p className="text-xs uppercase tracking-widest text-emerald-200">Rotas ativas</p>
+          <p className="mt-2 text-sm font-semibold text-white">{ebookQueueCount} ebooks e {contentQueueCount} conteudos</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">As duas caixas podem ser marcadas ao mesmo tempo.</p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {cards.map((tool) => {
           const selected = routing[tool.id] || { ebook: false, content: false };
 
@@ -315,7 +312,7 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
 
               <p className="mt-3 text-sm leading-relaxed text-slate-300">{tool.description}</p>
 
-              <div className="mt-4 space-y-2 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+              <div className="mt-4 grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-3">
                 <label className="flex items-center gap-3 text-sm text-slate-200">
                   <input
                     type="checkbox"
@@ -337,6 +334,8 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
+                {selected.ebook && <StatusPill tone="cyan">ebook marcado</StatusPill>}
+                {selected.content && <StatusPill tone="emerald">conteudo marcado</StatusPill>}
                 {tool.relevantInfo?.slice(0, 2).map((info) => (
                   <span key={info} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1">
                     {info}
@@ -350,7 +349,7 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
                 disabled={savingId === tool.id}
                 className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
               >
-                {savingId === tool.id ? 'Salvando...' : 'Salvar marcas e enviar'}
+                {savingId === tool.id ? 'Salvando...' : 'Salvar e enviar para as proximas filas'}
               </button>
             </article>
           );
@@ -364,7 +363,6 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
 
 function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, refreshSignal = 0 }) {
   const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
-  const groupedTools = useMemo(() => splitPipelineByAffiliateStatus(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
   const [selectedDraftId, setSelectedDraftId] = useState(null);
   const [drafts, setDrafts] = useState(baseDrafts);
   const [draftWarnings, setDraftWarnings] = useState([]);
@@ -435,8 +433,8 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
   const flowSteps = [
     { label: '1. Encontrar', hint: 'Pesquisador monta o lote bruto de ferramentas.' },
     { label: '2. Classificar', hint: 'Separador marca tem afiliado ou nao tem afiliado.' },
-    { label: '3. Revisar', hint: 'você aprova antes de publicar.' },
-    { label: '4. Publicar', hint: 'vai para o site, noticias ou email.' },
+    { label: '3. Roteirizar', hint: 'As ferramentas seguem para ebook, roteiro ou ambos.' },
+    { label: '4. Publicar', hint: 'você aprova antes de subir para o site e email.' },
   ];
 
   async function updateDraftStatus(draft, status) {
@@ -497,7 +495,7 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo sincronizado</p>
-            <h3 className="mt-1 text-sm font-semibold text-white">A bancada anda em ordem: afiliados, ebooks, roteiros e noticias.</h3>
+            <h3 className="mt-1 text-sm font-semibold text-white">A bancada anda em ordem: pesquisa, separacao, ebooks, roteiros e noticias.</h3>
           </div>
           <div className="grid gap-2 sm:grid-cols-4">
             {flowSteps.map((step) => (
@@ -552,7 +550,7 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-widest text-cyan-400">Conteudos gerados</p>
-              <h3 className="mt-1 text-sm font-semibold text-white">Ideias prontas para revisar</h3>
+              <h3 className="mt-1 text-sm font-semibold text-white">Ebooks e roteiros prontos para revisar</h3>
             </div>
             <StatusPill tone="slate">{drafts.length} itens</StatusPill>
           </div>
@@ -561,21 +559,24 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
             <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/8 p-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] uppercase tracking-widest text-cyan-300">Com programa de afiliados</p>
-                  <p className="mt-1 text-sm font-semibold text-white">{groupedTools.withAffiliate.length} ferramentas</p>
+                  <p className="text-[11px] uppercase tracking-widest text-cyan-300">Fila de ebooks</p>
+                  <p className="mt-1 text-sm font-semibold text-white">{ebookDrafts.length} rascunhos</p>
                 </div>
-                <StatusPill tone="cyan">roteiro de video</StatusPill>
+                <StatusPill tone="cyan">ebook</StatusPill>
               </div>
               <div className="mt-3 grid gap-2">
-                {groupedTools.withAffiliate.map((tool) => (
+                {ebookDrafts.slice(0, 8).map((draft) => (
                   <button
-                    key={tool.id}
+                    key={draft.id}
                     type="button"
-                    onClick={() => setSelectedDraftId(`video-${tool.id}`)}
+                    onClick={() => setSelectedDraftId(draft.id)}
                     className="rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 text-left transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
                   >
-                    <p className="text-sm font-semibold text-white">{tool.name}</p>
-                    <p className="mt-1 text-xs text-slate-500">{tool.nextOutput}</p>
+                    <p className="text-sm font-semibold text-white">{draft.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">{draft.sourceName}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <StatusPill tone={formatDraftStatus(draft.status).tone}>{formatDraftStatus(draft.status).label}</StatusPill>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -584,21 +585,24 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
             <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/8 p-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] uppercase tracking-widest text-emerald-300">Sem programa de afiliados</p>
-                  <p className="mt-1 text-sm font-semibold text-white">{groupedTools.withoutAffiliate.length} ferramentas</p>
+                  <p className="text-[11px] uppercase tracking-widest text-emerald-300">Fila de roteiros</p>
+                  <p className="mt-1 text-sm font-semibold text-white">{videoDrafts.length} rascunhos</p>
                 </div>
-                <StatusPill tone="emerald">ebook</StatusPill>
+                <StatusPill tone="emerald">roteiro</StatusPill>
               </div>
               <div className="mt-3 grid gap-2">
-                {groupedTools.withoutAffiliate.map((tool) => (
+                {videoDrafts.slice(0, 8).map((draft) => (
                   <button
-                    key={tool.id}
+                    key={draft.id}
                     type="button"
-                    onClick={() => setSelectedDraftId(`ebook-${tool.id}`)}
+                    onClick={() => setSelectedDraftId(draft.id)}
                     className="rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 text-left transition hover:border-emerald-400/30 hover:bg-emerald-400/10"
                   >
-                    <p className="text-sm font-semibold text-white">{tool.name}</p>
-                    <p className="mt-1 text-xs text-slate-500">{tool.nextOutput}</p>
+                    <p className="text-sm font-semibold text-white">{draft.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">{draft.sourceName}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <StatusPill tone={formatDraftStatus(draft.status).tone}>{formatDraftStatus(draft.status).label}</StatusPill>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -775,38 +779,6 @@ function formatDate(date) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(date));
-}
-
-function QueueColumn({ title, tools, tone }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-base font-bold text-white">{title}</h2>
-        <StatusPill tone={tone}>{tools.length} itens</StatusPill>
-      </div>
-      <div className="space-y-3">
-        {tools.map((tool) => (
-          <div key={tool.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-semibold text-white">{tool.name}</h3>
-                <p className="mt-1 text-xs text-slate-500">{tool.category}</p>
-              </div>
-              <StatusPill tone="amber">{tool.status}</StatusPill>
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-slate-400">{tool.description}</p>
-            <p className="mt-3 text-xs text-cyan-300">{tool.nextOutput}</p>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-              <span>{tool.affiliateStatus}</span>
-              <a href={tool.sourceUrl} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">
-                fonte
-              </a>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function AgentRunner({ workflow, responses, onRun, running }) {
@@ -1329,11 +1301,6 @@ function AdminPage() {
           {data.warnings.join(' · ')}
         </div>
       )}
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <QueueColumn title="Afiliadas / roteiro" tools={affiliateTools} tone="cyan" />
-        <QueueColumn title="Sem afiliado configurado / ebook" tools={ebookTools} tone="emerald" />
-      </section>
 
       <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
 

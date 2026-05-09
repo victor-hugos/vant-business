@@ -3,7 +3,9 @@ import { affiliateTools, ebookTools } from '../src/data/aiPipeline.js';
 import { readContentDrafts, upsertContentDraftStatus } from './_contentDraftStore.js';
 
 function buildContentDrafts(affiliateItems, ebookItems) {
-  const ebookDrafts = ebookItems.map((tool) => ({
+  const allTools = [...affiliateItems, ...ebookItems];
+
+  const ebookDrafts = allTools.map((tool) => ({
     id: `ebook-${tool.id}`,
     kind: 'ebook',
     sourceId: tool.id,
@@ -16,7 +18,7 @@ function buildContentDrafts(affiliateItems, ebookItems) {
     status: 'rascunho',
   }));
 
-  const videoDrafts = affiliateItems.map((tool) => ({
+  const videoDrafts = allTools.map((tool) => ({
     id: `video-${tool.id}`,
     kind: 'video',
     sourceId: tool.id,
@@ -24,8 +26,8 @@ function buildContentDrafts(affiliateItems, ebookItems) {
     title: `Roteiro de video: ${tool.name}`,
     audience: tool.category,
     summary: tool.nextOutput || tool.description,
-    outline: ['Gancho de abertura', 'Problema que a ferramenta resolve', 'Demonstracao pratica', 'CTA com afiliado'],
-    focus: 'Roteiro de video para afiliado',
+    outline: ['Gancho de abertura', 'Problema que a ferramenta resolve', 'Demonstracao pratica', 'CTA rastreavel'],
+    focus: 'Fila para conteudo/roteiro',
     status: 'rascunho',
   }));
 
