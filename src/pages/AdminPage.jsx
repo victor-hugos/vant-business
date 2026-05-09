@@ -794,6 +794,79 @@ function NewsReviewPanel({ items, onReview, reviewing }) {
   );
 }
 
+function NewsOutputPanel({ items }) {
+  const outputItems = items
+    .filter((item) => item.status === 'aprovada' || item.status === 'approved' || item.status === 'aguardando_avaliacao')
+    .slice(0, 6);
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Saida das noticias</p>
+          <h2 className="mt-2 text-xl font-bold text-white">O que vai alimentar o site</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Aqui voce enxerga o conteudo traduzido e a situacao de cada item antes de entrar no blog e no email diario.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
+            <p className="text-lg font-bold text-emerald-100">
+              {items.filter((item) => item.status === 'aprovada' || item.status === 'approved').length}
+            </p>
+            <p className="text-[11px] text-emerald-200/70">Prontas</p>
+          </div>
+          <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2">
+            <p className="text-lg font-bold text-amber-100">
+              {items.filter((item) => item.status === 'aguardando_avaliacao').length}
+            </p>
+            <p className="text-[11px] text-amber-200/70">Aguardando</p>
+          </div>
+          <div className="rounded-xl border border-red-300/20 bg-red-300/10 px-3 py-2">
+            <p className="text-lg font-bold text-red-100">
+              {items.filter((item) => item.status === 'reprovada').length}
+            </p>
+            <p className="text-[11px] text-red-200/70">Paradas</p>
+          </div>
+        </div>
+      </div>
+
+      {outputItems.length === 0 ? (
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-500">
+          Nenhuma noticia para exibir ainda.
+        </div>
+      ) : (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {outputItems.map((item) => {
+            const title = item.titlePt || item.title;
+            const summary = item.summaryPt || item.summary;
+            const approved = item.status === 'aprovada' || item.status === 'approved';
+
+            return (
+              <article key={item.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-cyan-300">saida pronta</p>
+                    <h3 className="mt-1 text-sm font-semibold leading-snug text-white">{title}</h3>
+                  </div>
+                  <StatusPill tone={approved ? 'emerald' : 'amber'}>{item.status}</StatusPill>
+                </div>
+                {summary && <p className="mt-3 text-xs leading-relaxed text-slate-400">{summary}</p>}
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                  <StatusPill tone="slate">{item.source || 'fonte nao informada'}</StatusPill>
+                  <StatusPill tone={approved ? 'emerald' : 'amber'}>
+                    {approved ? 'entra no blog e no email' : 'aguarda liberacao'}
+                  </StatusPill>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function AdminPage() {
   const location = useLocation();
   const forceLoginView = new URLSearchParams(location.search).get('view') === 'login';
@@ -1061,6 +1134,8 @@ function AdminPage() {
         newsItems={data.newsItems || []}
         localMode={Boolean(data.localPreview)}
       />
+
+      <NewsOutputPanel items={data.newsItems || []} />
 
       <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
 
