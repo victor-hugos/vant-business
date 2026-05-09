@@ -2075,7 +2075,7 @@ function AdminPage() {
       warnings: ['Modo local: login, armazenamento real e cliques dependem das APIs rodando no Vercel/Vercel Dev.'],
     });
     setAuth('ok');
-    setScreen('overview');
+    setScreen('operations');
     return true;
   }
 
@@ -2101,7 +2101,7 @@ function AdminPage() {
       ],
     });
     setAuth('ok');
-    setScreen('overview');
+    setScreen('operations');
     return true;
   }
 
@@ -2121,7 +2121,7 @@ function AdminPage() {
 
       setData(await response.json());
       setAuth('ok');
-      setScreen('overview');
+      setScreen('operations');
       return true;
     } catch {
       return await loadFallbackData('Area administrativa caiu para modo local por falha de carregamento.');
