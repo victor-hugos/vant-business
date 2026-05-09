@@ -74,6 +74,97 @@ function stripHtml(value = '') {
   return decodeEntities(value.replace(/<[^>]*>/g, ' '));
 }
 
+function normalizeWhitespace(value = '') {
+  return String(value).replace(/\s+/g, ' ').trim();
+}
+
+function looksPortuguese(text = '') {
+  const normalized = normalizeWhitespace(text).toLowerCase();
+  if (!normalized) return false;
+
+  const markers = [
+    ' de ',
+    ' da ',
+    ' do ',
+    ' das ',
+    ' dos ',
+    ' para ',
+    ' com ',
+    ' que ',
+    ' uma ',
+    ' um ',
+    ' em ',
+    ' por ',
+    ' no ',
+    ' na ',
+    ' e ',
+  ];
+
+  const score = markers.reduce((total, marker) => total + (normalized.includes(marker) ? 1 : 0), 0);
+  const diacritics = /[ãõáàâéêíóôúç]/i.test(normalized) ? 1 : 0;
+  return score + diacritics >= 3;
+}
+
+async function translateToPortuguese(text = '') {
+  const normalized = normalizeWhitespace(text);
+  if (!normalized) return '';
+
+  const url = new URL('https://translate.googleapis.com/translate_a/single');
+  url.searchParams.set('client', 'gtx');
+  url.searchParams.set('sl', 'auto');
+  url.searchParams.set('tl', 'pt');
+  url.searchParams.set('dt', 't');
+  url.searchParams.set('q', normalized);
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'VANT Business AI News Agent/1.0',
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    const payload = await response.json();
+    const translated = (payload?.[0] || [])
+      .map((chunk) => chunk?.[0] || '')
+      .join('');
+
+    return normalizeWhitespace(translated) || normalized;
+  } catch {
+    return normalized;
+  }
+}
+
+async function localizeItem(item) {
+  const sourceText = `${item.title} ${item.summary}`.trim();
+  const needsTranslation = !looksPortuguese(sourceText);
+
+  if (!needsTranslation) {
+    return {
+      ...item,
+      titlePt: item.titlePt || item.title,
+      summaryPt: item.summaryPt || item.summary,
+      translationStatus: 'original-pt',
+    };
+  }
+
+  const [titlePt, summaryPt] = await Promise.all([
+    item.titlePt ? Promise.resolve(item.titlePt) : translateToPortuguese(item.title),
+    item.summaryPt ? Promise.resolve(item.summaryPt) : translateToPortuguese(item.summary),
+  ]);
+
+  return {
+    ...item,
+    titlePt: titlePt || item.title,
+    summaryPt: summaryPt || item.summary,
+    translationStatus: 'translated',
+  };
+}
+
 function extractTag(block, tags) {
   for (const tag of tags) {
     const match = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'));
@@ -163,10 +254,11 @@ async function main() {
   const eligible = dedupe(fetched)
     .filter((item) => item.title && item.link && item.score > 0)
     .map((item) => ({ ...item, publishedTime: new Date(item.publishedAt).getTime() || 0 }));
+  const localized = await Promise.all(eligible.map(localizeItem));
 
   const recentCutoff = Date.now() - 45 * 24 * 60 * 60 * 1000;
-  const recent = eligible.filter((item) => item.publishedTime >= recentCutoff);
-  const pool = recent.length >= Math.min(maxItems, 10) ? recent : eligible;
+  const recent = localized.filter((item) => item.publishedTime >= recentCutoff);
+  const pool = recent.length >= Math.min(maxItems, 10) ? recent : localized;
 
   const ranked = pool
     .sort((a, b) => {

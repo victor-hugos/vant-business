@@ -35,18 +35,18 @@ async function buildResponse(agentId) {
 
   if (agentId === 'pesquisa') {
     return {
-      title: 'Lote inicial organizado',
-      summary: `Foram encontrados ${allTools.length} itens: ${affiliateTools.length} com fila de afiliado/video e ${ebookTools.length} para ebook.`,
-      nextStep: 'Ativar Agente de Afiliados para validar a separacao antes de produzir conteudo.',
+      title: 'Ferramentas descobertas',
+      summary: `Foram encontrados ${allTools.length} itens candidatos para IA, antes da classificacao.`,
+      nextStep: 'Ativar o separador para marcar tem afiliado ou nao tem afiliado.',
       items: allTools.map((tool) => ({ id: tool.id, name: tool.name, status: tool.status })),
     };
   }
 
   if (agentId === 'afiliados') {
     return {
-      title: 'Afiliados separados',
-      summary: 'Taskade tem link ativo. ElevenLabs tem programa confirmado, mas ainda precisa do link proprio da VANT.',
-      nextStep: 'Aprovar ou ajustar a lista antes de enviar afiliadas para roteiro.',
+      title: 'Ferramentas classificadas',
+      summary: 'Taskade e ElevenLabs ficaram na rota de afiliados; as demais seguem para ebook.',
+      nextStep: 'Revisar a separacao antes de enviar cada grupo para sua rota de conteudo.',
       items: affiliateTools.map((tool) => ({
         id: tool.id,
         name: tool.name,

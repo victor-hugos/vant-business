@@ -8,13 +8,13 @@ import { affiliateTools, agentSchedule, ebookTools } from '../src/data/aiPipelin
 export const agentWorkflow = [
   {
     id: 'pesquisa',
-    name: 'Agente de Pesquisa',
-    goal: 'Atualiza o lote de IAs e remove duplicidade antes de qualquer producao.',
+    name: 'Pesquisador',
+    goal: 'Encontra ferramentas de IA novas, remove duplicadas e entrega o lote bruto para triagem.',
   },
   {
     id: 'afiliados',
-    name: 'Agente de Afiliados',
-    goal: 'Confere quais ferramentas tem link ativo, link pendente ou sem afiliado configurado.',
+    name: 'Separador',
+    goal: 'Marca cada ferramenta com etiqueta de tem programa de afiliados ou nao tem programa de afiliados.',
   },
   {
     id: 'ebook',

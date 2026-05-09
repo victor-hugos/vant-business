@@ -11,13 +11,13 @@ const localContentDraftStatusKey = 'vant_admin_content_draft_statuses';
 const localAgentWorkflow = [
   {
     id: 'pesquisa',
-    name: 'Agente de Pesquisa',
-    goal: 'Atualiza o lote de IAs e remove duplicidade antes de qualquer producao.',
+    name: 'Agente Descobridor de Ferramentas',
+    goal: 'Busca ferramentas de IA novas, remove duplicadas e entrega o lote bruto para triagem.',
   },
   {
     id: 'afiliados',
-    name: 'Agente de Afiliados',
-    goal: 'Confere quais ferramentas tem link ativo, link pendente ou sem afiliado configurado.',
+    name: 'Subagente Classificador de Afiliados',
+    goal: 'Separa as ferramentas entre com programa de afiliados e sem programa de afiliados.',
   },
   {
     id: 'ebook',
@@ -132,6 +132,38 @@ function splitPipelineByAffiliateStatus(affiliateItems, ebookItems) {
   };
 }
 
+function buildRoutingDraft(tool, kind) {
+  const baseOutline =
+    kind === 'ebook'
+      ? ['Quem deve usar', ...(tool.relevantInfo || []).slice(0, 3), 'CTA de captura com email']
+      : ['Gancho de abertura', 'Problema que a ferramenta resolve', 'Demonstracao pratica', 'CTA rastreavel'];
+
+  return {
+    id: `${kind}-${tool.id}`,
+    kind,
+    sourceId: tool.id,
+    sourceName: tool.name,
+    title: kind === 'ebook' ? `Ebook: ${tool.name}` : `Roteiro de video: ${tool.name}`,
+    audience: tool.category,
+    summary: tool.nextOutput || tool.description,
+    outline: baseOutline,
+    focus: kind === 'ebook' ? 'Fila para ebook' : 'Fila para conteudo/roteiro',
+    status: 'em revisao',
+  };
+}
+
+function readLocalToolRouting() {
+  try {
+    return JSON.parse(window.localStorage.getItem('vant_admin_tool_routing') || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalToolRouting(routing) {
+  window.localStorage.setItem('vant_admin_tool_routing', JSON.stringify(routing));
+}
+
 const draftStatusStyles = {
   rascunho: {
     label: 'rascunho',
@@ -154,7 +186,183 @@ function formatDraftStatus(status) {
   return draftStatusStyles[status] || draftStatusStyles.rascunho;
 }
 
-function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
+function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
+  const initialRouting = useMemo(() => {
+    const routing = {};
+
+    for (const tool of affiliateItems) {
+      routing[tool.id] = {
+        ebook: false,
+        content: true,
+        affiliateStatus: tool.affiliateStatus,
+      };
+    }
+
+    for (const tool of ebookItems) {
+      routing[tool.id] = {
+        ebook: true,
+        content: false,
+        affiliateStatus: tool.affiliateStatus,
+      };
+    }
+
+    return routing;
+  }, [affiliateItems, ebookItems]);
+
+  const [routing, setRouting] = useState(() => {
+    const stored = readLocalToolRouting();
+    return Object.keys(stored).length ? { ...initialRouting, ...stored } : initialRouting;
+  });
+  const [savingId, setSavingId] = useState(null);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const stored = readLocalToolRouting();
+    setRouting(Object.keys(stored).length ? { ...initialRouting, ...stored } : initialRouting);
+  }, [initialRouting]);
+
+  function updateTool(toolId, field, value) {
+    setRouting((current) => ({
+      ...current,
+      [toolId]: {
+        ...(current[toolId] || { ebook: false, content: false }),
+        [field]: value,
+      },
+    }));
+  }
+
+  async function saveTool(tool) {
+    const selected = routing[tool.id] || { ebook: false, content: false };
+    const drafts = [];
+
+    if (selected.ebook) drafts.push(buildRoutingDraft(tool, 'ebook'));
+    if (selected.content) drafts.push(buildRoutingDraft(tool, 'video'));
+    if (!drafts.length) {
+      setMessage(`Marque ebook ou conteudo para ${tool.name} antes de salvar.`);
+      return;
+    }
+
+    setSavingId(tool.id);
+    setMessage('');
+
+    try {
+      if (localMode) {
+        saveLocalToolRouting({ ...routing, [tool.id]: selected });
+        const nextStatuses = readLocalContentDraftStatuses();
+        for (const draft of drafts) {
+          nextStatuses[draft.id] = draft.status;
+        }
+        saveLocalContentDraftStatuses(nextStatuses);
+        setMessage(`${tool.name} enviado para a fila selecionada.`);
+        onSaved?.();
+        return;
+      }
+
+      for (const draft of drafts) {
+        const response = await fetch('/api/admin-content-drafts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ draft, status: 'em revisao' }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Nao foi possivel salvar a fila');
+        }
+      }
+
+      setMessage(`${tool.name} enviado para a fila selecionada.`);
+      onSaved?.();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  const cards = [...affiliateItems, ...ebookItems];
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Separador</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Fila por ferramenta com duas rotas</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Cada card mostra a ferramenta, a descrição, a etiqueta de afiliado e os dois caminhos possíveis: ebook ou conteudo.
+          </p>
+        </div>
+        <StatusPill tone="slate">{cards.length} ferramentas</StatusPill>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {cards.map((tool) => {
+          const selected = routing[tool.id] || { ebook: false, content: false };
+
+          return (
+            <article key={tool.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-cyan-300">{tool.category}</p>
+                  <h3 className="mt-1 text-base font-semibold text-white">{tool.name}</h3>
+                </div>
+                <StatusPill tone={tool.affiliateStatus === 'sem_link_configurado' ? 'amber' : 'emerald'}>
+                  {tool.affiliateStatus === 'sem_link_configurado'
+                    ? 'nao tem programa de afiliados'
+                    : 'tem programa de afiliados'}
+                </StatusPill>
+              </div>
+
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">{tool.description}</p>
+
+              <div className="mt-4 space-y-2 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+                <label className="flex items-center gap-3 text-sm text-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={selected.ebook}
+                    onChange={(event) => updateTool(tool.id, 'ebook', event.target.checked)}
+                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                  />
+                  Entrar na fila para virar ebook
+                </label>
+                <label className="flex items-center gap-3 text-sm text-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={selected.content}
+                    onChange={(event) => updateTool(tool.id, 'content', event.target.checked)}
+                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                  />
+                  Entrar na fila para virar conteudo
+                </label>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
+                {tool.relevantInfo?.slice(0, 2).map((info) => (
+                  <span key={info} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1">
+                    {info}
+                  </span>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => saveTool(tool)}
+                disabled={savingId === tool.id}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+              >
+                {savingId === tool.id ? 'Salvando...' : 'Salvar marcas e enviar'}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+
+      {message && <p className="mt-4 text-sm text-slate-400">{message}</p>}
+    </section>
+  );
+}
+
+function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, refreshSignal = 0 }) {
   const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
   const groupedTools = useMemo(() => splitPipelineByAffiliateStatus(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
   const [selectedDraftId, setSelectedDraftId] = useState(null);
@@ -203,7 +411,7 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
     return () => {
       cancelled = true;
     };
-  }, [baseDrafts, localMode]);
+  }, [baseDrafts, localMode, refreshSignal]);
 
   useEffect(() => {
     if (!drafts.length) {
@@ -225,8 +433,8 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
   const pendingNews = (newsItems || []).filter((item) => item.status === 'aguardando_avaliacao');
   const approvedNews = (newsItems || []).filter((item) => item.status === 'aprovada' || item.status === 'approved');
   const flowSteps = [
-    { label: '1. Separar', hint: '2 com afiliados e 8 sem afiliado.' },
-    { label: '2. Gerar', hint: 'ebook ou roteiro conforme a fila.' },
+    { label: '1. Encontrar', hint: 'Pesquisador monta o lote bruto de ferramentas.' },
+    { label: '2. Classificar', hint: 'Separador marca tem afiliado ou nao tem afiliado.' },
     { label: '3. Revisar', hint: 'você aprova antes de publicar.' },
     { label: '4. Publicar', hint: 'vai para o site, noticias ou email.' },
   ];
@@ -493,14 +701,14 @@ function createLocalAgentPayload(agentId) {
 
   const payloads = {
     pesquisa: {
-      title: 'Lote inicial organizado',
-      summary: `Foram encontrados ${affiliateTools.length + ebookTools.length} itens: ${affiliateTools.length} com fila de afiliado/video e ${ebookTools.length} para ebook.`,
-      nextStep: 'Ativar Agente de Afiliados para validar a separacao antes de produzir conteudo.',
+      title: 'Ferramentas descobertas',
+      summary: `Foram encontrados ${affiliateTools.length + ebookTools.length} itens candidatos para IA, antes da classificacao.`,
+      nextStep: 'Ativar o separador para marcar tem afiliado ou nao tem afiliado.',
     },
     afiliados: {
-      title: 'Afiliados separados',
-      summary: 'Taskade tem link ativo. ElevenLabs tem programa confirmado, mas ainda precisa do link proprio da VANT.',
-      nextStep: 'Aprovar ou ajustar a lista antes de enviar afiliadas para roteiro.',
+      title: 'Ferramentas classificadas',
+      summary: 'Taskade e ElevenLabs ficaram na rota de afiliados; as demais seguem para ebook.',
+      nextStep: 'Revisar a separacao antes de enviar cada grupo para sua rota de conteudo.',
     },
     ebook: {
       title: 'Fila de ebooks preparada',
@@ -885,6 +1093,7 @@ function AdminPage() {
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(null);
   const [reviewingNews, setReviewingNews] = useState(null);
+  const [contentRefreshKey, setContentRefreshKey] = useState(0);
 
   async function loadLocalData() {
     const newsItems = await loadLocalNewsItems();
@@ -1128,11 +1337,19 @@ function AdminPage() {
 
       <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
 
+      <ToolRoutingBoard
+        affiliateItems={affiliateTools}
+        ebookItems={ebookTools}
+        localMode={Boolean(data.localPreview)}
+        onSaved={() => setContentRefreshKey((value) => value + 1)}
+      />
+
       <ContentLabPanel
         affiliateItems={affiliateTools}
         ebookItems={ebookTools}
         newsItems={data.newsItems || []}
         localMode={Boolean(data.localPreview)}
+        refreshSignal={contentRefreshKey}
       />
 
       <NewsOutputPanel items={data.newsItems || []} />

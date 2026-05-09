@@ -178,18 +178,63 @@ export const ebookTools = [
   },
 ];
 
+export const agentBlueprints = [
+  {
+    id: 'pesquisa',
+    name: 'Agente Descobridor de Ferramentas',
+    role: 'finder',
+    goal: 'Busca ferramentas de IA novas, remove duplicadas e entrega o lote bruto para o classificador.',
+    output: 'Lista inicial de ferramentas candidatas com nome, link e contexto de uso.',
+  },
+  {
+    id: 'afiliados',
+    name: 'Subagente Classificador de Afiliados',
+    role: 'classifier',
+    goal: 'Separa cada ferramenta entre com programa de afiliados e sem programa de afiliados.',
+    output: 'Fila organizada em duas rotas: roteiro de video ou ebook/captura.',
+  },
+  {
+    id: 'ebook',
+    name: 'Agente de Ebook',
+    role: 'publisher',
+    goal: 'Transforma as ferramentas sem afiliado em ebooks práticos e úteis.',
+    output: 'Briefing de ebook com promessa, estrutura e CTA de captura.',
+  },
+  {
+    id: 'roteiro',
+    name: 'Agente de Roteiro',
+    role: 'publisher',
+    goal: 'Transforma as ferramentas com afiliado em roteiros de video com demonstracao e CTA.',
+    output: 'Roteiro curto, com gancho, valor e chamada rastreavel.',
+  },
+  {
+    id: 'noticias',
+    name: 'Agente de Noticias',
+    role: 'curator',
+    goal: 'Traduz, resume e prepara as noticias aprovadas para o blog e o email.',
+    output: 'Fila de noticias traduzidas com status pronto para avaliacao.',
+  },
+  {
+    id: 'sincronizador',
+    name: 'Agente Sincronizador',
+    role: 'orchestrator',
+    goal: 'Organiza o que foi gerado, aprovado e publicado em uma unica rotina.',
+    output: 'Visao consolidada do que sobe no site e no email.',
+  },
+];
+
 export const agentSchedule = [
   {
     day: 'Segunda',
-    owner: 'Agente de pesquisa',
+    owner: 'Agente descobridor',
     cadence: '1 rodada leve',
-    output: 'Atualiza 10 IAs candidatas, separa afiliadas e nao afiliadas, remove duplicadas do site.',
+    output: 'Encontra ferramentas de IA candidatas, remove duplicadas e passa o lote bruto para classificacao.',
   },
   {
     day: 'Terca',
-    owner: 'Agente de ebook',
+    owner: 'Subagente classificador',
     cadence: '2 ferramentas',
-    output: 'Transforma ferramentas sem link configurado em briefing de ebook e landing de captura.',
+    output: 'Separa as ferramentas por afiliado e sem afiliado para direcionar ebook ou roteiro.',
   },
   {
     day: 'Quarta',
@@ -215,5 +260,5 @@ export const agentSummary = {
   totalTools: affiliateTools.length + ebookTools.length,
   affiliateQueue: affiliateTools.length,
   ebookQueue: ebookTools.length,
-  reviewStatus: 'Tudo fica aguardando avaliacao antes de virar publicacao, ebook, email ou roteiro final.',
+  reviewStatus: 'Tudo entra em triagem: descoberta -> classificacao -> ebook/roteiro -> avaliacao -> publicacao.',
 };

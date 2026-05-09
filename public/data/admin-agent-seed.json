@@ -1,18 +1,18 @@
 [
   {
     "item_id": "pesquisa",
-    "agent_name": "Agente de Pesquisa",
-    "title": "Lote inicial organizado",
+    "agent_name": "Pesquisador",
+    "title": "Ferramentas descobertas",
     "status": "aguardando_avaliacao",
     "created_at": "2026-05-09T05:52:00.000Z",
     "updated_at": "2026-05-09T05:52:00.000Z",
     "payload": {
       "agentId": "pesquisa",
-      "agentName": "Agente de Pesquisa",
-      "goal": "Atualiza o lote de IAs e remove duplicidade antes de qualquer producao.",
-      "title": "Lote inicial organizado",
-      "summary": "Foram encontrados 10 itens: 2 com fila de afiliado/video e 8 para ebook.",
-      "nextStep": "Ativar Agente de Afiliados para validar a separacao antes de produzir conteudo.",
+      "agentName": "Pesquisador",
+      "goal": "Encontra ferramentas de IA novas, remove duplicadas e entrega o lote bruto para triagem.",
+      "title": "Ferramentas descobertas",
+      "summary": "Foram encontrados 10 itens candidatos para IA, antes da classificacao.",
+      "nextStep": "Ativar o separador para marcar tem afiliado ou nao tem afiliado.",
       "items": [
         { "id": "taskade", "name": "Taskade", "status": "com_afiliado" },
         { "id": "elevenlabs", "name": "ElevenLabs", "status": "com_afiliado" },
@@ -30,18 +30,18 @@
   },
   {
     "item_id": "afiliados",
-    "agent_name": "Agente de Afiliados",
-    "title": "Afiliados separados",
+    "agent_name": "Separador",
+    "title": "Ferramentas classificadas",
     "status": "aguardando_avaliacao",
     "created_at": "2026-05-09T05:52:10.000Z",
     "updated_at": "2026-05-09T05:52:10.000Z",
     "payload": {
       "agentId": "afiliados",
-      "agentName": "Agente de Afiliados",
-      "goal": "Confere quais ferramentas tem link ativo, link pendente ou sem afiliado configurado.",
-      "title": "Afiliados separados",
-      "summary": "Taskade tem link ativo. ElevenLabs tem programa confirmado, mas ainda precisa do link proprio da VANT.",
-      "nextStep": "Aprovar ou ajustar a lista antes de enviar afiliadas para roteiro.",
+      "agentName": "Separador",
+      "goal": "Marca cada ferramenta com etiqueta de tem programa de afiliados ou nao tem programa de afiliados.",
+      "title": "Ferramentas classificadas",
+      "summary": "Taskade e ElevenLabs ficaram na rota de afiliados; as demais seguem para ebook.",
+      "nextStep": "Revisar a separacao antes de enviar cada grupo para sua rota de conteudo.",
       "items": [
         {
           "id": "taskade",
