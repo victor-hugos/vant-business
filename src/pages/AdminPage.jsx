@@ -6,6 +6,7 @@ import AdminOverviewScreen from '../components/AdminOverviewScreen.jsx';
 
 const localAuthKey = 'vant_admin_local_auth';
 const localNewsStatusesKey = 'vant_admin_news_statuses';
+const localNewsSendTimeKey = 'vant_admin_news_send_time';
 const localContentDraftStatusKey = 'vant_admin_content_draft_statuses';
 const localAgentReviewsKey = 'vant_admin_agent_reviews';
 
@@ -73,6 +74,14 @@ function readLocalNewsStatuses() {
 function saveLocalNewsStatus(newsId, status) {
   const current = readLocalNewsStatuses();
   window.localStorage.setItem(localNewsStatusesKey, JSON.stringify({ ...current, [newsId]: status }));
+}
+
+function readLocalNewsSendTime() {
+  return window.localStorage.getItem(localNewsSendTimeKey) || '08:00';
+}
+
+function saveLocalNewsSendTime(time) {
+  window.localStorage.setItem(localNewsSendTimeKey, time);
 }
 
 function readLocalContentDraftStatuses() {
@@ -827,7 +836,7 @@ function PublishApprovalPanel({ affiliateItems, ebookItems, localMode, refreshSi
           <p className="text-xs uppercase tracking-widest text-cyan-400">Avaliação</p>
           <h2 className="mt-2 text-xl font-bold text-white">Fila final de publicação</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            Selecione os ebooks e roteiros já aprovados para enviar ao site.
+            Selecione os ebooks e roteiros já aprovados para colocar capa, revisar link de afiliado e subir no site.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -1336,7 +1345,7 @@ function AdminSidebar({
       id: 'gerenciamento',
       label: 'Gerenciamento',
       hint: 'Publicação e revisão',
-      description: 'Cronograma, agentes, resposta executada, revisão e próximo passo do fluxo.',
+      description: 'Cronograma, agentes, notícias, resposta executada, revisão e próximo passo do fluxo.',
     },
   ];
 
@@ -1492,8 +1501,13 @@ function AgentWorkspace({
   toolEbookItems = [],
   toolLocalMode = false,
   onToolSaved,
+  newsItems = [],
+  newsSendTime = '08:00',
+  onChangeNewsSendTime,
   contentRefreshSignal = 0,
   onContentAction,
+  onReviewNews,
+  reviewingNews = null,
   onRun,
   running,
   activeDay,
@@ -1586,6 +1600,9 @@ function AgentWorkspace({
                 onLog={onContentAction}
               />
 
+              <NewsDispatchPanel value={newsSendTime} onChange={onChangeNewsSendTime} items={newsItems} />
+              <NewsOutputPanel items={newsItems} />
+              <NewsReviewPanel items={newsItems} onReview={onReviewNews} reviewing={reviewingNews} />
               <ClicksPanel clicks={clicks} />
               <ActivityLogPanel entries={activityLog} />
             </div>
@@ -1806,6 +1823,63 @@ function NewsOutputPanel({ items }) {
   );
 }
 
+function NewsDispatchPanel({ value, onChange, items = [] }) {
+  const approvedCount = items.filter((item) => item.status === 'aprovada' || item.status === 'approved').length;
+  const pendingCount = items.filter((item) => item.status === 'aguardando_avaliacao').length;
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Noticias de IA</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Horario de envio</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Defina a hora em que o email diario com as noticias aprovadas deve sair.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusPill tone="emerald">{approvedCount} aprovadas</StatusPill>
+          <StatusPill tone="amber">{pendingCount} aguardando</StatusPill>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[0.75fr_1.25fr]">
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Agendamento</p>
+          <label className="mt-3 block text-sm font-semibold text-white">Hora de envio</label>
+          <input
+            type="time"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+          />
+          <p className="mt-3 text-xs leading-relaxed text-slate-500">
+            Esse horário organiza a rotina do email com as noticias aprovadas do dia.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Destino</p>
+          <p className="mt-2 text-sm font-semibold text-white">Blog e email diario</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">
+            O que estiver aprovado entra na publicacao do blog e na remessa para os cadastros do canal.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+              <p className="text-xs uppercase tracking-widest text-slate-500">Publicacao</p>
+              <p className="mt-1 text-sm text-white">Aprovar no admin antes de subir</p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+              <p className="text-xs uppercase tracking-widest text-slate-500">Envio</p>
+              <p className="mt-1 text-sm text-white">Saida automatica no horario definido</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AdminPage() {
   const location = useLocation();
   const forceLoginView = new URLSearchParams(location.search).get('view') === 'login';
@@ -1826,6 +1900,7 @@ function AdminPage() {
   const [reviewingNews, setReviewingNews] = useState(null);
   const [contentRefreshKey, setContentRefreshKey] = useState(0);
   const [selectedWeekday, setSelectedWeekday] = useState(agentSchedule[0]?.day || 'Segunda');
+  const [newsSendTime, setNewsSendTime] = useState(() => readLocalNewsSendTime());
   const [activityLog, setActivityLog] = useState([]);
 
   function appendActivityLog(message) {
@@ -2000,6 +2075,12 @@ function AdminPage() {
     if (response.ok) await loadData();
   }
 
+  function changeNewsSendTime(time) {
+    setNewsSendTime(time);
+    saveLocalNewsSendTime(time);
+    appendActivityLog(`Horario das noticias ajustado para ${time}.`);
+  }
+
   async function logout() {
     if (isLocalPreview()) {
       window.localStorage.removeItem(localAuthKey);
@@ -2104,8 +2185,13 @@ function AdminPage() {
             appendActivityLog(entries);
             setContentRefreshKey((value) => value + 1);
           }}
+          newsItems={newsItems}
+          newsSendTime={newsSendTime}
+          onChangeNewsSendTime={changeNewsSendTime}
           contentRefreshSignal={contentRefreshKey}
           onContentAction={appendActivityLog}
+          onReviewNews={reviewNews}
+          reviewingNews={reviewingNews}
           onRun={runAgent}
           running={running}
           activeDay={selectedWeekday}
