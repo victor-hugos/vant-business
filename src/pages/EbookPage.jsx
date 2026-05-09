@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAllPosts } from '../utils/posts.js';
 import EbookCover from '../components/EbookCover.jsx';
+import { trackEvent } from '../utils/tracking.js';
 
 function EbookPage() {
   const { slug } = useParams();
@@ -9,6 +10,8 @@ function EbookPage() {
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
 
   const ebookFile = `/ebooks/${slug}.pdf`;
@@ -21,7 +24,16 @@ function EbookPage() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: name, email, ebook: slug }),
+        body: JSON.stringify({
+          nome: name,
+          email,
+          whatsapp,
+          ebook: slug,
+          productTitle: post.title,
+          leadType: 'ebook',
+          newsletterOptIn,
+          source: 'ebook-page',
+        }),
       });
       if (res.ok) {
         setStatus('success');
@@ -51,11 +63,20 @@ function EbookPage() {
           <p className="text-4xl mb-4">📥</p>
           <h2 className="text-2xl font-bold text-white">Ebook liberado!</h2>
           <p className="mt-2 text-slate-400 text-sm">
-            Clica no botão abaixo para baixar.
+            Clica no botão abaixo para baixar. Tambem enviamos a confirmacao para seu email.
           </p>
           <a
             href={ebookFile}
             download
+            onClick={() =>
+              trackEvent({
+                eventType: 'download',
+                itemType: 'ebook',
+                itemId: slug,
+                itemTitle: post.title,
+                source: 'ebook-download-button',
+              })
+            }
             className="mt-6 inline-block rounded-full bg-cyan-400 px-8 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition"
           >
             Baixar PDF agora →
@@ -108,6 +129,37 @@ function EbookPage() {
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none focus:ring-1 focus:ring-cyan-400/30 transition"
               />
             </div>
+            <div>
+              <label className="block text-sm text-slate-300 mb-1.5" htmlFor="whatsapp">
+                WhatsApp com DDD
+              </label>
+              <input
+                id="whatsapp"
+                type="tel"
+                required
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="(11) 99999-9999"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none focus:ring-1 focus:ring-cyan-400/30 transition"
+              />
+            </div>
+
+            <label className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-left">
+              <input
+                type="checkbox"
+                checked={newsletterOptIn}
+                onChange={(e) => setNewsletterOptIn(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400"
+              />
+              <span>
+                <span className="block text-sm font-medium text-slate-200">
+                  Quero tambem entrar no canal diario de noticias de IA
+                </span>
+                <span className="mt-1 block text-xs leading-relaxed text-slate-500">
+                  Se deixar desmarcado, voce recebe apenas este ebook.
+                </span>
+              </span>
+            </label>
 
             {status === 'error' && (
               <p className="text-xs text-red-400">
@@ -125,7 +177,7 @@ function EbookPage() {
           </form>
 
           <p className="mt-4 text-xs text-slate-600 text-center">
-            Sem spam. Só conteúdo útil sobre IA e automação.
+            Sem spam. O cadastro identifica qual ebook foi solicitado.
           </p>
         </div>
       )}

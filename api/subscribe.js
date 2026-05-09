@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
-import { approvedStatuses, getNewsItems } from './_newsStore.js';
 
 const supabase =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
@@ -30,79 +29,6 @@ function escapeHtml(value = '') {
 
 function normalize(value = '') {
   return String(value).trim();
-}
-
-function buildNewsPreviewHtml(items) {
-  if (!items.length) {
-    return `
-      <div style="margin-top:20px;padding:16px;border:1px solid #bae6fd;border-radius:16px;background:#ecfeff;">
-        <p style="margin:0;color:#0f172a;font-size:14px;line-height:1.6;">
-          Assim que houver noticias aprovadas, voce recebe a curadoria completa no mesmo canal.
-        </p>
-      </div>
-    `;
-  }
-
-  return `
-    <div style="margin-top:20px;">
-      <p style="margin:0 0 10px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
-        Previa do que voce vai receber
-      </p>
-      <div style="border:1px solid #bae6fd;border-radius:16px;overflow:hidden;background:#ffffff;">
-        ${items
-          .map(
-            (item) => `
-              <div style="padding:14px 16px;border-top:1px solid #e2e8f0;">
-                <a href="${item.link}" style="font-weight:700;color:#0369a1;text-decoration:none;line-height:1.4;">
-                  ${escapeHtml(item.titlePt || item.title)}
-                </a>
-                <p style="margin:6px 0 0;color:#475569;font-size:13px;line-height:1.55;">
-                  ${escapeHtml(item.summaryPt || item.summary || '')}
-                </p>
-              </div>
-            `
-          )
-          .join('')}
-      </div>
-    </div>
-  `;
-}
-
-function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, ebookUrl }) {
-  const previewItems = (newsItems || []).filter((item) => approvedStatuses.includes(item.status)).slice(0, 3);
-  const safeName = escapeHtml(nome);
-  const safeProductTitle = escapeHtml(productTitle);
-  const newsPreviewHtml = buildNewsPreviewHtml(previewItems);
-
-  return `
-    <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
-      <p style="margin:0 0 8px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">VANT Business</p>
-      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">Ola, ${safeName}</h1>
-      <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
-        Seu cadastro foi confirmado e a curadoria da VANT Business já começou a trabalhar para voce.
-      </p>
-      <div style="margin-top:20px;padding:18px;border-radius:18px;background:#0f172a;color:#f8fafc;">
-        <p style="margin:0 0 8px;color:#67e8f9;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Seu acesso</p>
-        <p style="margin:0;font-size:15px;line-height:1.65;">
-          ${newsletterOptIn ? 'Voce entrou no canal diario de noticias de IA.' : 'Voce também pode ativar o canal diario de noticias de IA a qualquer momento.'}
-        </p>
-        <p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">
-          Material registrado: <strong>${safeProductTitle}</strong>
-        </p>
-        ${ebookUrl ? `<p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">Reabrir ebook: <a href="${ebookUrl}" style="color:#67e8f9;">${ebookUrl}</a></p>` : ''}
-      </div>
-      <div style="margin-top:22px;padding:18px;border:1px solid #e2e8f0;border-radius:18px;background:#ffffff;">
-        <p style="margin:0 0 8px;color:#0f172a;font-size:16px;font-weight:700;">O que você vai receber</p>
-        <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
-          Noticias curadas, ebooks práticos, ideias de ferramentas e, quando fizer sentido, roteiros para conteudo e afiliados.
-        </p>
-        ${newsPreviewHtml}
-      </div>
-      <p style="margin:20px 0 0;color:#64748b;font-size:12px;line-height:1.6;">
-        A VANT Business só envia o que foi aprovado na curadoria.
-      </p>
-    </div>
-  `;
 }
 
 export default async function handler(req, res) {
@@ -176,17 +102,37 @@ export default async function handler(req, res) {
 
     if (error) throw error;
 
-    const news = await getNewsItems(req);
-    const subscriberSubject = cleanLeadType === 'newsletter'
-      ? `${cleanName}, bem-vindo ao canal de noticias de IA`
-      : `${cleanName}, seu material e a curadoria da VANT Business`;
+    const isNewsletterOnly = cleanLeadType === 'newsletter';
+    const subscriberSubject = isNewsletterOnly
+      ? `${cleanName}, voce entrou no canal de noticias de IA`
+      : `Seu ebook esta pronto, ${cleanName}!`;
 
-    const subscriberHtml = buildWelcomeHtml(cleanName, {
-      productTitle: cleanProductTitle,
-      newsletterOptIn: wantsNewsletter,
-      newsItems: news.items || [],
-      ebookUrl,
-    });
+    const subscriberHtml = isNewsletterOnly
+      ? `
+          <div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#0f172a;color:#f1f5f9;">
+            <h2 style="color:#22d3ee;margin-bottom:8px;">Cadastro confirmado</h2>
+            <p style="color:#cbd5e1;line-height:1.6;">
+              Ola, ${safeName}. Voce entrou no canal diario de noticias de IA da VANT Business.
+            </p>
+            <p style="color:#94a3b8;line-height:1.6;margin-top:16px;">
+              O agente busca 20 noticias, Victor avalia a fila e o email diario envia as 10 melhores aprovadas.
+            </p>
+          </div>
+        `
+      : `
+          <div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#0f172a;color:#f1f5f9;">
+            <h2 style="color:#22d3ee;margin-bottom:8px;">Ebook liberado</h2>
+            <p style="color:#cbd5e1;line-height:1.6;">
+              Ola, ${safeName}. Seu material <strong>${safeProductTitle}</strong> foi registrado no sistema.
+            </p>
+            <p style="color:#94a3b8;line-height:1.6;margin-top:16px;">
+              Para baixar novamente, acesse: <a href="${ebookUrl}" style="color:#67e8f9;">${ebookUrl}</a>
+            </p>
+            <p style="color:#94a3b8;line-height:1.6;margin-top:16px;">
+              Preferencia de noticias: ${wantsNewsletter ? 'ebook + canal diario de IA' : 'somente este ebook'}.
+            </p>
+          </div>
+        `;
 
     // 2. Emails em paralelo
     await Promise.all([

@@ -5,7 +5,5 @@ export function getSupabaseAdmin() {
     return null;
   }
 
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 }

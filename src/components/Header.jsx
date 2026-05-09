@@ -3,10 +3,10 @@ import { Link, NavLink } from 'react-router-dom';
 import VantLogo from './VantLogo.jsx';
 
 const navItems = [
-  { label: 'Blog', to: '/blog' },
+  { label: 'Notícias IA', to: '/blog' },
   { label: 'Ferramentas IA', to: '/recursos' },
   { label: 'Automatize', to: '/automatize' },
-  { label: 'Portfolio', to: '/' },
+  { label: 'Guias', to: '/' },
 ];
 
 function Header() {

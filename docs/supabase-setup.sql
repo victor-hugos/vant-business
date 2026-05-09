@@ -1,22 +1,42 @@
 -- Rodar no SQL Editor do Supabase
-create table subscribers (
+create table if not exists subscribers (
   id uuid default gen_random_uuid() primary key,
   nome text not null,
-  email text not null unique,
+  email text not null,
+  whatsapp text,
   ebook text not null,
-  created_at timestamptz default now()
+  product_title text,
+  lead_type text not null default 'ebook',
+  newsletter_opt_in boolean not null default false,
+  source text,
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
--- Index para busca por ebook (remarketing segmentado)
-create index on subscribers (ebook);
+alter table subscribers add column if not exists whatsapp text;
+alter table subscribers add column if not exists product_title text;
+alter table subscribers add column if not exists lead_type text not null default 'ebook';
+alter table subscribers add column if not exists newsletter_opt_in boolean not null default false;
+alter table subscribers add column if not exists source text;
+alter table subscribers add column if not exists metadata jsonb default '{}'::jsonb;
+alter table subscribers add column if not exists updated_at timestamptz default now();
+
+alter table subscribers drop constraint if exists subscribers_email_key;
+drop index if exists subscribers_email_key;
+create unique index if not exists subscribers_email_ebook_key on subscribers (email, ebook);
+
+-- Indices para remarketing segmentado
+create index if not exists subscribers_ebook_idx on subscribers (ebook);
+create index if not exists subscribers_newsletter_idx on subscribers (newsletter_opt_in);
+create index if not exists subscribers_lead_type_idx on subscribers (lead_type);
 
 -- Habilita Row Level Security (segurança)
 alter table subscribers enable row level security;
 
 -- Apenas service_role pode inserir/ler (nossa API usa service key)
-create policy "service only" on subscribers
-  using (false)
-  with check (false);
+drop policy if exists "service only" on subscribers;
+create policy "service only" on subscribers using (false) with check (false);
 
 create table if not exists ai_agent_reviews (
   id uuid default gen_random_uuid() primary key,
@@ -82,26 +102,3 @@ create index if not exists ai_news_items_published_at_idx on ai_news_items (publ
 alter table ai_news_items enable row level security;
 drop policy if exists "service only" on ai_news_items;
 create policy "service only" on ai_news_items using (false) with check (false);
-
-create table if not exists ai_content_drafts (
-  id text primary key,
-  draft_type text not null,
-  source_id text not null,
-  source_name text not null,
-  title text not null,
-  audience text,
-  summary text,
-  focus text,
-  outline jsonb default '[]'::jsonb,
-  status text not null default 'rascunho',
-  payload jsonb default '{}'::jsonb,
-  reviewed_at timestamptz,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
-create index if not exists ai_content_drafts_status_idx on ai_content_drafts (status);
-create index if not exists ai_content_drafts_draft_type_idx on ai_content_drafts (draft_type);
-alter table ai_content_drafts enable row level security;
-drop policy if exists "service only" on ai_content_drafts;
-create policy "service only" on ai_content_drafts using (false) with check (false);

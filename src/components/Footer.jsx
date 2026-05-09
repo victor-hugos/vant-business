@@ -7,13 +7,13 @@ function Footer() {
         <div>
           <p className="font-bold text-white">VANT<span className="text-cyan-400">.business</span></p>
           <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-            Hub de ferramentas IA, tutoriais gratuitos e automações para negócios digitais.
+            Hub de ferramentas IA, ebooks, notícias e automações para negócios digitais.
           </p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-widest text-slate-500 mb-3">Navegação</p>
           <ul className="space-y-2 text-sm text-slate-400">
-            <li><Link to="/blog" className="hover:text-cyan-300 transition">Blog</Link></li>
+            <li><Link to="/blog" className="hover:text-cyan-300 transition">Notícias IA</Link></li>
             <li><Link to="/recursos" className="hover:text-cyan-300 transition">Ferramentas IA</Link></li>
             <li><Link to="/automatize" className="hover:text-cyan-300 transition">Automatize seu negócio</Link></li>
           </ul>

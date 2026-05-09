@@ -9,6 +9,9 @@
 - [ ] Testar filtros de projetos
 - [ ] Testar modal de estudo de caso
 - [ ] Testar links externos
+- [ ] Testar `/admin-vant`
+- [ ] Testar captura de email/WhatsApp
+- [ ] Testar rastreamento de cliques em ferramentas
 - [ ] Testar botão de currículo
 - [ ] Testar responsividade
 - [ ] Rodar npm run build
@@ -28,6 +31,14 @@
 - [ ] Framework: Vite
 - [ ] Build command: npm run build
 - [ ] Output directory: dist
+- [ ] Configurar `SUPABASE_URL`
+- [ ] Configurar `SUPABASE_SERVICE_KEY`
+- [ ] Configurar `EMAIL_USER=admin@vant.business`
+- [ ] Configurar `EMAIL_PASS`
+- [ ] Configurar `CRON_SECRET`
+- [ ] Configurar `ADMIN_EMAIL=admin@vant.business`
+- [ ] Configurar `ADMIN_PASSWORD`
+- [ ] Configurar `ADMIN_SESSION_SECRET`
 - [ ] Publicar deploy
 - [ ] Testar URL gerada
 - [ ] Conectar domínio vant.business

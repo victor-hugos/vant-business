@@ -182,3 +182,24 @@ Sempre evite deixar links vazios visíveis na interface.
 - [ ] Fazer commit no Git
 - [ ] Fazer push para o GitHub
 - [ ] Conferir deploy na Vercel
+
+## Area administrativa
+
+A rota administrativa nao aparece no menu publico:
+
+```txt
+/admin-vant
+```
+
+Ela depende das variaveis `ADMIN_EMAIL`, `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET` no Vercel.
+
+O painel mostra:
+
+- fila de ferramentas afiliadas e sem afiliado configurado;
+- agentes separados por etapa;
+- respostas armazenadas para avaliacao;
+- cronograma operacional;
+- cliques capturados por ferramenta ou ebook.
+
+As respostas dos agentes ficam na tabela `ai_agent_reviews`.
+Os cliques ficam na tabela `analytics_events`.

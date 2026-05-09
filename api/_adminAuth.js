@@ -12,6 +12,7 @@ function getSecret() {
 
 function sign(value) {
   const secret = getSecret();
+  if (!secret) return '';
   return crypto.createHmac('sha256', secret).update(value).digest('hex');
 }
 
@@ -32,7 +33,8 @@ function parseCookies(header = '') {
 export function createAdminToken() {
   const email = process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD || process.env.ADMIN_ACCESS_CODE || DEFAULT_ADMIN_PASSWORD;
-  return sign(`admin:${email}:${password}`);
+  const seed = `${email}:${password}`;
+  return sign(`admin:${seed}`);
 }
 
 function safeEqual(left = '', right = '') {
@@ -53,6 +55,8 @@ export function verifyAdminCredentials(email, password) {
 
 export function isAdminRequest(req) {
   const expected = createAdminToken();
+  if (!expected) return false;
+
   const cookies = parseCookies(req.headers.cookie || '');
   return cookies[COOKIE_NAME] === expected;
 }
@@ -60,7 +64,10 @@ export function isAdminRequest(req) {
 export function setAdminCookie(res) {
   const token = createAdminToken();
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${MAX_AGE_SECONDS}${secure}`);
+  res.setHeader(
+    'Set-Cookie',
+    `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${MAX_AGE_SECONDS}${secure}`
+  );
 }
 
 export function clearAdminCookie(res) {

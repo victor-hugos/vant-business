@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "agent:news": "node scripts/news-agent.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },
