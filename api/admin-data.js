@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { isAdminRequest } from './_adminAuth.js';
 import { getSupabaseAdmin } from './_supabaseAdmin.js';
 import { getNewsItems } from './_newsStore.js';
@@ -36,14 +38,24 @@ export const agentWorkflow = [
   },
 ];
 
+async function loadSeedAgentResponses() {
+  try {
+    const file = await readFile(path.resolve(process.cwd(), 'public/data/admin-agent-seed.json'), 'utf8');
+    return JSON.parse(file);
+  } catch {
+    return [];
+  }
+}
+
 async function fetchAdminRows(req) {
   const supabase = getSupabaseAdmin();
   const news = await getNewsItems(req);
+  const seedResponses = await loadSeedAgentResponses();
 
   if (!supabase) {
     return {
       clicks: [],
-      agentResponses: [],
+      agentResponses: seedResponses,
       newsItems: news.items,
       warnings: ['Supabase ainda nao configurado no ambiente.'],
     };
@@ -61,17 +73,19 @@ async function fetchAdminRows(req) {
       .order('created_at', { ascending: false })
       .limit(100),
     supabase
-      .from('ai_agent_reviews')
-      .select('id,agent_name,item_id,title,status,payload,created_at,updated_at')
-      .eq('item_type', 'agent_response')
-      .order('created_at', { ascending: false })
-      .limit(100),
+    .from('ai_agent_reviews')
+    .select('id,agent_name,item_id,title,status,payload,created_at,updated_at')
+    .eq('item_type', 'agent_response')
+    .order('created_at', { ascending: false })
+    .limit(100),
   ]);
+
+  const agentResponses = (responsesResult.data || []).length > 0 ? responsesResult.data : seedResponses;
 
   return {
     clicks: clicksResult.data || [],
     subscribers: subscribersResult.data || [],
-    agentResponses: responsesResult.data || [],
+    agentResponses,
     newsItems: news.items,
     warnings: [clicksResult.error?.message, subscribersResult.error?.message, responsesResult.error?.message, ...(news.warnings || [])].filter(Boolean),
   };
