@@ -171,6 +171,64 @@ function formatDraftStatus(status) {
   return draftStatusStyles[status] || draftStatusStyles.rascunho;
 }
 
+function formatLogTime(date = new Date()) {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function WeekScheduleRail({ schedule, activeDay, onSelectDay }) {
+  const active = schedule.find((item) => item.day === activeDay) || schedule[0];
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Organizacao da semana</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Dias da semana em ordem de trabalho</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Cada dia mostra o agente principal e o que fica pronto para a bancada.
+          </p>
+        </div>
+        <StatusPill tone="slate">{schedule.length} dias</StatusPill>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {schedule.map((item) => {
+          const isActive = item.day === activeDay;
+          return (
+            <button
+              key={item.day}
+              type="button"
+              onClick={() => onSelectDay(item.day)}
+              className={`rounded-xl border px-4 py-3 text-left transition ${
+                isActive
+                  ? 'border-cyan-400/30 bg-cyan-400/10'
+                  : 'border-white/10 bg-slate-950/45 hover:border-white/20 hover:bg-white/[0.04]'
+              }`}
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
+              <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
+              <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {active && (
+        <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Dia ativo</p>
+          <h3 className="mt-2 text-sm font-semibold text-white">{active.day} - {active.owner}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">{active.output}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
   const initialRouting = useMemo(() => {
     const routing = {};
@@ -192,6 +250,7 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
   });
   const [savingId, setSavingId] = useState(null);
   const [message, setMessage] = useState('');
+  const [researchOpen, setResearchOpen] = useState(true);
 
   useEffect(() => {
     const stored = readLocalToolRouting();
@@ -211,9 +270,16 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
   async function saveTool(tool) {
     const selected = routing[tool.id] || { ebook: false, content: false };
     const drafts = [];
+    const logEntries = [];
 
-    if (selected.ebook) drafts.push(buildRoutingDraft(tool, 'ebook'));
-    if (selected.content) drafts.push(buildRoutingDraft(tool, 'video'));
+    if (selected.ebook) {
+      drafts.push(buildRoutingDraft(tool, 'ebook'));
+      logEntries.push(`Fila de ebook salva: ${tool.name}`);
+    }
+    if (selected.content) {
+      drafts.push(buildRoutingDraft(tool, 'video'));
+      logEntries.push(`Fila de roteiro salva: ${tool.name}`);
+    }
     if (!drafts.length) {
       setMessage(`Marque ebook ou conteudo para ${tool.name} antes de salvar.`);
       return;
@@ -231,7 +297,7 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
         }
         saveLocalContentDraftStatuses(nextStatuses);
         setMessage(`${tool.name} enviado para a fila selecionada.`);
-        onSaved?.();
+        onSaved?.(logEntries);
         return;
       }
 
@@ -249,7 +315,7 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
       }
 
       setMessage(`${tool.name} enviado para a fila selecionada.`);
-      onSaved?.();
+      onSaved?.(logEntries);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -266,12 +332,18 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-widest text-cyan-400">Central de avaliacao</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Pesquisador e Separador trabalhando em sincronia</h2>
+          <h2 className="mt-2 text-xl font-bold text-white">Pesquisador em botao, com triagem imediata</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            O Pesquisador encontra as ferramentas. O Separador marca a etiqueta de afiliados e voce decide se cada ferramenta entra na fila de ebook, conteudo ou nas duas.
+            Clique no Pesquisador para abrir o lote encontrado. Cada card mostra descricao, etiqueta de afiliado e os dois checks de rota.
           </p>
         </div>
-        <StatusPill tone="slate">{cards.length} ferramentas</StatusPill>
+        <button
+          type="button"
+          onClick={() => setResearchOpen((current) => !current)}
+          className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+        >
+          Pesquisador {researchOpen ? 'aberto' : 'fechado'}
+        </button>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -292,80 +364,87 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {cards.map((tool) => {
-          const selected = routing[tool.id] || { ebook: false, content: false };
+      {researchOpen ? (
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          {cards.map((tool) => {
+            const selected = routing[tool.id] || { ebook: false, content: false };
 
-          return (
-            <article key={tool.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-cyan-300">{tool.category}</p>
-                  <h3 className="mt-1 text-base font-semibold text-white">{tool.name}</h3>
+            return (
+              <article key={tool.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-cyan-300">{tool.category}</p>
+                    <h3 className="mt-1 text-base font-semibold text-white">{tool.name}</h3>
+                  </div>
+                  <StatusPill tone={tool.affiliateStatus === 'sem_link_configurado' ? 'amber' : 'emerald'}>
+                    {tool.affiliateStatus === 'sem_link_configurado'
+                      ? 'nao tem programa de afiliados'
+                      : 'tem programa de afiliados'}
+                  </StatusPill>
                 </div>
-                <StatusPill tone={tool.affiliateStatus === 'sem_link_configurado' ? 'amber' : 'emerald'}>
-                  {tool.affiliateStatus === 'sem_link_configurado'
-                    ? 'nao tem programa de afiliados'
-                    : 'tem programa de afiliados'}
-                </StatusPill>
-              </div>
 
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">{tool.description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-slate-300">{tool.description}</p>
 
-              <div className="mt-4 grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <label className="flex items-center gap-3 text-sm text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={selected.ebook}
-                    onChange={(event) => updateTool(tool.id, 'ebook', event.target.checked)}
-                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
-                  />
-                  Entrar na fila para virar ebook
-                </label>
-                <label className="flex items-center gap-3 text-sm text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={selected.content}
-                    onChange={(event) => updateTool(tool.id, 'content', event.target.checked)}
-                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
-                  />
-                  Entrar na fila para virar conteudo
-                </label>
-              </div>
+                <div className="mt-4 grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+                  <label className="flex items-center gap-3 text-sm text-slate-200">
+                    <input
+                      type="checkbox"
+                      checked={selected.ebook}
+                      onChange={(event) => updateTool(tool.id, 'ebook', event.target.checked)}
+                      className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                    />
+                    Entrar na fila para virar ebook
+                  </label>
+                  <label className="flex items-center gap-3 text-sm text-slate-200">
+                    <input
+                      type="checkbox"
+                      checked={selected.content}
+                      onChange={(event) => updateTool(tool.id, 'content', event.target.checked)}
+                      className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                    />
+                    Entrar na fila para virar roteiro
+                  </label>
+                </div>
 
-              <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
-                {selected.ebook && <StatusPill tone="cyan">ebook marcado</StatusPill>}
-                {selected.content && <StatusPill tone="emerald">conteudo marcado</StatusPill>}
-                {tool.relevantInfo?.slice(0, 2).map((info) => (
-                  <span key={info} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1">
-                    {info}
-                  </span>
-                ))}
-              </div>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
+                  {selected.ebook && <StatusPill tone="cyan">ebook marcado</StatusPill>}
+                  {selected.content && <StatusPill tone="emerald">roteiro marcado</StatusPill>}
+                  {tool.relevantInfo?.slice(0, 2).map((info) => (
+                    <span key={info} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1">
+                      {info}
+                    </span>
+                  ))}
+                </div>
 
-              <button
-                type="button"
-                onClick={() => saveTool(tool)}
-                disabled={savingId === tool.id}
-                className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
-              >
-                {savingId === tool.id ? 'Salvando...' : 'Salvar e enviar para as proximas filas'}
-              </button>
-            </article>
-          );
-        })}
-      </div>
+                <button
+                  type="button"
+                  onClick={() => saveTool(tool)}
+                  disabled={savingId === tool.id}
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+                >
+                  {savingId === tool.id ? 'Salvando...' : 'Salvar e enviar para conteudo'}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-500">
+          O lote pesquisado esta recolhido. Clique no botao do Pesquisador para abrir novamente.
+        </div>
+      )}
 
       {message && <p className="mt-4 text-sm text-slate-400">{message}</p>}
     </section>
   );
 }
 
-function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, refreshSignal = 0 }) {
+function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, refreshSignal = 0, onAction }) {
   const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
   const [selectedDraftId, setSelectedDraftId] = useState(null);
   const [drafts, setDrafts] = useState(baseDrafts);
   const [draftWarnings, setDraftWarnings] = useState([]);
+  const [activeDraftKind, setActiveDraftKind] = useState('ebook');
 
   useEffect(() => {
     let cancelled = false;
@@ -428,20 +507,21 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
   const selectedDraft = drafts.find((draft) => draft.id === selectedDraftId) || drafts[0] || null;
   const ebookDrafts = drafts.filter((draft) => draft.kind === 'ebook');
   const videoDrafts = drafts.filter((draft) => draft.kind === 'video');
-  const pendingNews = (newsItems || []).filter((item) => item.status === 'aguardando_avaliacao');
-  const approvedNews = (newsItems || []).filter((item) => item.status === 'aprovada' || item.status === 'approved');
-  const flowSteps = [
-    { label: '1. Encontrar', hint: 'Pesquisador monta o lote bruto de ferramentas.' },
-    { label: '2. Classificar', hint: 'Separador marca tem afiliado ou nao tem afiliado.' },
-    { label: '3. Roteirizar', hint: 'As ferramentas seguem para ebook, roteiro ou ambos.' },
-    { label: '4. Publicar', hint: 'você aprova antes de subir para o site e email.' },
-  ];
+  const visibleDrafts = activeDraftKind === 'video' ? videoDrafts : ebookDrafts;
 
   async function updateDraftStatus(draft, status) {
+    const logLabel =
+      status === 'pronto para postar'
+        ? `Liberado para publicar no site: ${draft.title}`
+        : status === 'em revisao'
+          ? `Enviado para revisao: ${draft.title}`
+          : `Mantido como rascunho: ${draft.title}`;
+
     if (localMode) {
       const nextStatuses = { ...readLocalContentDraftStatuses(), [draft.id]: status };
       saveLocalContentDraftStatuses(nextStatuses);
       setDrafts((current) => current.map((item) => (item.id === draft.id ? { ...item, status } : item)));
+      onAction?.(logLabel);
       return;
     }
 
@@ -460,6 +540,7 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
       const payload = await response.json();
       setDrafts((current) => current.map((item) => (item.id === draft.id ? payload.item : item)));
       setDraftWarnings([]);
+      onAction?.(logLabel);
     } catch (error) {
       setDraftWarnings([error.message]);
     }
@@ -470,150 +551,63 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-widest text-cyan-400">Bancada de conteudo</p>
-          <h2 className="mt-2 text-xl font-bold text-white">O que o agente criou antes de publicar</h2>
+          <h2 className="mt-2 text-xl font-bold text-white">Ebooks e roteiros prontos para revisao</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            Aqui voce revisa ebooks, roteiros e noticias em estado bruto. Nada segue adiante sem sua leitura.
+            Escolha a fila, abra o rascunho e publique somente o que fizer sentido.
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2">
-            <p className="text-lg font-bold text-cyan-100">{ebookDrafts.length}</p>
-            <p className="text-[11px] text-cyan-100/70">Ebooks</p>
-          </div>
-          <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
-            <p className="text-lg font-bold text-emerald-100">{videoDrafts.length}</p>
-            <p className="text-[11px] text-emerald-100/70">Roteiros</p>
-          </div>
-          <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2">
-            <p className="text-lg font-bold text-amber-100">{pendingNews.length}</p>
-            <p className="text-[11px] text-amber-100/70">Noticias pendentes</p>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusPill tone="cyan">{ebookDrafts.length} ebooks</StatusPill>
+          <StatusPill tone="emerald">{videoDrafts.length} roteiros</StatusPill>
+          <StatusPill tone="amber">{drafts.filter((item) => item.status === 'pronto para postar').length} prontos</StatusPill>
         </div>
       </div>
 
-      <div className="mb-5 rounded-xl border border-white/10 bg-slate-950/45 p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo sincronizado</p>
-            <h3 className="mt-1 text-sm font-semibold text-white">A bancada anda em ordem: pesquisa, separacao, ebooks, roteiros e noticias.</h3>
+      <div className="grid gap-4 lg:grid-cols-[0.84fr_1.16fr]">
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveDraftKind('ebook')}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                activeDraftKind === 'ebook'
+                  ? 'bg-cyan-400/15 text-cyan-200'
+                  : 'border border-white/10 text-slate-400 hover:text-white'
+              }`}
+            >
+              Ebooks
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveDraftKind('video')}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                activeDraftKind === 'video'
+                  ? 'bg-emerald-400/15 text-emerald-200'
+                  : 'border border-white/10 text-slate-400 hover:text-white'
+              }`}
+            >
+              Roteiros
+            </button>
+            <StatusPill tone="slate">{visibleDrafts.length} itens</StatusPill>
           </div>
-          <div className="grid gap-2 sm:grid-cols-4">
-            {flowSteps.map((step) => (
-              <div key={step.label} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-cyan-300">{step.label}</p>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{step.hint}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      <div className="mb-5 rounded-xl border border-white/10 bg-slate-950/45 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Fila de noticias</p>
-            <h3 className="mt-1 text-sm font-semibold text-white">Separacao entre o que entra e o que ainda falta avaliar</h3>
-          </div>
-          <StatusPill tone={pendingNews.length > 0 ? 'amber' : 'emerald'}>
-            {pendingNews.length > 0 ? `${pendingNews.length} aguardando` : 'sem pendencias'}
-          </StatusPill>
-        </div>
-
-        {pendingNews.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">Nenhuma noticia aguardando avaliacao neste momento.</p>
-        ) : (
-          <div className="mt-4 grid gap-3 lg:grid-cols-2">
-            {pendingNews.slice(0, 4).map((item) => (
-              <div key={item.id} className="rounded-xl border border-white/10 bg-slate-950/60 p-4">
+          <div className="mt-4 grid gap-2">
+            {visibleDrafts.slice(0, 8).map((draft) => (
+              <button
+                key={draft.id}
+                type="button"
+                onClick={() => setSelectedDraftId(draft.id)}
+                className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-white">{item.titlePt || item.title}</p>
-                    <p className="mt-1 text-xs text-slate-500">{item.source || 'fonte nao informada'}</p>
+                    <p className="text-sm font-semibold text-white">{draft.sourceName}</p>
+                    <p className="mt-1 text-xs text-slate-500">{draft.title}</p>
                   </div>
-                  <StatusPill tone="amber">{item.status}</StatusPill>
+                  <StatusPill tone={formatDraftStatus(draft.status).tone}>{formatDraftStatus(draft.status).label}</StatusPill>
                 </div>
-                {item.summaryPt && <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.summaryPt}</p>}
-              </div>
+              </button>
             ))}
-          </div>
-        )}
-
-        {approvedNews.length > 0 && (
-          <p className="mt-4 text-xs text-emerald-300">
-            {approvedNews.length} noticias ja podem ser publicadas na area publica e no email diario.
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
-        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-cyan-400">Conteudos gerados</p>
-              <h3 className="mt-1 text-sm font-semibold text-white">Ebooks e roteiros prontos para revisar</h3>
-            </div>
-            <StatusPill tone="slate">{drafts.length} itens</StatusPill>
-          </div>
-
-          <div className="mt-4 space-y-4">
-            <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/8 p-3">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] uppercase tracking-widest text-cyan-300">Fila de ebooks</p>
-                  <p className="mt-1 text-sm font-semibold text-white">{ebookDrafts.length} rascunhos</p>
-                </div>
-                <StatusPill tone="cyan">ebook</StatusPill>
-              </div>
-              <div className="mt-3 grid gap-2">
-                {ebookDrafts.slice(0, 8).map((draft) => (
-                  <button
-                    key={draft.id}
-                    type="button"
-                    onClick={() => setSelectedDraftId(draft.id)}
-                    className="rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 text-left transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
-                  >
-                    <p className="text-sm font-semibold text-white">{draft.title}</p>
-                    <p className="mt-1 text-xs text-slate-500">{draft.sourceName}</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <StatusPill tone={formatDraftStatus(draft.status).tone}>{formatDraftStatus(draft.status).label}</StatusPill>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/8 p-3">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] uppercase tracking-widest text-emerald-300">Fila de roteiros</p>
-                  <p className="mt-1 text-sm font-semibold text-white">{videoDrafts.length} rascunhos</p>
-                </div>
-                <StatusPill tone="emerald">roteiro</StatusPill>
-              </div>
-              <div className="mt-3 grid gap-2">
-                {videoDrafts.slice(0, 8).map((draft) => (
-                  <button
-                    key={draft.id}
-                    type="button"
-                    onClick={() => setSelectedDraftId(draft.id)}
-                    className="rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 text-left transition hover:border-emerald-400/30 hover:bg-emerald-400/10"
-                  >
-                    <p className="text-sm font-semibold text-white">{draft.title}</p>
-                    <p className="mt-1 text-xs text-slate-500">{draft.sourceName}</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <StatusPill tone={formatDraftStatus(draft.status).tone}>{formatDraftStatus(draft.status).label}</StatusPill>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-              <p className="text-[11px] uppercase tracking-widest text-cyan-300">Rascunhos gerados</p>
-              <p className="mt-1 text-xs text-slate-500">
-                {ebookDrafts.length} ebooks e {videoDrafts.length} roteiros aguardando sua revisao.
-              </p>
-            </div>
           </div>
         </div>
 
@@ -622,7 +616,7 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
             <>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-cyan-400">Previa do conteudo</p>
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Previa</p>
                   <h3 className="mt-1 text-lg font-bold text-white">{selectedDraft.title}</h3>
                   <p className="mt-1 text-xs text-slate-500">{selectedDraft.audience}</p>
                 </div>
@@ -659,6 +653,14 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
                 ))}
               </div>
 
+              <button
+                type="button"
+                onClick={() => updateDraftStatus(selectedDraft, 'pronto para postar')}
+                className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/20"
+              >
+                Publicar no site
+              </button>
+
               <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-xs uppercase tracking-widest text-cyan-400">Como usar</p>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">
@@ -675,12 +677,35 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
           )}
         </div>
       </div>
+    </section>
+  );
+}
 
-      {draftWarnings.length > 0 && (
-        <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
-          {draftWarnings.join(' · ')}
+function ActivityLogPanel({ entries }) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Log da bancada</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Confirmação do que vai publicar</h2>
         </div>
-      )}
+        <StatusPill tone="slate">{entries.length} eventos</StatusPill>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {entries.length === 0 ? (
+          <p className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-500">
+            Nenhuma acao registrada ainda.
+          </p>
+        ) : (
+          entries.map((entry) => (
+            <div key={entry.id} className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/45 p-4">
+              <p className="text-sm leading-relaxed text-slate-200">{entry.message}</p>
+              <span className="shrink-0 text-xs text-slate-500">{formatLogTime(entry.at)}</span>
+            </div>
+          ))
+        )}
+      </div>
     </section>
   );
 }
@@ -1066,15 +1091,32 @@ function AdminPage() {
   const [running, setRunning] = useState(null);
   const [reviewingNews, setReviewingNews] = useState(null);
   const [contentRefreshKey, setContentRefreshKey] = useState(0);
+  const [selectedWeekday, setSelectedWeekday] = useState(agentSchedule[0]?.day || 'Segunda');
+  const [activityLog, setActivityLog] = useState([]);
+
+  function appendActivityLog(message) {
+    if (!message) return;
+    const messages = Array.isArray(message) ? message : [message];
+    setActivityLog((current) => {
+      const next = messages
+        .filter(Boolean)
+        .map((item) => ({
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          message: item,
+          at: new Date().toISOString(),
+        }));
+      return [...next, ...current].slice(0, 12);
+    });
+  }
 
   async function loadLocalData() {
     const newsItems = await loadLocalNewsItems();
 
-    setData({
-      ok: true,
-      localPreview: true,
-      pipeline: {
-        affiliateTools,
+      setData({
+        ok: true,
+        localPreview: true,
+        pipeline: {
+          affiliateTools,
         ebookTools,
         agentSchedule,
       },
@@ -1104,6 +1146,7 @@ function AdminPage() {
       agentResponses: readLocalResponses(),
       newsItems,
       clicks: [],
+      activityLog: [],
       warnings: [
         message,
         'Painel em modo local para manter a operacao disponivel enquanto a API nao responde.',
@@ -1302,13 +1345,16 @@ function AdminPage() {
         </div>
       )}
 
-      <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
+      <WeekScheduleRail schedule={agentSchedule} activeDay={selectedWeekday} onSelectDay={setSelectedWeekday} />
 
       <ToolRoutingBoard
         affiliateItems={affiliateTools}
         ebookItems={ebookTools}
         localMode={Boolean(data.localPreview)}
-        onSaved={() => setContentRefreshKey((value) => value + 1)}
+        onSaved={(entries) => {
+          appendActivityLog(entries);
+          setContentRefreshKey((value) => value + 1);
+        }}
       />
 
       <ContentLabPanel
@@ -1317,11 +1363,16 @@ function AdminPage() {
         newsItems={data.newsItems || []}
         localMode={Boolean(data.localPreview)}
         refreshSignal={contentRefreshKey}
+        onAction={appendActivityLog}
       />
+
+      <ActivityLogPanel entries={activityLog} />
 
       <NewsOutputPanel items={data.newsItems || []} />
 
       <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
+
+      <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <h2 className="text-base font-bold text-white">Cronograma operacional</h2>
