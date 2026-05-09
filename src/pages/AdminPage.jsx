@@ -824,6 +824,174 @@ function formatDate(date) {
   }).format(new Date(date));
 }
 
+function AdminSidebar({
+  sidebarOpen,
+  onToggleSidebar,
+  activeTab,
+  onSelectTab,
+  workflow = [],
+  activeAgentId,
+  onSelectAgent,
+  activeDay,
+  selectedDay,
+}) {
+  const tabs = [
+    {
+      id: 'avaliacao',
+      label: 'Avaliação',
+      hint: 'Agentes e triagem',
+      description: 'Fila dos agentes, leitura da próxima etapa e saída de cada agente.',
+    },
+    {
+      id: 'gerenciamento',
+      label: 'Gerenciamento',
+      hint: 'Publicação e revisão',
+      description: 'Publicação, fila de avaliação, notícias, cronograma e interação.',
+    },
+  ];
+
+  return (
+    <aside className={`border-b border-white/10 bg-slate-950/45 p-4 lg:border-b-0 lg:border-r ${sidebarOpen ? 'lg:w-[288px]' : 'lg:w-[88px]'}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className={sidebarOpen ? 'block' : 'hidden lg:block'}>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Navegação</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Barra lateral</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Recolha ou abra a lateral e troque entre as áreas do admin.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
+        >
+          {sidebarOpen ? 'Recolher' : 'Abrir'}
+        </button>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => onSelectTab(tab.id)}
+            className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+              activeTab === tab.id
+                ? 'border-cyan-400/30 bg-cyan-400/10'
+                : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+            }`}
+          >
+            <p className="text-sm font-semibold text-white">{tab.label}</p>
+            <p className="mt-1 text-xs text-slate-500">{tab.hint}</p>
+            {sidebarOpen && <p className="mt-2 text-xs leading-relaxed text-slate-600">{tab.description}</p>}
+          </button>
+        ))}
+      </div>
+
+      {sidebarOpen && activeTab === 'avaliacao' && (
+        <div className="mt-4 space-y-2">
+          <p className="pt-2 text-[11px] uppercase tracking-widest text-slate-600">Agentes</p>
+          {workflow.map((agent, index) => {
+            const isActive = activeAgentId === agent.id;
+            const nextName = workflow[index + 1]?.name || 'fim da fila';
+            return (
+              <button
+                key={agent.id}
+                type="button"
+                onClick={() => onSelectAgent(agent.id)}
+                className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                  isActive
+                    ? 'border-cyan-400/30 bg-cyan-400/10'
+                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {index + 1}. {agent.name}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500">{agent.goal}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">Próxima: {nextName}</p>
+                  </div>
+                  <StatusPill tone={isActive ? 'cyan' : 'slate'}>{isActive ? 'ativo' : 'fila'}</StatusPill>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {sidebarOpen && activeTab === 'gerenciamento' && (
+        <div className="mt-4 space-y-2">
+          <p className="pt-2 text-[11px] uppercase tracking-widest text-slate-600">Funções</p>
+          <button
+            type="button"
+            onClick={() => onSelectTab('gerenciamento')}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+          >
+            <p className="text-sm font-semibold text-white">Publicação</p>
+            <p className="mt-1 text-xs text-slate-500">Fila de ebooks, roteiros e liberação para o site.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('gerenciamento')}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+          >
+            <p className="text-sm font-semibold text-white">Avaliação de notícias</p>
+            <p className="mt-1 text-xs text-slate-500">Aprovar ou reprovar antes do blog e do email.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('gerenciamento')}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+          >
+            <p className="text-sm font-semibold text-white">Cronograma</p>
+            <p className="mt-1 text-xs text-slate-500">{selectedDay?.day || activeDay || 'sem dia ativo'}</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('gerenciamento')}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+          >
+            <p className="text-sm font-semibold text-white">Interação</p>
+            <p className="mt-1 text-xs text-slate-500">Cliques, logs e rastreamento do que foi consumido.</p>
+          </button>
+        </div>
+      )}
+
+      {!sidebarOpen && (
+        <div className="mt-4 hidden lg:flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
+          >
+            Abrir
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('avaliacao')}
+            className={`rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-widest transition ${
+              activeTab === 'avaliacao' ? 'bg-cyan-400/15 text-cyan-200' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Av
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('gerenciamento')}
+            className={`rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-widest transition ${
+              activeTab === 'gerenciamento' ? 'bg-cyan-400/15 text-cyan-200' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Ge
+          </button>
+        </div>
+      )}
+    </aside>
+  );
+}
+
 function AgentWorkspace({
   workflow = [],
   responses = [],
@@ -852,8 +1020,7 @@ function AgentWorkspace({
   const [activeAgentId, setActiveAgentId] = useState(workflow[0]?.id || '');
 
   useEffect(() => {
-    if (workflow.length === 0) return;
-    if (!workflow.some((agent) => agent.id === activeAgentId)) {
+    if (workflow.length > 0 && !workflow.some((agent) => agent.id === activeAgentId)) {
       setActiveAgentId(workflow[0].id);
     }
   }, [workflow, activeAgentId]);
@@ -861,19 +1028,6 @@ function AgentWorkspace({
   const completed = new Set(responses.map((response) => response.item_id));
   const nextIndex = workflow.findIndex((agent) => !completed.has(agent.id));
   const allowedIndex = nextIndex === -1 ? workflow.length - 1 : nextIndex;
-  const agentButtons = workflow.map((agent, index) => {
-    const response = responses.find((item) => item.item_id === agent.id);
-
-    return {
-      id: agent.id,
-      name: agent.name,
-      goal: agent.goal,
-      index,
-      response,
-      status: response ? 'respondido' : index === allowedIndex ? 'proximo' : 'travado',
-    };
-  });
-
   const activeAgent = workflow.find((agent) => agent.id === activeAgentId) || workflow[0];
   const activeResponse = responses.find((item) => item.item_id === activeAgentId);
   const activeIndex = workflow.findIndex((agent) => agent.id === activeAgentId);
@@ -881,157 +1035,23 @@ function AgentWorkspace({
   const previousAgent = workflow[activeIndex - 1] || null;
   const selectedDay = schedule.find((item) => item.day === activeDay) || schedule[0];
 
-  const tabs = [
-    {
-      id: 'avaliacao',
-      label: 'Avaliação',
-      hint: 'Agentes em sequência',
-    },
-    {
-      id: 'gerenciamento',
-      label: 'Gerenciamento',
-      hint: 'Publicação e fila',
-    },
-  ];
-
   return (
     <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
-      <div
-        className="grid"
-        style={{ '--sidebar-width': sidebarOpen ? '280px' : '72px' }}
-      >
-        <aside className="border-b border-white/10 bg-slate-950/45 p-4 lg:border-b-0 lg:border-r lg:grid lg:grid-cols-[var(--sidebar-width)_1fr]">
-          <div className={sidebarOpen ? 'block' : 'hidden lg:block'}>
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-cyan-400">Navegação</p>
-                <h2 className="mt-2 text-xl font-bold text-white">Bancada lateral</h2>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                  Alterne entre avaliação e gerenciamento, ou entre em cada agente da fila.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSidebarOpen((current) => !current)}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
-              >
-                Recolher
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="space-y-2">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${
-                      activeTab === tab.id
-                        ? 'border-cyan-400/30 bg-cyan-400/10'
-                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-white">{tab.label}</p>
-                    <p className="mt-1 text-xs text-slate-500">{tab.hint}</p>
-                  </button>
-                ))}
-              </div>
-
-              {activeTab === 'avaliacao' && (
-                <div className="space-y-2">
-                  <p className="pt-2 text-[11px] uppercase tracking-widest text-slate-600">Agentes</p>
-                  {agentButtons.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveTab('avaliacao');
-                        setActiveAgentId(item.id);
-                      }}
-                      className={`w-full rounded-xl border px-3 py-3 text-left transition ${
-                        activeAgentId === item.id
-                          ? 'border-cyan-400/30 bg-cyan-400/10'
-                          : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-white">
-                            {item.index + 1}. {item.name}
-                          </p>
-                          <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.goal}</p>
-                          <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
-                            Próxima: {workflow[item.index + 1]?.name || 'fim da fila'}
-                          </p>
-                        </div>
-                        <StatusPill tone={item.response ? 'emerald' : item.index === allowedIndex ? 'cyan' : 'slate'}>
-                          {item.status}
-                        </StatusPill>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'gerenciamento' && (
-                <div className="space-y-2">
-                  <p className="pt-2 text-[11px] uppercase tracking-widest text-slate-600">Sessões</p>
-                  <button
-                    type="button"
-                    onClick={() => setSidebarOpen((current) => !current)}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
-                  >
-                    <p className="text-sm font-semibold text-white">Publicação</p>
-                    <p className="mt-1 text-xs text-slate-500">Conteúdo, fila e revisão</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onSelectDay ? () => onSelectDay(activeDay) : undefined}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
-                  >
-                    <p className="text-sm font-semibold text-white">Cronograma</p>
-                    <p className="mt-1 text-xs text-slate-500">{selectedDay?.day || 'sem dia ativo'}</p>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {!sidebarOpen && (
-            <div className="flex flex-col items-center gap-2 py-2 lg:items-stretch">
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
-              >
-                Abrir
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('avaliacao')}
-                className={`rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-widest transition ${
-                  activeTab === 'avaliacao'
-                    ? 'bg-cyan-400/15 text-cyan-200'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Av
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('gerenciamento')}
-                className={`rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-widest transition ${
-                  activeTab === 'gerenciamento'
-                    ? 'bg-cyan-400/15 text-cyan-200'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Ge
-              </button>
-            </div>
-          )}
-        </aside>
+      <div className="grid lg:grid-cols-[auto_1fr]">
+        <AdminSidebar
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen((current) => !current)}
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          workflow={workflow}
+          activeAgentId={activeAgentId}
+          onSelectAgent={(id) => {
+            setActiveTab('avaliacao');
+            setActiveAgentId(id);
+          }}
+          activeDay={activeDay}
+          selectedDay={selectedDay}
+        />
 
         <div className="min-w-0 p-5">
           {activeTab === 'avaliacao' ? (
@@ -1158,7 +1178,6 @@ function AgentWorkspace({
               />
 
               <NewsOutputPanel items={newsItems} />
-
               <NewsReviewPanel items={newsItems} onReview={onReviewNews} reviewing={reviewingNews} />
 
               <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
