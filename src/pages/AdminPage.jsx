@@ -825,11 +825,11 @@ function formatDate(date) {
 }
 
 function AgentWorkspace({
-  workflow,
-  responses,
-  schedule,
-  clicks,
-  activityLog,
+  workflow = [],
+  responses = [],
+  schedule = [],
+  clicks = [],
+  activityLog = [],
   onRun,
   running,
   activeDay,
@@ -1560,7 +1560,14 @@ function AdminPage() {
     return <AdminOverviewScreen data={data} onOpenOperations={() => setScreen('operations')} />;
   }
 
-  const { affiliateTools, ebookTools, agentSchedule } = data.pipeline;
+  const pipeline = data.pipeline || { affiliateTools: [], ebookTools: [], agentSchedule: [] };
+  const affiliateToolsSafe = pipeline.affiliateTools || [];
+  const ebookToolsSafe = pipeline.ebookTools || [];
+  const agentScheduleSafe = pipeline.agentSchedule || [];
+  const workflow = data.agentWorkflow || localAgentWorkflow;
+  const responses = data.agentResponses || [];
+  const newsItems = data.newsItems || [];
+  const clicks = data.clicks || [];
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
@@ -1596,21 +1603,27 @@ function AdminPage() {
         </div>
       )}
 
-      <AgentWorkspace
-        workflow={data.agentWorkflow}
-        responses={data.agentResponses}
-        schedule={agentSchedule}
-        clicks={data.clicks || []}
-        activityLog={activityLog}
-        onRun={runAgent}
-        running={running}
-        activeDay={selectedWeekday}
-        onSelectDay={setSelectedWeekday}
-      />
+      {workflow.length === 0 ? (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-slate-400">
+          Nenhum agente carregado ainda.
+        </section>
+      ) : (
+        <AgentWorkspace
+          workflow={workflow}
+          responses={responses}
+          schedule={agentScheduleSafe}
+          clicks={clicks}
+          activityLog={activityLog}
+          onRun={runAgent}
+          running={running}
+          activeDay={selectedWeekday}
+          onSelectDay={setSelectedWeekday}
+        />
+      )}
 
       <ToolRoutingBoard
-        affiliateItems={affiliateTools}
-        ebookItems={ebookTools}
+        affiliateItems={affiliateToolsSafe}
+        ebookItems={ebookToolsSafe}
         localMode={Boolean(data.localPreview)}
         onSaved={(entries) => {
           appendActivityLog(entries);
@@ -1619,22 +1632,22 @@ function AdminPage() {
       />
 
       <ContentLabPanel
-        affiliateItems={affiliateTools}
-        ebookItems={ebookTools}
-        newsItems={data.newsItems || []}
+        affiliateItems={affiliateToolsSafe}
+        ebookItems={ebookToolsSafe}
+        newsItems={newsItems}
         localMode={Boolean(data.localPreview)}
         refreshSignal={contentRefreshKey}
         onAction={appendActivityLog}
       />
 
-      <NewsOutputPanel items={data.newsItems || []} />
+      <NewsOutputPanel items={newsItems} />
 
-      <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
+      <NewsReviewPanel items={newsItems} onReview={reviewNews} reviewing={reviewingNews} />
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <h2 className="text-base font-bold text-white">Cronograma operacional</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {agentSchedule.map((item) => (
+          {agentScheduleSafe.map((item) => (
             <div key={item.day} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
               <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
@@ -1644,6 +1657,8 @@ function AdminPage() {
           ))}
         </div>
       </section>
+
+      <ClicksPanel clicks={clicks} />
     </div>
   );
 }
