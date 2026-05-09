@@ -1012,186 +1012,231 @@ function AgentManagementPanel({
     const selected = reviews[activeAgentId] || review;
     const outcomeLabel = selected.outcome === 'refazer' ? 'deve ser refeito' : 'bem feito';
     const nextStepLabel = selected.nextStep?.trim() || activeResponse?.payload?.nextStep || 'sem próximo passo';
-    onLog?.(
-      `Revisão salva: ${activeAgent?.name} · ${outcomeLabel} · próximo passo: ${nextStepLabel}`
-    );
+    onLog?.(`Revisão salva: ${activeAgent?.name} · ${outcomeLabel} · próximo passo: ${nextStepLabel}`);
   }
 
-  const currentLogCount = activityLog.length;
+  const recentLogEntries = activityLog.slice(0, 3);
 
   return (
     <section className="space-y-4">
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest text-cyan-400">Cronograma</p>
-            <h3 className="mt-2 text-xl font-bold text-white">Primeiro elemento da tela</h3>
+            <h3 className="mt-2 text-lg font-bold text-white">Primeiro elemento da tela</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              O cronograma abre a área de gerenciamento e orienta a ordem dos agentes.
+              O cronograma orienta a ordem dos agentes e resume a entrega do dia em blocos menores.
             </p>
           </div>
           <StatusPill tone="slate">{schedule.length} dias</StatusPill>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
           {schedule.map((item) => (
             <button
               key={item.day}
               type="button"
               onClick={() => onSelectDay(item.day)}
-              className={`rounded-xl border px-4 py-3 text-left transition ${
+              className={`min-w-[170px] rounded-xl border px-3 py-3 text-left transition ${
                 item.day === activeDay
                   ? 'border-cyan-400/30 bg-cyan-400/10'
                   : 'border-white/10 bg-slate-950/45 hover:border-white/20 hover:bg-white/[0.04]'
               }`}
             >
-              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
-              <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
-              <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
+                <StatusPill tone="slate">{item.owner}</StatusPill>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">{item.cadence}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">{item.output}</p>
             </button>
           ))}
         </div>
+
+        <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/45 p-3">
+          {selectedDay ? (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Dia ativo</p>
+                <p className="mt-1 text-sm font-semibold text-white">
+                  {selectedDay.day} - {selectedDay.owner}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">{selectedDay.cadence}</p>
+              </div>
+              <p className="text-sm leading-relaxed text-slate-300 sm:max-w-xl">{selectedDay.output}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">Nenhum dia selecionado.</p>
+          )}
+        </div>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Gerenciamento</p>
-            <h3 className="mt-2 text-xl font-bold text-white">Agentes, execução e revisão</h3>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Agentes</p>
+            <h3 className="mt-2 text-lg font-bold text-white">Fluxo compacto de execução</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              Clique em um agente, rode a execução e marque o que ficou bom ou o que precisa ser refeito.
+              Selecione um agente na lateral, execute, revise a saída e avance o fluxo.
             </p>
           </div>
-          <StatusPill tone={activeResponse ? 'emerald' : 'cyan'}>
-            {activeResponse ? 'resposta disponível' : 'aguardando execução'}
-          </StatusPill>
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
+              {activeResponse ? 'resposta pronta' : 'aguardando execução'}
+            </StatusPill>
+            <button
+              type="button"
+              disabled={running === activeAgent?.id}
+              onClick={() => activeAgent && onRun(activeAgent.id)}
+              className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {running === activeAgent?.id ? 'Executando...' : activeResponse ? 'Reexecutar' : 'Executar agente'}
+            </button>
+          </div>
         </div>
 
-        <div className="mt-5 grid gap-4 xl:grid-cols-[0.86fr_1.14fr]">
-          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Agentes</p>
-            <div className="mt-4 space-y-2">
+        <div className="mt-4 grid gap-4 xl:grid-cols-[0.78fr_1.22fr]">
+          <aside className="rounded-xl border border-white/10 bg-slate-950/45 p-3">
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Lista de agentes</p>
+            <div className="mt-3 space-y-2">
               {workflow.map((agent, index) => {
                 const response = responses.find((item) => item.item_id === agent.id);
+                const isActive = activeAgentId === agent.id;
+
                 return (
                   <button
                     key={agent.id}
                     type="button"
                     onClick={() => setActiveAgentId(agent.id)}
-                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${
-                      activeAgentId === agent.id
+                    className={`w-full rounded-lg border px-3 py-3 text-left transition ${
+                      isActive
                         ? 'border-cyan-400/30 bg-cyan-400/10'
                         : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
                         <p className="text-sm font-semibold text-white">
                           {index + 1}. {agent.name}
                         </p>
-                        <p className="mt-1 text-xs leading-relaxed text-slate-500">{agent.goal}</p>
+                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-slate-500">{agent.goal}</p>
                         <p className="mt-2 text-[11px] uppercase tracking-widest text-slate-600">
                           Próxima: {workflow[index + 1]?.name || 'fim da fila'}
                         </p>
                       </div>
-                      <StatusPill tone={response ? 'emerald' : 'slate'}>
-                        {response ? 'respondido' : 'pendente'}
-                      </StatusPill>
+                      <StatusPill tone={response ? 'emerald' : 'slate'}>{response ? 'ok' : 'vazio'}</StatusPill>
                     </div>
                   </button>
                 );
               })}
             </div>
-          </div>
+          </aside>
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-            <div className="flex flex-wrap gap-2">
-              <StatusPill tone="cyan">Agente em foco</StatusPill>
-              <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
-                {activeResponse ? 'saída carregada' : 'aguardando geração'}
-              </StatusPill>
-              <StatusPill tone="slate">Próxima: {nextAgent?.name || 'fim da fila'}</StatusPill>
-            </div>
+          <div className="space-y-4">
+            <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusPill tone="cyan">Agente em foco</StatusPill>
+                <StatusPill tone={activeResponse ? 'emerald' : 'amber'}>
+                  {activeResponse ? 'saída disponível' : 'sem saída'}
+                </StatusPill>
+                <StatusPill tone="slate">Próxima: {nextAgent?.name || 'fim da fila'}</StatusPill>
+                <StatusPill tone="slate">Anterior: {previousAgent?.name || 'início'}</StatusPill>
+              </div>
 
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs uppercase tracking-widest text-cyan-400">O que este agente faz</p>
-              <h4 className="mt-2 text-lg font-bold text-white">{activeAgent?.name}</h4>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeAgent?.goal}</p>
-            </div>
+              <div className="mt-4 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">O que faz</p>
+                  <h4 className="mt-2 text-base font-bold text-white">{activeAgent?.name}</h4>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeAgent?.goal}</p>
+                </div>
 
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs uppercase tracking-widest text-cyan-400">Execução</p>
-              {activeResponse?.payload ? (
-                <>
-                  <p className="mt-2 text-sm font-semibold text-white">{activeResponse.payload.title}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-emerald-100">
-                    Próximo passo sugerido: {activeResponse.payload.nextStep}
-                  </p>
-                  <p className="mt-3 text-xs text-slate-500">
-                    Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
-                  </p>
-                </>
-              ) : (
-                <p className="mt-2 text-sm text-slate-500">
-                  Nenhuma saída registrada ainda. Ative este agente para gerar a primeira resposta.
-                </p>
-              )}
-            </div>
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs uppercase tracking-widest text-cyan-400">Revisão</p>
-              <div className="mt-3 grid gap-3">
-                <label className="flex items-center gap-3 text-sm text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={review.outcome === 'bom'}
-                    onChange={(event) => updateReview('outcome', event.target.checked ? 'bom' : 'refazer')}
-                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
-                  />
-                  Foi bem feito
-                </label>
-                <label className="flex items-center gap-3 text-sm text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={review.outcome === 'refazer'}
-                    onChange={(event) => updateReview('outcome', event.target.checked ? 'refazer' : 'bom')}
-                    className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
-                  />
-                  Deve ser refeito
-                </label>
-
-                <div>
-                  <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">
-                    Próximo passo
-                  </label>
-                  <textarea
-                    value={review.nextStep || ''}
-                    onChange={(event) => updateReview('nextStep', event.target.value)}
-                    rows={4}
-                    className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
-                    placeholder="Descreva o próximo passo do fluxo"
-                  />
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Saída</p>
+                  {activeResponse?.payload ? (
+                    <>
+                      <p className="mt-2 text-sm font-semibold text-white">{activeResponse.payload.title}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-300">{activeResponse.payload.summary}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-emerald-100">
+                        Próximo passo: {activeResponse.payload.nextStep}
+                      </p>
+                      <p className="mt-3 text-xs text-slate-500">
+                        Atualizado em {formatDate(activeResponse.updated_at || activeResponse.created_at)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="mt-2 text-sm text-slate-500">
+                      Execute o agente selecionado para carregar a primeira resposta.
+                    </p>
+                  )}
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={saveReview}
-                className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
-              >
-                Salvar revisão
-              </button>
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Revisão</p>
+                <div className="mt-3 grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 text-sm text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={review.outcome === 'bom'}
+                        onChange={(event) => updateReview('outcome', event.target.checked ? 'bom' : 'refazer')}
+                        className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                      />
+                      Foi bem feito
+                    </label>
+                    <label className="flex items-center gap-3 text-sm text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={review.outcome === 'refazer'}
+                        onChange={(event) => updateReview('outcome', event.target.checked ? 'refazer' : 'bom')}
+                        className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                      />
+                      Deve ser refeito
+                    </label>
+                    <button
+                      type="button"
+                      onClick={saveReview}
+                      className="inline-flex w-full items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+                    >
+                      Salvar revisão
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">
+                      Próximo passo
+                    </label>
+                    <textarea
+                      value={review.nextStep || ''}
+                      onChange={(event) => updateReview('nextStep', event.target.value)}
+                      rows={4}
+                      className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                      placeholder="Descreva o próximo passo"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Registro recente</p>
+                <StatusPill tone="slate">{recentLogEntries.length} notas</StatusPill>
+              </div>
+              <div className="mt-3 space-y-2">
+                {recentLogEntries.length === 0 ? (
+                  <p className="text-sm text-slate-500">Nenhuma revisão registrada ainda.</p>
+                ) : (
+                  recentLogEntries.map((entry) => (
+                    <div key={entry.id} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                      <p className="text-sm text-slate-200">{entry.message}</p>
+                      <p className="mt-1 text-[11px] text-slate-500">{formatLogTime(entry.at)}</p>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo sugerido</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300">
-            {activeResponse?.payload?.nextStep || 'Execute o agente selecionado para ver o próximo passo do fluxo.'}
-          </p>
         </div>
       </section>
     </section>
@@ -1495,7 +1540,6 @@ function AgentWorkspace({
   workflow = [],
   responses = [],
   schedule = [],
-  clicks = [],
   activityLog = [],
   toolAffiliateItems = [],
   toolEbookItems = [],
@@ -1600,11 +1644,14 @@ function AgentWorkspace({
                 onLog={onContentAction}
               />
 
-              <NewsDispatchPanel value={newsSendTime} onChange={onChangeNewsSendTime} items={newsItems} />
-              <NewsOutputPanel items={newsItems} />
-              <NewsReviewPanel items={newsItems} onReview={onReviewNews} reviewing={reviewingNews} />
-              <ClicksPanel clicks={clicks} />
-              <ActivityLogPanel entries={activityLog} />
+              <NewsReviewPanel
+                items={newsItems}
+                onReview={onReviewNews}
+                reviewing={reviewingNews}
+                sendTime={newsSendTime}
+                onChangeSendTime={onChangeNewsSendTime}
+                onLog={onContentAction}
+              />
             </div>
           )}
         </div>
@@ -1664,87 +1711,179 @@ function ClicksPanel({ clicks }) {
   );
 }
 
-function NewsReviewPanel({ items, onReview, reviewing }) {
-  const pending = items.filter((item) => item.status === 'aguardando_avaliacao');
-  const approved = items.filter((item) => item.status === 'aprovada' || item.status === 'approved');
-  const rejected = items.filter((item) => item.status === 'reprovada');
+function NewsReviewPanel({ items, onReview, reviewing, sendTime = '08:00', onChangeSendTime, onLog }) {
+  const [selectedIds, setSelectedIds] = useState([]);
+  const pending = useMemo(() => items.filter((item) => item.status === 'aguardando_avaliacao'), [items]);
+  const approved = useMemo(() => items.filter((item) => item.status === 'aprovada' || item.status === 'approved'), [items]);
+  const rejected = useMemo(() => items.filter((item) => item.status === 'reprovada'), [items]);
+  const publishable = useMemo(() => items.filter((item) => item.status !== 'reprovada'), [items]);
+  const selectedItems = useMemo(
+    () => publishable.filter((item) => selectedIds.includes(item.id)).slice(0, 10),
+    [publishable, selectedIds]
+  );
+
+  useEffect(() => {
+    setSelectedIds((current) => current.filter((id) => publishable.some((item) => item.id === id)).slice(0, 10));
+  }, [publishable]);
+
+  function toggleSelected(itemId) {
+    setSelectedIds((current) => {
+      if (current.includes(itemId)) {
+        return current.filter((id) => id !== itemId);
+      }
+
+      if (current.length >= 10) {
+        onLog?.('Selecione no maximo 10 noticias por vez.');
+        return current;
+      }
+
+      return [...current, itemId];
+    });
+  }
+
+  async function publishSelected() {
+    if (selectedItems.length === 0) return;
+
+    for (const item of selectedItems) {
+      if (item.status !== 'aprovada' && item.status !== 'approved') {
+        // eslint-disable-next-line no-await-in-loop
+        await onReview(item, 'aprovada');
+      }
+    }
+
+    onLog?.(`Noticias selecionadas para publicacao: ${selectedItems.length} itens, envio as ${sendTime}.`);
+    setSelectedIds([]);
+  }
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-widest text-cyan-400">Noticias de IA</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Fila de avaliacao</h2>
+          <h2 className="mt-2 text-lg font-bold text-white">Revisar e publicar 10 por vez</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            Noticias pendentes ficam apenas aqui. Ao aprovar, elas aparecem na aba publica e entram no email diario.
+            Selecione até 10 noticias aprovadas ou pendentes, ajuste a hora de envio e publique o lote.
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2">
-            <p className="text-lg font-bold text-amber-100">{pending.length}</p>
-            <p className="text-[11px] text-amber-200/70">Pendentes</p>
-          </div>
-          <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
-            <p className="text-lg font-bold text-emerald-100">{approved.length}</p>
-            <p className="text-[11px] text-emerald-200/70">Publicadas</p>
-          </div>
-          <div className="rounded-xl border border-red-300/20 bg-red-300/10 px-3 py-2">
-            <p className="text-lg font-bold text-red-100">{rejected.length}</p>
-            <p className="text-[11px] text-red-200/70">Reprovadas</p>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusPill tone="amber">{pending.length} pendentes</StatusPill>
+          <StatusPill tone="emerald">{approved.length} aprovadas</StatusPill>
+          <StatusPill tone="slate">{rejected.length} reprovadas</StatusPill>
         </div>
       </div>
 
-      <div className="space-y-3">
-        {items.length === 0 ? (
-          <p className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-500">
-            Nenhuma noticia carregada ainda.
-          </p>
-        ) : (
-          items.map((item) => {
-            const title = item.titlePt || item.title;
-            const summary = item.summaryPt || item.summary;
-            const isReviewing = reviewing === item.id;
+      <div className="mt-4 grid gap-4 xl:grid-cols-[0.82fr_1.18fr]">
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <label className="block text-xs uppercase tracking-widest text-cyan-400">Hora de envio</label>
+          <input
+            type="time"
+            value={sendTime}
+            onChange={(event) => onChangeSendTime?.(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+          />
 
-            return (
-              <article key={item.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      <StatusPill tone={item.status === 'aprovada' || item.status === 'approved' ? 'emerald' : item.status === 'reprovada' ? 'slate' : 'amber'}>
-                        {item.status}
-                      </StatusPill>
-                      <StatusPill tone="slate">{item.source}</StatusPill>
+          <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+            <p className="text-xs uppercase tracking-widest text-slate-500">Selecionadas</p>
+            <p className="mt-1 text-lg font-bold text-white">{selectedItems.length}/10</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">
+              O lote selecionado vai para o blog e para o email diario.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={publishSelected}
+            disabled={selectedItems.length === 0}
+            className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Publicar noticias selecionadas
+          </button>
+
+          <p className="mt-3 text-xs leading-relaxed text-slate-500">
+            A publicacao libera o conteudo para o site e para o fluxo de email.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Fila compacta</p>
+            <StatusPill tone="slate">{publishable.length} itens</StatusPill>
+          </div>
+
+          <div className="mt-3 max-h-[420px] space-y-2 overflow-y-auto pr-1">
+            {publishable.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
+                Nenhuma noticia carregada ainda.
+              </p>
+            ) : (
+              publishable.map((item) => {
+                const title = item.titlePt || item.title;
+                const summary = item.summaryPt || item.summary;
+                const isReviewing = reviewing === item.id;
+                const isSelected = selectedIds.includes(item.id);
+                const statusTone =
+                  item.status === 'aprovada' || item.status === 'approved'
+                    ? 'emerald'
+                    : item.status === 'reprovada'
+                      ? 'slate'
+                      : 'amber';
+
+                return (
+                  <label
+                    key={item.id}
+                    className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition ${
+                      isSelected
+                        ? 'border-cyan-400/30 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelected(item.id)}
+                      className="mt-1 h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/30"
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-white">{title}</p>
+                        <StatusPill tone={statusTone}>{item.status}</StatusPill>
+                        <StatusPill tone="slate">{item.source}</StatusPill>
+                      </div>
+                      {summary && <p className="mt-2 text-xs leading-relaxed text-slate-400">{summary}</p>}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={isReviewing}
+                          onClick={() => onReview(item, 'aprovada')}
+                          className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-200 transition hover:bg-emerald-300/20 disabled:opacity-60"
+                        >
+                          Aprovar
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isReviewing}
+                          onClick={() => onReview(item, 'reprovada')}
+                          className="rounded-full border border-red-300/25 bg-red-300/10 px-3 py-1.5 text-[11px] font-semibold text-red-200 transition hover:bg-red-300/20 disabled:opacity-60"
+                        >
+                          Reprovar
+                        </button>
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:border-cyan-400/30 hover:text-white"
+                        >
+                          Abrir fonte
+                        </a>
+                      </div>
                     </div>
-                    <h3 className="text-sm font-semibold leading-snug text-white">{title}</h3>
-                    {summary && <p className="mt-2 text-xs leading-relaxed text-slate-400">{summary}</p>}
-                    <a href={item.link} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs text-cyan-400 hover:underline">
-                      abrir fonte
-                    </a>
-                  </div>
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      disabled={isReviewing}
-                      onClick={() => onReview(item, 'aprovada')}
-                      className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-300/20 disabled:opacity-60"
-                    >
-                      Aprovar
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isReviewing}
-                      onClick={() => onReview(item, 'reprovada')}
-                      className="rounded-lg border border-red-300/25 bg-red-300/10 px-3 py-2 text-xs font-semibold text-red-200 transition hover:bg-red-300/20 disabled:opacity-60"
-                    >
-                      Reprovar
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
-          })
-        )}
+                  </label>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -2131,7 +2270,6 @@ function AdminPage() {
   const workflow = data.agentWorkflow || localAgentWorkflow;
   const responses = data.agentResponses || [];
   const newsItems = data.newsItems || [];
-  const clicks = data.clicks || [];
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
