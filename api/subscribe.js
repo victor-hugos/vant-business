@@ -1,10 +1,11 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import { approvedStatuses, getNewsItems } from './_newsStore.js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+const supabase =
+  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
+    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+    : null;
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.hostinger.com',
@@ -18,27 +19,174 @@ const transporter = nodemailer.createTransport({
 
 const VICTOR_EMAIL = process.env.EMAIL_USER;
 
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function normalize(value = '') {
+  return String(value).trim();
+}
+
+function buildNewsPreviewHtml(items) {
+  if (!items.length) {
+    return `
+      <div style="margin-top:20px;padding:16px;border:1px solid #bae6fd;border-radius:16px;background:#ecfeff;">
+        <p style="margin:0;color:#0f172a;font-size:14px;line-height:1.6;">
+          Assim que houver noticias aprovadas, voce recebe a curadoria completa no mesmo canal.
+        </p>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="margin-top:20px;">
+      <p style="margin:0 0 10px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
+        Previa do que voce vai receber
+      </p>
+      <div style="border:1px solid #bae6fd;border-radius:16px;overflow:hidden;background:#ffffff;">
+        ${items
+          .map(
+            (item) => `
+              <div style="padding:14px 16px;border-top:1px solid #e2e8f0;">
+                <a href="${item.link}" style="font-weight:700;color:#0369a1;text-decoration:none;line-height:1.4;">
+                  ${escapeHtml(item.titlePt || item.title)}
+                </a>
+                <p style="margin:6px 0 0;color:#475569;font-size:13px;line-height:1.55;">
+                  ${escapeHtml(item.summaryPt || item.summary || '')}
+                </p>
+              </div>
+            `
+          )
+          .join('')}
+      </div>
+    </div>
+  `;
+}
+
+function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, ebookUrl }) {
+  const previewItems = (newsItems || []).filter((item) => approvedStatuses.includes(item.status)).slice(0, 3);
+  const safeName = escapeHtml(nome);
+  const safeProductTitle = escapeHtml(productTitle);
+  const newsPreviewHtml = buildNewsPreviewHtml(previewItems);
+
+  return `
+    <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
+      <p style="margin:0 0 8px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">VANT Business</p>
+      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">Ola, ${safeName}</h1>
+      <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
+        Seu cadastro foi confirmado e a curadoria da VANT Business já começou a trabalhar para voce.
+      </p>
+      <div style="margin-top:20px;padding:18px;border-radius:18px;background:#0f172a;color:#f8fafc;">
+        <p style="margin:0 0 8px;color:#67e8f9;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Seu acesso</p>
+        <p style="margin:0;font-size:15px;line-height:1.65;">
+          ${newsletterOptIn ? 'Voce entrou no canal diario de noticias de IA.' : 'Voce também pode ativar o canal diario de noticias de IA a qualquer momento.'}
+        </p>
+        <p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">
+          Material registrado: <strong>${safeProductTitle}</strong>
+        </p>
+        ${ebookUrl ? `<p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">Reabrir ebook: <a href="${ebookUrl}" style="color:#67e8f9;">${ebookUrl}</a></p>` : ''}
+      </div>
+      <div style="margin-top:22px;padding:18px;border:1px solid #e2e8f0;border-radius:18px;background:#ffffff;">
+        <p style="margin:0 0 8px;color:#0f172a;font-size:16px;font-weight:700;">O que você vai receber</p>
+        <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
+          Noticias curadas, ebooks práticos, ideias de ferramentas e, quando fizer sentido, roteiros para conteudo e afiliados.
+        </p>
+        ${newsPreviewHtml}
+      </div>
+      <p style="margin:20px 0 0;color:#64748b;font-size:12px;line-height:1.6;">
+        A VANT Business só envia o que foi aprovado na curadoria.
+      </p>
+    </div>
+  `;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { nome, email, ebook } = req.body;
+  const {
+    nome,
+    email,
+    whatsapp,
+    ebook,
+    productTitle,
+    leadType = 'ebook',
+    newsletterOptIn = false,
+    source = 'unknown',
+  } = req.body || {};
 
-  if (!email || !nome || !ebook) {
+  const cleanName = normalize(nome);
+  const cleanEmail = normalize(email).toLowerCase();
+  const cleanWhatsapp = normalize(whatsapp);
+  const cleanEbook = normalize(ebook);
+  const cleanProductTitle = normalize(productTitle) || cleanEbook;
+  const cleanLeadType = leadType === 'newsletter' ? 'newsletter' : 'ebook';
+  const wantsNewsletter = cleanLeadType === 'newsletter' || Boolean(newsletterOptIn);
+
+  if (!cleanEmail || !cleanName || !cleanWhatsapp || !cleanEbook) {
     return res.status(400).json({ error: 'Dados incompletos' });
   }
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    return res.status(400).json({ error: 'Email invalido' });
+  }
+
+  if (!supabase || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    return res.status(500).json({ error: 'Ambiente de email ou banco nao configurado' });
+  }
+
   const now = new Date().toISOString();
+  const safeName = escapeHtml(cleanName);
+  const safeEmail = escapeHtml(cleanEmail);
+  const safeWhatsapp = escapeHtml(cleanWhatsapp);
+  const safeProductTitle = escapeHtml(cleanProductTitle);
+  const safeLeadType = escapeHtml(cleanLeadType);
+  const safeSource = escapeHtml(source);
+  const ebookUrl = `https://vant.business/ebook/${encodeURIComponent(cleanEbook)}`;
 
   try {
     // 1. Salva no Supabase
-    await supabase
+    const { error } = await supabase
       .from('subscribers')
       .upsert(
-        { nome, email, ebook, created_at: now },
-        { onConflict: 'email', ignoreDuplicates: false }
+        {
+          nome: cleanName,
+          email: cleanEmail,
+          whatsapp: cleanWhatsapp,
+          ebook: cleanEbook,
+          product_title: cleanProductTitle,
+          lead_type: cleanLeadType,
+          newsletter_opt_in: wantsNewsletter,
+          source,
+          metadata: {
+            userAgent: req.headers['user-agent'] || null,
+            referer: req.headers.referer || null,
+          },
+          created_at: now,
+          updated_at: now,
+        },
+        { onConflict: 'email,ebook', ignoreDuplicates: false }
       );
+
+    if (error) throw error;
+
+    const news = await getNewsItems(req);
+    const subscriberSubject = cleanLeadType === 'newsletter'
+      ? `${cleanName}, bem-vindo ao canal de noticias de IA`
+      : `${cleanName}, seu material e a curadoria da VANT Business`;
+
+    const subscriberHtml = buildWelcomeHtml(cleanName, {
+      productTitle: cleanProductTitle,
+      newsletterOptIn: wantsNewsletter,
+      newsItems: news.items || [],
+      ebookUrl,
+    });
 
     // 2. Emails em paralelo
     await Promise.all([
@@ -46,22 +194,38 @@ export default async function handler(req, res) {
       transporter.sendMail({
         from: `"Vant Business" <${VICTOR_EMAIL}>`,
         to: VICTOR_EMAIL,
-        subject: `📥 Novo inscrito — ${ebook}`,
+        subject: `Novo lead VANT - ${cleanProductTitle}`,
         html: `
-          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
-            <h2 style="color:#0f172a;margin-bottom:16px;">Novo inscrito no ebook</h2>
+          <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+            <h2 style="color:#0f172a;margin-bottom:16px;">Novo lead captado</h2>
             <table style="width:100%;border-collapse:collapse;font-size:14px;">
               <tr>
-                <td style="padding:8px 0;color:#64748b;width:80px;">Nome</td>
-                <td style="padding:8px 0;font-weight:600;color:#0f172a;">${nome}</td>
+                <td style="padding:8px 0;color:#64748b;width:140px;">Nome</td>
+                <td style="padding:8px 0;font-weight:600;color:#0f172a;">${safeName}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;color:#64748b;">Email</td>
-                <td style="padding:8px 0;font-weight:600;color:#0f172a;">${email}</td>
+                <td style="padding:8px 0;font-weight:600;color:#0f172a;">${safeEmail}</td>
               </tr>
               <tr>
-                <td style="padding:8px 0;color:#64748b;">Ebook</td>
-                <td style="padding:8px 0;font-weight:600;color:#0ea5e9;">${ebook}</td>
+                <td style="padding:8px 0;color:#64748b;">WhatsApp</td>
+                <td style="padding:8px 0;font-weight:600;color:#0f172a;">${safeWhatsapp}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Produto</td>
+                <td style="padding:8px 0;font-weight:600;color:#0ea5e9;">${safeProductTitle}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Tipo</td>
+                <td style="padding:8px 0;color:#475569;">${safeLeadType}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Noticias</td>
+                <td style="padding:8px 0;color:#475569;">${wantsNewsletter ? 'sim' : 'nao'}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Origem</td>
+                <td style="padding:8px 0;color:#475569;">${safeSource}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;color:#64748b;">Data</td>
@@ -75,24 +239,9 @@ export default async function handler(req, res) {
       // Confirmação para o inscrito
       transporter.sendMail({
         from: `"Vant Business" <${VICTOR_EMAIL}>`,
-        to: email,
-        subject: `Seu ebook está pronto, ${nome}!`,
-        html: `
-          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0f172a;color:#f1f5f9;">
-            <h2 style="color:#22d3ee;margin-bottom:8px;">Ebook liberado! 📥</h2>
-            <p style="color:#94a3b8;line-height:1.6;">
-              Olá, ${nome}! Seu ebook está disponível para download no site.
-            </p>
-            <p style="color:#94a3b8;line-height:1.6;margin-top:16px;">
-              Se a página de download não abriu, acesse o tutorial e clique em "Baixar" novamente.
-            </p>
-            <hr style="border:none;border-top:1px solid #1e293b;margin:24px 0;" />
-            <p style="color:#475569;font-size:12px;">
-              Você recebeu este email porque se cadastrou em vant.business.<br>
-              Só mandamos conteúdo útil sobre IA e automação.
-            </p>
-          </div>
-        `,
+        to: cleanEmail,
+        subject: subscriberSubject,
+        html: subscriberHtml,
       }),
     ]);
 
