@@ -125,6 +125,13 @@ function buildContentDrafts(affiliateItems, ebookItems) {
   return [...ebookDrafts, ...videoDrafts];
 }
 
+function splitPipelineByAffiliateStatus(affiliateItems, ebookItems) {
+  return {
+    withAffiliate: affiliateItems,
+    withoutAffiliate: ebookItems,
+  };
+}
+
 const draftStatusStyles = {
   rascunho: {
     label: 'rascunho',
@@ -149,6 +156,7 @@ function formatDraftStatus(status) {
 
 function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
   const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
+  const groupedTools = useMemo(() => splitPipelineByAffiliateStatus(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
   const [selectedDraftId, setSelectedDraftId] = useState(null);
   const [drafts, setDrafts] = useState(baseDrafts);
   const [draftWarnings, setDraftWarnings] = useState([]);
@@ -216,6 +224,12 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
   const videoDrafts = drafts.filter((draft) => draft.kind === 'video');
   const pendingNews = (newsItems || []).filter((item) => item.status === 'aguardando_avaliacao');
   const approvedNews = (newsItems || []).filter((item) => item.status === 'aprovada' || item.status === 'approved');
+  const flowSteps = [
+    { label: '1. Separar', hint: '2 com afiliados e 8 sem afiliado.' },
+    { label: '2. Gerar', hint: 'ebook ou roteiro conforme a fila.' },
+    { label: '3. Revisar', hint: 'você aprova antes de publicar.' },
+    { label: '4. Publicar', hint: 'vai para o site, noticias ou email.' },
+  ];
 
   async function updateDraftStatus(draft, status) {
     if (localMode) {
@@ -272,6 +286,23 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
       </div>
 
       <div className="mb-5 rounded-xl border border-white/10 bg-slate-950/45 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo sincronizado</p>
+            <h3 className="mt-1 text-sm font-semibold text-white">A bancada anda em ordem: afiliados, ebooks, roteiros e noticias.</h3>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-4">
+            {flowSteps.map((step) => (
+              <div key={step.label} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-cyan-300">{step.label}</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{step.hint}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 rounded-xl border border-white/10 bg-slate-950/45 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest text-cyan-400">Fila de noticias</p>
@@ -313,45 +344,64 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-widest text-cyan-400">Conteudos gerados</p>
-              <h3 className="mt-1 text-sm font-semibold text-white">Ebooks e roteiros</h3>
+              <h3 className="mt-1 text-sm font-semibold text-white">Ideias prontas para revisar</h3>
             </div>
             <StatusPill tone="slate">{drafts.length} itens</StatusPill>
           </div>
 
-          <div className="mt-4 space-y-3">
-            {drafts.length === 0 ? (
-              <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-500">
-                Nenhum rascunho gerado ainda.
-              </p>
-            ) : (
-              drafts.map((draft) => {
-                const current = formatDraftStatus(draft.status);
-                const active = selectedDraft?.id === draft.id;
-
-                return (
+          <div className="mt-4 space-y-4">
+            <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/8 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-cyan-300">Com programa de afiliados</p>
+                  <p className="mt-1 text-sm font-semibold text-white">{groupedTools.withAffiliate.length} ferramentas</p>
+                </div>
+                <StatusPill tone="cyan">roteiro de video</StatusPill>
+              </div>
+              <div className="mt-3 grid gap-2">
+                {groupedTools.withAffiliate.map((tool) => (
                   <button
-                    key={draft.id}
+                    key={tool.id}
                     type="button"
-                    onClick={() => setSelectedDraftId(draft.id)}
-                    className={`w-full rounded-xl border p-4 text-left transition ${
-                      active
-                        ? 'border-cyan-400/40 bg-cyan-400/10'
-                        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
-                    }`}
+                    onClick={() => setSelectedDraftId(`video-${tool.id}`)}
+                    className="rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 text-left transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-white">{draft.title}</p>
-                        <p className="mt-1 text-xs text-slate-500">{draft.audience}</p>
-                      </div>
-                      <StatusPill tone={current.tone}>{current.label}</StatusPill>
-                    </div>
-                    <p className="mt-3 text-xs leading-relaxed text-slate-400">{draft.summary}</p>
-                    <p className="mt-3 text-[11px] uppercase tracking-widest text-cyan-300">{draft.focus}</p>
+                    <p className="text-sm font-semibold text-white">{tool.name}</p>
+                    <p className="mt-1 text-xs text-slate-500">{tool.nextOutput}</p>
                   </button>
-                );
-              })
-            )}
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/8 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-emerald-300">Sem programa de afiliados</p>
+                  <p className="mt-1 text-sm font-semibold text-white">{groupedTools.withoutAffiliate.length} ferramentas</p>
+                </div>
+                <StatusPill tone="emerald">ebook</StatusPill>
+              </div>
+              <div className="mt-3 grid gap-2">
+                {groupedTools.withoutAffiliate.map((tool) => (
+                  <button
+                    key={tool.id}
+                    type="button"
+                    onClick={() => setSelectedDraftId(`ebook-${tool.id}`)}
+                    className="rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 text-left transition hover:border-emerald-400/30 hover:bg-emerald-400/10"
+                  >
+                    <p className="text-sm font-semibold text-white">{tool.name}</p>
+                    <p className="mt-1 text-xs text-slate-500">{tool.nextOutput}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+              <p className="text-[11px] uppercase tracking-widest text-cyan-300">Rascunhos gerados</p>
+              <p className="mt-1 text-xs text-slate-500">
+                {ebookDrafts.length} ebooks e {videoDrafts.length} roteiros aguardando sua revisao.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -395,6 +445,13 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode }) {
                     {meta.label}
                   </button>
                 ))}
+              </div>
+
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Como usar</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Essa ideia já está separada pela fila certa. Agora você revisa o texto, marca o status e só então deixa subir para o site, notícias ou email.
+                </p>
               </div>
 
               <p className="mt-4 text-xs leading-relaxed text-slate-500">
