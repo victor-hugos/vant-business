@@ -36,7 +36,8 @@ function buildContentDrafts(affiliateItems, ebookItems) {
 
 function mergeDraftStatuses(baseDrafts, storedDrafts) {
   const byId = new Map((storedDrafts || []).map((draft) => [draft.id, draft]));
-  return baseDrafts.map((draft) => {
+  const baseIds = new Set(baseDrafts.map((draft) => draft.id));
+  const merged = baseDrafts.map((draft) => {
     const stored = byId.get(draft.id);
     if (!stored) return draft;
     return {
@@ -47,6 +48,9 @@ function mergeDraftStatuses(baseDrafts, storedDrafts) {
       updatedAt: stored.updatedAt,
     };
   });
+
+  const extras = (storedDrafts || []).filter((draft) => !baseIds.has(draft.id));
+  return [...merged, ...extras];
 }
 
 export default async function handler(req, res) {

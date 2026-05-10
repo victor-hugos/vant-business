@@ -62,20 +62,20 @@ function AdminLoginScreen({ onAuthenticated }) {
                 <span className="block text-cyan-300">administrativo</span>
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Entre para abrir a fila dos agentes, aprovar notícias e acompanhar cliques.
-                A tela foi simplificada para evitar travamento e deixar o login previsível.
+                Entre para cadastrar novas ferramentas com imagem, logo, descrição e links antes de publicar.
+                A tela foi simplificada para deixar o acesso previsível.
               </p>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
-                Agentes
+                Publicação
               </span>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
-                Notícias
+                Imagem
               </span>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
-                Cliques
+                Links
               </span>
             </div>
 

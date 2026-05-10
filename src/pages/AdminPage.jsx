@@ -9,6 +9,7 @@ const localNewsStatusesKey = 'vant_admin_news_statuses';
 const localNewsSendTimeKey = 'vant_admin_news_send_time';
 const localContentDraftStatusKey = 'vant_admin_content_draft_statuses';
 const localAgentReviewsKey = 'vant_admin_agent_reviews';
+const localPublicationItemsKey = 'vant_admin_publication_items';
 
 const localAgentWorkflow = [
   {
@@ -108,6 +109,18 @@ function saveLocalAgentReviews(reviews) {
   window.localStorage.setItem(localAgentReviewsKey, JSON.stringify(reviews));
 }
 
+function readLocalPublicationItems() {
+  try {
+    return JSON.parse(window.localStorage.getItem(localPublicationItemsKey) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalPublicationItems(items) {
+  window.localStorage.setItem(localPublicationItemsKey, JSON.stringify(items));
+}
+
 function buildContentDrafts(affiliateItems, ebookItems) {
   const allTools = [...affiliateItems, ...ebookItems];
   const ebookDrafts = allTools.map((tool) => ({
@@ -205,6 +218,72 @@ function formatLogTime(date = new Date()) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date);
+}
+
+function slugifyPublicationName(value = '') {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64);
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Nao foi possivel ler o arquivo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function buildPublicationDraft(form) {
+  const now = new Date().toISOString();
+  const slug = form.slug.trim() || slugifyPublicationName(form.name);
+  const id = `tool-${slug || Date.now()}`;
+
+  return {
+    id,
+    kind: 'tool',
+    sourceId: slug || id,
+    sourceName: form.name.trim(),
+    title: form.name.trim(),
+    audience: form.category.trim(),
+    summary: form.description.trim(),
+    focus: 'Ferramenta publicada',
+    outline: [
+      form.ebookLink.trim() ? `Ebook: ${form.ebookLink.trim()}` : 'Ebook não informado',
+      form.officialLink.trim() ? `Conteudo oficial: ${form.officialLink.trim()}` : 'Conteudo oficial não informado',
+      form.affiliateLink.trim() ? `Afiliado: ${form.affiliateLink.trim()}` : 'Sem link de afiliado',
+    ],
+    status: 'publicado',
+    payload: {
+      publicationType: 'tool',
+      slug,
+      name: form.name.trim(),
+      category: form.category.trim(),
+      description: form.description.trim(),
+      interfaceImage: form.interfaceImage,
+      interfaceImageName: form.interfaceImageName,
+      logoImage: form.logoImage,
+      logoImageName: form.logoImageName,
+      ebookLink: form.ebookLink.trim(),
+      officialLink: form.officialLink.trim(),
+      affiliateLink: form.affiliateLink.trim(),
+      ctaText: form.ctaText.trim(),
+      notes: form.notes.trim(),
+      publishedAt: now,
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function isToolPublicationItem(item) {
+  return item?.kind === 'tool' || item?.payload?.publicationType === 'tool';
 }
 
 function WeekScheduleRail({ schedule, activeDay, onSelectDay }) {
@@ -955,6 +1034,394 @@ function PublishApprovalPanel({ affiliateItems, ebookItems, localMode, refreshSi
           </p>
         </div>
       </div>
+    </section>
+  );
+}
+
+function PublicationWorkbench({ localMode = false, onLog }) {
+  const emptyForm = useMemo(
+    () => ({
+      name: '',
+      slug: '',
+      category: '',
+      description: '',
+      ctaText: '',
+      ebookLink: '',
+      officialLink: '',
+      affiliateLink: '',
+      notes: '',
+      interfaceImage: '',
+      interfaceImageName: '',
+      logoImage: '',
+      logoImageName: '',
+    }),
+    []
+  );
+
+  const [form, setForm] = useState(emptyForm);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadItems() {
+      setLoading(true);
+
+      try {
+        if (localMode) {
+          if (!cancelled) {
+            setItems(readLocalPublicationItems().filter(isToolPublicationItem));
+            setError('');
+          }
+          return;
+        }
+
+        const response = await fetch('/api/admin-content-drafts', { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Falha ao carregar publicacoes');
+        }
+
+        const payload = await response.json();
+        const publicationItems = (payload.items || []).filter(isToolPublicationItem);
+
+        if (!cancelled) {
+          setItems(publicationItems);
+          setError('');
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(loadError.message);
+          setItems(localMode ? readLocalPublicationItems().filter(isToolPublicationItem) : []);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadItems();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [localMode]);
+
+  function updateField(field, value) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleFile(field, nameField, event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setForm((current) => ({
+        ...current,
+        [field]: dataUrl,
+        [nameField]: file.name,
+      }));
+    } catch (fileError) {
+      setError(fileError.message);
+    }
+  }
+
+  async function publishItem(event) {
+    event.preventDefault();
+
+    const name = form.name.trim();
+    const category = form.category.trim();
+    const description = form.description.trim();
+    const ebookLink = form.ebookLink.trim();
+    const officialLink = form.officialLink.trim();
+
+    if (!name || !category || !description || !ebookLink || !officialLink) {
+      setError('Preencha nome, categoria, descricao, link do ebook e link oficial.');
+      return;
+    }
+
+    const draft = buildPublicationDraft(form);
+    setSaving(true);
+    setError('');
+
+    try {
+      if (localMode) {
+        const nextItems = [draft, ...readLocalPublicationItems().filter((item) => item.id !== draft.id)];
+        saveLocalPublicationItems(nextItems);
+        setItems(nextItems.filter(isToolPublicationItem));
+      } else {
+        const response = await fetch('/api/admin-content-drafts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ draft, status: 'publicado' }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Nao foi possivel publicar a ferramenta');
+        }
+
+        const payload = await response.json();
+        const publishedItem = payload.item || draft;
+        setItems((current) => [publishedItem, ...current.filter((item) => item.id !== publishedItem.id)]);
+      }
+
+      onLog?.(`Ferramenta publicada: ${draft.title}`);
+      setForm(emptyForm);
+    } catch (publishError) {
+      setError(publishError.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const previewItem = useMemo(() => buildPublicationDraft(form), [form]);
+  const recentItems = items.slice(0, 5);
+
+  return (
+    <section className="space-y-4">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Admin</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Nova ferramenta</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              Preencha os campos, confira a previa e publique para manter o catalogo pronto para o usuario.
+            </p>
+          </div>
+          <StatusPill tone="slate">{items.length} publicados</StatusPill>
+        </div>
+
+        <form onSubmit={publishItem} className="mt-4 grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Nome da ferramenta</label>
+                <input
+                  value={form.name}
+                  onChange={(event) => updateField('name', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="Ex.: Taskade"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Slug interno</label>
+                <input
+                  value={form.slug}
+                  onChange={(event) => updateField('slug', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="opcional"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Categoria</label>
+                <input
+                  value={form.category}
+                  onChange={(event) => updateField('category', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="Ex.: Produtividade"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Texto de CTA</label>
+                <input
+                  value={form.ctaText}
+                  onChange={(event) => updateField('ctaText', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="Ex.: Testar agora"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Descrição</label>
+              <textarea
+                value={form.description}
+                onChange={(event) => updateField('description', event.target.value)}
+                rows={4}
+                className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                placeholder="Explique o que a ferramenta faz e por que vale publicar."
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Link do ebook</label>
+                <input
+                  value={form.ebookLink}
+                  onChange={(event) => updateField('ebookLink', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="https://..."
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Link oficial do conteudo</label>
+                <input
+                  value={form.officialLink}
+                  onChange={(event) => updateField('officialLink', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Link de afiliado</label>
+                <input
+                  value={form.affiliateLink}
+                  onChange={(event) => updateField('affiliateLink', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="opcional"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-widest text-slate-500">Notas internas</label>
+                <input
+                  value={form.notes}
+                  onChange={(event) => updateField('notes', event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                  placeholder="opcional"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-slate-950/45 p-3">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Imagem de interface</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleFile('interfaceImage', 'interfaceImageName', event)}
+                  className="mt-2 w-full text-sm text-slate-300 file:mr-4 file:rounded-full file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-950"
+                />
+              </div>
+              <div className="rounded-xl border border-white/10 bg-slate-950/45 p-3">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Logo</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleFile('logoImage', 'logoImageName', event)}
+                  className="mt-2 w-full text-sm text-slate-300 file:mr-4 file:rounded-full file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-950"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <p className="rounded-xl border border-amber-300/20 bg-amber-300/10 p-3 text-sm text-amber-100">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving ? 'Publicando...' : 'Publicar'}
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Prévia</p>
+                <StatusPill tone="slate">{previewItem.status}</StatusPill>
+              </div>
+
+              <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+                <div className="flex min-h-[170px] items-center justify-center bg-slate-900/80 p-3">
+                  {previewItem.payload.interfaceImage ? (
+                    <img
+                      src={previewItem.payload.interfaceImage}
+                      alt={previewItem.title}
+                      className="max-h-[170px] w-full rounded-lg object-cover"
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-500">Imagem de interface</p>
+                  )}
+                </div>
+                <div className="border-t border-white/10 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-900">
+                      {previewItem.payload.logoImage ? (
+                        <img
+                          src={previewItem.payload.logoImage}
+                          alt={`${previewItem.title} logo`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-[11px] uppercase tracking-widest text-slate-500">Logo</span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">{previewItem.audience || 'Categoria'}</p>
+                      <h3 className="mt-1 text-lg font-bold text-white">{previewItem.title || 'Nova ferramenta'}</h3>
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-sm leading-relaxed text-slate-300">{previewItem.summary || 'Descrição da ferramenta'}</p>
+
+                  <div className="mt-4 space-y-2 text-xs text-slate-400">
+                    <p>
+                      <span className="text-slate-500">Ebook:</span>{' '}
+                      {previewItem.payload.ebookLink || 'Link do ebook'}
+                    </p>
+                    <p>
+                      <span className="text-slate-500">Conteúdo oficial:</span>{' '}
+                      {previewItem.payload.officialLink || 'Link oficial'}
+                    </p>
+                    <p>
+                      <span className="text-slate-500">Afiliado:</span>{' '}
+                      {previewItem.payload.affiliateLink || 'sem link'}
+                    </p>
+                    {previewItem.payload.ctaText && (
+                      <p>
+                        <span className="text-slate-500">CTA:</span> {previewItem.payload.ctaText}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs uppercase tracking-widest text-cyan-400">Publicadas recentemente</p>
+                <StatusPill tone="slate">{loading ? 'carregando' : recentItems.length}</StatusPill>
+              </div>
+
+              <div className="mt-3 space-y-2">
+                {recentItems.length === 0 ? (
+                  <p className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-500">
+                    Nenhuma ferramenta publicada ainda.
+                  </p>
+                ) : (
+                  recentItems.map((item) => (
+                    <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-white">{item.title}</p>
+                          <p className="mt-1 text-xs text-slate-500">{item.audience || item.payload?.category || 'Sem categoria'}</p>
+                        </div>
+                        <StatusPill tone="emerald">{item.status}</StatusPill>
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-400">{item.summary || item.payload?.description}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
     </section>
   );
 }
@@ -2264,31 +2731,18 @@ function AdminPage() {
   }
 
   const pipeline = data.pipeline || { affiliateTools: [], ebookTools: [], agentSchedule: [] };
-  const affiliateToolsSafe = pipeline.affiliateTools || [];
-  const ebookToolsSafe = pipeline.ebookTools || [];
-  const agentScheduleSafe = pipeline.agentSchedule || [];
-  const workflow = data.agentWorkflow || localAgentWorkflow;
-  const responses = data.agentResponses || [];
-  const newsItems = data.newsItems || [];
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-widest text-cyan-400">Admin VANT</p>
-          <h1 className="mt-2 text-3xl font-bold text-white">Central de avaliacao dos agentes</h1>
+          <h1 className="mt-2 text-3xl font-bold text-white">Bancada de publicação</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
-            Painel privado para revisar fila, ativar agentes em ordem e acompanhar cliques por ferramenta ou ebook.
+            Painel privado para cadastrar nova ferramenta com imagem, logo, descrição e links antes de publicar.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setScreen('overview')}
-            className="rounded-full border border-cyan-400/30 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
-          >
-            Visao geral
-          </button>
           <button
             type="button"
             onClick={logout}
@@ -2305,37 +2759,7 @@ function AdminPage() {
         </div>
       )}
 
-      {workflow.length === 0 ? (
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-slate-400">
-          Nenhum agente carregado ainda.
-        </section>
-      ) : (
-        <AgentWorkspace
-          workflow={workflow}
-          responses={responses}
-          schedule={agentScheduleSafe}
-          clicks={clicks}
-          activityLog={activityLog}
-          toolAffiliateItems={affiliateToolsSafe}
-          toolEbookItems={ebookToolsSafe}
-          toolLocalMode={Boolean(data.localPreview)}
-          onToolSaved={(entries) => {
-            appendActivityLog(entries);
-            setContentRefreshKey((value) => value + 1);
-          }}
-          newsItems={newsItems}
-          newsSendTime={newsSendTime}
-          onChangeNewsSendTime={changeNewsSendTime}
-          contentRefreshSignal={contentRefreshKey}
-          onContentAction={appendActivityLog}
-          onReviewNews={reviewNews}
-          reviewingNews={reviewingNews}
-          onRun={runAgent}
-          running={running}
-          activeDay={selectedWeekday}
-          onSelectDay={setSelectedWeekday}
-        />
-      )}
+      <PublicationWorkbench localMode={Boolean(data.localPreview)} onLog={appendActivityLog} />
     </div>
   );
 }
