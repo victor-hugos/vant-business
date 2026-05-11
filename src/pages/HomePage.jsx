@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import LeadCaptureSection from '../components/LeadCaptureSection.jsx';
 import { getAllPosts } from '../utils/posts.js';
 import { recursos } from '../data/recursos.js';
 import { trackEvent, trackedToolHref } from '../utils/tracking.js';
@@ -75,6 +76,8 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <LeadCaptureSection />
 
       <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
