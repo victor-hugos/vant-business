@@ -7,7 +7,8 @@
     "dev": "vite",
     "agent:news": "node scripts/news-agent.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:email": "node scripts/test-email.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",
