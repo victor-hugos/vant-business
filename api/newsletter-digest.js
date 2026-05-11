@@ -1,32 +1,15 @@
-import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import { escapeHtml, sendEmail } from './_email.js';
 import { approvedStatuses, getNewsItems } from './_newsStore.js';
+import { getNewsletterSubscribers } from './_supabase.js';
 
 const supabase =
-  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
-    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+  process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)
+    ? createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY,
+      )
     : null;
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.hostinger.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-const VICTOR_EMAIL = process.env.EMAIL_USER;
-
-function escapeHtml(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 function buildDigestHtml(nome, items) {
   const newsHtml = items
@@ -54,6 +37,33 @@ function buildDigestHtml(nome, items) {
   `;
 }
 
+async function getExistingSubscribers() {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('subscribers')
+    .select('nome,email')
+    .or('newsletter_opt_in.eq.true,lead_type.eq.newsletter');
+
+  if (error) throw error;
+  return data || [];
+}
+
+async function getAllSubscribers() {
+  const [subscribers, leads] = await Promise.all([
+    getExistingSubscribers(),
+    getNewsletterSubscribers().catch(() => []),
+  ]);
+
+  const deduped = new Map();
+  for (const subscriber of [...subscribers, ...leads]) {
+    if (subscriber.email) {
+      deduped.set(subscriber.email.toLowerCase(), subscriber);
+    }
+  }
+  return Array.from(deduped.values());
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -67,8 +77,8 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  if (!supabase || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    return res.status(500).json({ error: 'Ambiente de email ou banco nao configurado' });
+  if (!supabase) {
+    return res.status(500).json({ error: 'Ambiente de banco nao configurado' });
   }
 
   try {
@@ -86,32 +96,26 @@ export default async function handler(req, res) {
       });
     }
 
-    const { data: subscribers, error } = await supabase
-      .from('subscribers')
-      .select('nome,email')
-      .or('newsletter_opt_in.eq.true,lead_type.eq.newsletter');
-
-    if (error) throw error;
-
+    const subscribers = await getAllSubscribers();
+    const limit = Number(process.env.MAX_DIGEST_RECIPIENTS || 200);
+    const selectedSubscribers = subscribers.slice(0, limit);
     const dryRun = req.query?.dryRun === 'true';
+
     if (!dryRun) {
-      await Promise.all(
-        (subscribers || []).map((subscriber) =>
-          transporter.sendMail({
-            from: `"VANT Business" <${VICTOR_EMAIL}>`,
-            to: subscriber.email,
-            subject: 'As 10 melhores noticias de IA de hoje',
-            html: buildDigestHtml(subscriber.nome, digestItems),
-          })
-        )
-      );
+      for (const subscriber of selectedSubscribers) {
+        await sendEmail({
+          to: subscriber.email,
+          subject: 'As 10 melhores noticias de IA de hoje',
+          html: buildDigestHtml(subscriber.nome || subscriber.name || 'Tudo bem', digestItems),
+        });
+      }
     }
 
     return res.status(200).json({
       ok: true,
       dryRun,
-      sent: dryRun ? 0 : subscribers?.length || 0,
-      recipients: subscribers?.length || 0,
+      sent: dryRun ? 0 : selectedSubscribers.length,
+      recipients: selectedSubscribers.length,
       news: digestItems.length,
     });
   } catch (error) {
