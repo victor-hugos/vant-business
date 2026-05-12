@@ -1,4 +1,5 @@
 import { approvedStatuses, getNewsItems } from './_newsStore.js';
+import { getPublicTools } from './_toolsStore.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,6 +7,16 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (String(req.query?.kind || '') === 'tools') {
+      const tools = await getPublicTools();
+      return res.status(200).json({
+        ok: true,
+        items: tools.items,
+        categorias: tools.categorias,
+        warnings: tools.warnings,
+      });
+    }
+
     const news = await getNewsItems(req);
     const items = news.items.filter((item) => approvedStatuses.includes(item.status));
 

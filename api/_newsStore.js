@@ -2,23 +2,60 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { getSupabaseAdmin } from './_supabaseAdmin.js';
 
-export const approvedStatuses = ['aprovada', 'approved'];
+export const approvedStatuses = ['aprovada', 'approved', 'publicada'];
+
+function slugify(value = '') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 90);
+}
+
+export function normalizeNewsItem(item = {}, status) {
+  const title = item.title || item.titlePt || item.title_pt || 'Noticia sem titulo';
+  const titlePt = item.titlePt || item.title_pt || item.title || title;
+  const nextStatus = status || item.status || 'rascunho';
+  const publishedAt =
+    item.publishedAt ||
+    item.published_at ||
+    (approvedStatuses.includes(nextStatus) ? new Date().toISOString() : null);
+
+  return {
+    ...item,
+    id: item.id || slugify(titlePt || title),
+    title,
+    titlePt,
+    link: item.link || '',
+    source: item.source || '',
+    category: item.category || 'IA',
+    publishedAt,
+    summary: item.summary || item.summaryPt || item.summary_pt || '',
+    summaryPt: item.summaryPt || item.summary_pt || item.summary || '',
+    status: nextStatus,
+    score: Number(item.score || 0),
+    rank: item.rank || null,
+  };
+}
 
 function toDbItem(item, status) {
+  const normalized = normalizeNewsItem(item, status);
   return {
-    id: item.id,
-    title: item.title || '',
-    title_pt: item.titlePt || item.title_pt || null,
-    link: item.link || '',
-    source: item.source || null,
-    category: item.category || null,
-    published_at: item.publishedAt || item.published_at || null,
-    summary: item.summary || null,
-    summary_pt: item.summaryPt || item.summary_pt || null,
-    status: status || item.status || 'aguardando_avaliacao',
-    score: item.score || 0,
-    rank: item.rank || null,
-    payload: item,
+    id: normalized.id,
+    title: normalized.title,
+    title_pt: normalized.titlePt || null,
+    link: normalized.link,
+    source: normalized.source || null,
+    category: normalized.category || null,
+    published_at: normalized.publishedAt || null,
+    summary: normalized.summary || null,
+    summary_pt: normalized.summaryPt || null,
+    status: normalized.status,
+    score: normalized.score || 0,
+    rank: normalized.rank || null,
+    payload: normalized,
     updated_at: new Date().toISOString(),
   };
 }
@@ -92,12 +129,17 @@ export async function getNewsItems(req) {
 }
 
 export async function upsertNewsStatus(item, status) {
+  return upsertNewsItem(item, status);
+}
+
+export async function upsertNewsItem(item, status) {
+  const normalized = normalizeNewsItem(item, status);
   const supabase = getSupabaseAdmin();
-  if (!supabase) return { stored: false, item: { ...item, status } };
+  if (!supabase) return { stored: false, item: normalized };
 
   const now = new Date().toISOString();
   const dbItem = {
-    ...toDbItem(item, status),
+    ...toDbItem(normalized, normalized.status),
     reviewed_at: now,
     updated_at: now,
   };

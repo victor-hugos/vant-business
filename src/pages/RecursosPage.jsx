@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ToolLogo from '../components/ToolLogo.jsx';
 import VantLogo from '../components/VantLogo.jsx';
-import { recursos, categorias } from '../data/recursos.js';
+import { recursos as staticTools, categorias as staticCategories } from '../data/recursos.js';
 import { trackedToolHref } from '../utils/tracking.js';
 
 const badgeStyles = {
@@ -86,10 +86,52 @@ function ToolCard({ tool }) {
 
 function RecursosPage() {
   const [categoriaAtiva, setCategoriaAtiva] = useState('Todas');
+  const [tools, setTools] = useState(staticTools);
+  const [categories, setCategories] = useState(staticCategories);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch('/api/news?kind=tools')
+      .then((response) => {
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok || !contentType.includes('application/json')) {
+          throw new Error('tools-api-unavailable');
+        }
+        return response.json();
+      })
+      .then((payload) => {
+        if (!active) return;
+        setTools(payload.items?.length ? payload.items : staticTools);
+        setCategories(payload.categorias?.length ? payload.categorias : staticCategories);
+      })
+      .catch(() => {
+        if (!active) return;
+        setTools(staticTools);
+        setCategories(staticCategories);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!categories.includes(categoriaAtiva)) {
+      setCategoriaAtiva('Todas');
+    }
+  }, [categories, categoriaAtiva]);
 
   const filtrados = categoriaAtiva === 'Todas'
-    ? recursos
-    : recursos.filter((r) => r.categoria === categoriaAtiva);
+    ? tools
+    : tools.filter((r) => r.categoria === categoriaAtiva);
+
+  const categoryCounts = useMemo(() => {
+    return tools.reduce((acc, tool) => {
+      acc[tool.categoria] = (acc[tool.categoria] || 0) + 1;
+      return acc;
+    }, {});
+  }, [tools]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -173,7 +215,7 @@ function RecursosPage() {
 
         <div className="mt-3 overflow-x-auto pb-1">
           <div className="flex min-w-max flex-wrap gap-2">
-            {categorias.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategoriaAtiva(cat)}
@@ -186,7 +228,7 @@ function RecursosPage() {
                 {cat}
                 {cat !== 'Todas' && (
                   <span className="ml-1.5 text-xs opacity-60">
-                    {recursos.filter((r) => r.categoria === cat).length}
+                    {categoryCounts[cat] || 0}
                   </span>
                 )}
               </button>
