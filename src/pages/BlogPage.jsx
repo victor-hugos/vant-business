@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import VantLogo from '../components/VantLogo.jsx';
+
 function TagPill({ tag }) {
   return (
-    <span className="rounded-full bg-cyan-400/10 px-2.5 py-0.5 text-xs font-medium text-cyan-300 border border-cyan-400/20">
+    <span className="brand-pill px-2.5 py-0.5 text-xs font-medium">
       {tag}
     </span>
   );
@@ -40,33 +42,32 @@ function NewsCard({ item }) {
       href={item.link}
       target="_blank"
       rel="noreferrer"
-      className="group relative block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition duration-200 hover:-translate-y-1 hover:border-cyan-400/35 hover:bg-white/[0.07] hover:shadow-[0_18px_60px_rgba(8,145,178,0.12)]"
+      className="brand-card group block p-6"
     >
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
       <div className="flex flex-wrap items-center gap-2">
         <TagPill tag={item.category || 'IA'} />
-        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2.5 py-0.5 text-xs text-emerald-200">
+        <span className="rounded-full border border-white/20 bg-white/[0.05] px-2.5 py-0.5 text-xs text-white">
           Publicada
         </span>
       </div>
-      <h2 className="font-display mt-4 text-2xl font-bold leading-tight text-white transition group-hover:text-cyan-300">
+      <h2 className="font-display mt-4 text-2xl font-bold leading-tight text-white">
         {title}
       </h2>
       {summary && (
-        <p className="mt-3 text-sm leading-relaxed text-slate-300 line-clamp-3">
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#a6a6a6]">
           {summary}
         </p>
       )}
       <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Fonte</p>
-          <span className="text-sm text-slate-200">{item.source}</span>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#6f6f6f]">Fonte</p>
+          <span className="text-sm text-[#f0f0f0]">{item.source}</span>
         </div>
-        <span className="text-xs font-semibold text-cyan-400 transition group-hover:text-cyan-300">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white">
           Ler agora →
         </span>
       </div>
-      <p className="mt-3 text-xs text-slate-500">{formatDate(item.publishedAt)}</p>
+      <p className="mt-3 text-xs text-[#6f6f6f]">{formatDate(item.publishedAt)}</p>
     </a>
   );
 }
@@ -146,54 +147,62 @@ function BlogPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
-      <section className="news-glow overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03]">
-        <div className="news-grid grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.3fr_0.9fr] lg:px-10 lg:py-10">
+      <section className="brand-panel">
+        <div className="brand-mark-panel grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.3fr_0.9fr] lg:px-10 lg:py-10">
           <div className="flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
+                <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
                   Últimas notícias de IA
                 </span>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
+                <span className="brand-pill px-3 py-1 text-[11px] font-medium">
                   Curadoria aprovada no admin
                 </span>
               </div>
 
-              <h1 className="font-display mt-5 max-w-3xl text-4xl font-extrabold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
                 Últimas
-                <span className="block text-cyan-300">notícias de IA</span>
+                <span className="brand-metal block">notícias de IA</span>
               </h1>
 
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
                 Uma seleção direta do que importa, traduzida para português e liberada só depois da avaliação.
                 Entre no canal por email e receba o resumo diário sem ruído.
               </p>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+              <span className="brand-pill px-4 py-2 text-sm">
                 Email diário
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+              <span className="brand-pill px-4 py-2 text-sm">
                 10 notícias selecionadas
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+              <span className="brand-pill px-4 py-2 text-sm">
                 Conteúdo aprovado
               </span>
             </div>
 
-            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-slate-500">
+            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-[#6f6f6f]">
               {generatedAt ? `Atualizado em ${formatDate(generatedAt)}` : 'Atualização contínua via admin'}
             </p>
           </div>
 
-          <div className="self-start rounded-[1.5rem] border border-white/10 bg-slate-950/65 p-5 shadow-2xl shadow-cyan-950/20">
+          <div className="brand-card self-start p-5">
+            <div className="mb-5 flex items-center gap-3">
+              <VantLogo size={44} />
+              <div>
+                <p className="brand-kicker">Entrar no canal</p>
+                <h2 className="brand-title mt-1 text-xl font-bold text-white">
+                  Curadoria por email
+                </h2>
+              </div>
+            </div>
             <div className="mb-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Entrar no canal</p>
-              <h2 className="font-display mt-2 text-2xl font-bold text-white">
+              <h3 className="font-display text-2xl font-bold text-white">
                 Receba a curadoria de IA por email
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#a6a6a6]">
                 Cadastre nome, email e WhatsApp para entrar no fluxo diário de notícias aprovadas.
               </p>
             </div>
@@ -205,7 +214,7 @@ function BlogPage() {
                 value={form.nome}
                 onChange={(event) => updateField('nome', event.target.value)}
                 placeholder="Seu nome"
-                className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                className="brand-input px-4 py-3 text-sm"
               />
               <input
                 type="email"
@@ -213,7 +222,7 @@ function BlogPage() {
                 value={form.email}
                 onChange={(event) => updateField('email', event.target.value)}
                 placeholder="Seu email"
-                className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                className="brand-input px-4 py-3 text-sm"
               />
               <input
                 type="tel"
@@ -221,17 +230,17 @@ function BlogPage() {
                 value={form.whatsapp}
                 onChange={(event) => updateField('whatsapp', event.target.value)}
                 placeholder="WhatsApp"
-                className="w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                className="brand-input px-4 py-3 text-sm"
               />
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex w-full items-center justify-center rounded-xl bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+                className="brand-button-primary w-full px-5 py-3 text-xs disabled:opacity-60"
               >
                 {submitting ? 'Enviando...' : 'Entrar no canal de notícias'}
               </button>
               {newsletterStatus === 'success' && (
-                <p className="text-xs text-emerald-300">Cadastro recebido. Você entrou no canal diário.</p>
+                <p className="text-xs text-white">Cadastro recebido. Você entrou no canal diário.</p>
               )}
               {newsletterStatus === 'error' && (
                 <p className="text-xs text-red-300">Não foi possível cadastrar agora. Tente novamente.</p>
@@ -242,23 +251,23 @@ function BlogPage() {
       </section>
 
       {loading ? (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-slate-400">
+        <div className="brand-panel p-10 text-center text-[#a6a6a6]">
           Carregando notícias...
         </div>
       ) : news.length === 0 ? (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-slate-400">
+        <div className="brand-panel p-10 text-center text-[#a6a6a6]">
           Nenhuma notícia aprovada ainda. A curadoria aparece aqui depois da avaliação no admin.
         </div>
       ) : (
         <section className="space-y-4">
           <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Feed aprovado</p>
-              <h2 className="font-display mt-2 text-3xl font-bold text-white">
+              <p className="brand-kicker">Feed aprovado</p>
+              <h2 className="brand-title mt-2 text-3xl font-bold text-white">
                 O que entrou hoje no ar
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-relaxed text-slate-400">
+            <p className="max-w-xl text-sm leading-relaxed text-[#a6a6a6]">
               Cada card abaixo é uma notícia liberada no admin e pronta para leitura. Entre no canal para receber o resumo por email.
             </p>
           </div>

@@ -1,28 +1,30 @@
 import { useState } from 'react';
+import ToolLogo from '../components/ToolLogo.jsx';
+import VantLogo from '../components/VantLogo.jsx';
 import { recursos, categorias } from '../data/recursos.js';
 import { trackedToolHref } from '../utils/tracking.js';
 
 const badgeStyles = {
-  'Que uso': 'bg-emerald-400/15 text-emerald-300 border border-emerald-400/25',
-  'Afiliado': 'bg-amber-400/15 text-amber-300 border border-amber-400/25',
+  'Que uso': 'bg-white/[0.06] text-white border border-white/25',
+  'Afiliado': 'bg-white/[0.035] text-[#c9c9c9] border border-white/15',
 };
 
 const categoriaColors = {
-  IA: 'bg-purple-400/15 text-purple-300 border-purple-400/20',
-  Produtividade: 'bg-blue-400/15 text-blue-300 border-blue-400/20',
-  Automação: 'bg-cyan-400/15 text-cyan-300 border-cyan-400/20',
-  Marketing: 'bg-pink-400/15 text-pink-300 border-pink-400/20',
-  Vídeo: 'bg-orange-400/15 text-orange-300 border-orange-400/20',
-  'E-commerce': 'bg-green-400/15 text-green-300 border-green-400/20',
+  IA: 'bg-white/[0.045] text-[#f0f0f0] border-white/20',
+  Produtividade: 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
+  Automação: 'bg-white/[0.045] text-[#f0f0f0] border-white/20',
+  Marketing: 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
+  Vídeo: 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
+  'E-commerce': 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
 };
 
 function AiIcon() {
   return (
-    <svg viewBox="0 0 240 240" className="h-24 w-24 text-cyan-300 sm:h-28 sm:w-28" aria-hidden="true">
+    <svg viewBox="0 0 240 240" className="h-24 w-24 text-[#f0f0f0] sm:h-28 sm:w-28" aria-hidden="true">
       <defs>
         <linearGradient id="aiNodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="currentColor" stopOpacity="0.92" />
-          <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.58" />
+          <stop offset="100%" stopColor="#a6a6a6" stopOpacity="0.58" />
         </linearGradient>
       </defs>
       <rect x="44" y="44" width="152" height="152" rx="34" fill="url(#aiNodeGradient)" fillOpacity="0.09" stroke="currentColor" strokeOpacity="0.4" strokeWidth="3" />
@@ -44,11 +46,10 @@ function ToolCard({ tool }) {
       href={trackedToolHref(tool.id, 'recursos-tool-card')}
       target="_blank"
       rel="noreferrer"
-      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition duration-200 hover:-translate-y-1 hover:border-cyan-400/35 hover:bg-white/[0.07] hover:shadow-[0_18px_60px_rgba(8,145,178,0.12)]"
+      className="brand-card group flex flex-col p-6"
     >
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
       <div className="mb-4 flex items-start justify-between gap-3">
-        <span className="text-4xl leading-none">{tool.emoji}</span>
+        <ToolLogo tool={tool} className="h-12 w-12 shrink-0" />
         <div className="flex flex-wrap gap-1.5">
           {tool.badge && (
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeStyles[tool.badge]}`}>
@@ -56,26 +57,26 @@ function ToolCard({ tool }) {
             </span>
           )}
           {tool.gratis && (
-            <span className="rounded-full bg-slate-700/60 px-2.5 py-0.5 text-xs text-slate-400 border border-white/10">
+            <span className="rounded-full border border-white/15 bg-white/[0.035] px-2.5 py-0.5 text-xs text-[#a6a6a6]">
               Grátis
             </span>
           )}
         </div>
       </div>
 
-      <h3 className="font-display text-2xl font-bold leading-tight text-white transition group-hover:text-cyan-300">
+      <h3 className="font-display text-2xl font-bold leading-tight text-white">
         {tool.name}
       </h3>
 
-      <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-300">
+      <p className="mt-3 flex-1 text-sm leading-relaxed text-[#a6a6a6]">
         {tool.description}
       </p>
 
       <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <span className={`rounded-full border px-2.5 py-0.5 text-xs ${categoriaColors[tool.categoria] || 'bg-slate-700/60 text-slate-400 border-white/10'}`}>
+        <span className={`rounded-full border px-2.5 py-0.5 text-xs ${categoriaColors[tool.categoria] || 'bg-white/[0.035] text-[#a6a6a6] border-white/10'}`}>
           {tool.categoria}
         </span>
-        <span className="text-xs font-semibold text-cyan-400 transition group-hover:text-cyan-300">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white">
           Acessar →
         </span>
       </div>
@@ -92,56 +93,54 @@ function RecursosPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
-      <section className="news-glow overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03]">
-        <div className="news-grid grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[1.25fr_0.75fr] lg:px-10 lg:py-8">
+      <section className="brand-panel">
+        <div className="brand-mark-panel grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[1.25fr_0.75fr] lg:px-10 lg:py-8">
           <div className="flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
+                <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
                   Ferramentas de IA
                 </span>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
+                <span className="brand-pill px-3 py-1 text-[11px] font-medium">
                   Curadoria para uso real
                 </span>
               </div>
 
-              <h1 className="font-display mt-4 max-w-3xl text-4xl font-extrabold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
                 Ferramentas
-                <span className="block text-cyan-300">de IA</span>
+                <span className="brand-metal block">de IA</span>
               </h1>
 
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
                 Uma vitrine direta das ferramentas que entram no fluxo da VANT. Filtre por categoria, acesse o que interessa e siga para os tutoriais quando precisar de contexto prático.
               </p>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+              <span className="brand-pill px-4 py-2 text-sm">
                 Curadoria ativa
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+              <span className="brand-pill px-4 py-2 text-sm">
                 Foco em uso real
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+              <span className="brand-pill px-4 py-2 text-sm">
                 Tutoriais e ebooks
               </span>
             </div>
           </div>
 
           <div className="flex items-center justify-center lg:justify-end">
-            <div className="relative flex h-full min-h-[200px] w-full items-center justify-center rounded-[1.5rem] border border-white/10 bg-slate-950/50 px-5 py-6">
-              <div className="absolute inset-x-10 top-6 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
-              <div className="absolute inset-x-10 bottom-6 h-px bg-gradient-to-r from-transparent via-cyan-300/25 to-transparent" />
-              <div className="absolute left-7 top-7 h-2 w-2 rounded-full bg-cyan-300/80 shadow-[0_0_20px_rgba(34,211,238,0.9)]" />
-              <div className="absolute right-7 bottom-7 h-2 w-2 rounded-full bg-cyan-300/60 shadow-[0_0_18px_rgba(34,211,238,0.7)]" />
+            <div className="relative flex h-full min-h-[240px] w-full items-center justify-center border border-white/10 bg-black/45 px-5 py-6">
+              <div className="absolute inset-x-10 top-6 h-px bg-white/25" />
+              <div className="absolute inset-x-10 bottom-6 h-px bg-white/15" />
 
               <div className="flex flex-col items-center gap-3">
-                <div className="flex h-36 w-36 items-center justify-center rounded-full border border-cyan-400/25 bg-cyan-400/10 shadow-[0_0_55px_rgba(34,211,238,0.14)] sm:h-40 sm:w-40">
-                  <AiIcon />
+                <div className="flex h-36 w-36 items-center justify-center border border-white/15 bg-white/[0.03] sm:h-40 sm:w-40">
+                  <VantLogo size={118} />
                 </div>
                 <div className="text-center">
-                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">IA em destaque</p>
-                  <p className="mt-1 max-w-xs text-sm leading-relaxed text-slate-400">
+                  <p className="brand-kicker">IA em destaque</p>
+                  <p className="mt-1 max-w-xs text-sm leading-relaxed text-[#a6a6a6]">
                     O espaço visual aqui reforça que o catálogo é focado em inteligência artificial e uso prático.
                   </p>
                 </div>
@@ -151,33 +150,37 @@ function RecursosPage() {
         </div>
       </section>
 
-      <section className="rounded-[1.5rem] border border-white/10 bg-slate-950/65 px-5 py-4 shadow-2xl shadow-cyan-950/20">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
-            <AiIcon />
+      <section className="brand-panel px-4 py-3 sm:px-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.03] sm:h-11 sm:w-11">
+            <img
+              src="/assets/vant-logo-white.png"
+              alt=""
+              className="h-14 w-14 max-w-none object-contain"
+            />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-400">Navegação rápida</p>
-            <h2 className="font-display mt-1 text-xl font-bold leading-tight text-white sm:text-2xl">
+            <p className="brand-kicker text-[0.62rem]">Navegação rápida</p>
+            <h2 className="brand-title mt-0.5 text-lg font-bold leading-tight text-white sm:text-xl">
               Escolha o filtro certo
             </h2>
-            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-400">
+            <p className="mt-0.5 max-w-2xl text-xs leading-relaxed text-[#a6a6a6] sm:text-sm">
               Use as categorias para ir direto ao tipo de ferramenta que você quer testar ou vender.
             </p>
           </div>
         </div>
 
-        <div className="mt-4 overflow-x-auto pb-1">
+        <div className="mt-3 overflow-x-auto pb-1">
           <div className="flex min-w-max flex-wrap gap-2">
             {categorias.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategoriaAtiva(cat)}
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
                   categoriaAtiva === cat
-                    ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-300'
-                    : 'border-white/15 bg-white/[0.03] text-slate-400 hover:border-white/30 hover:text-white'
+                    ? 'border-white/45 bg-white/[0.08] text-white'
+                    : 'border-white/15 bg-white/[0.03] text-[#a6a6a6] hover:border-white/30 hover:text-white'
                 }`}
               >
                 {cat}
@@ -194,12 +197,12 @@ function RecursosPage() {
 
       <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Catálogo aprovado</p>
-          <h2 className="font-display mt-2 text-3xl font-bold text-white">
+          <p className="brand-kicker">Catálogo aprovado</p>
+          <h2 className="brand-title mt-2 text-3xl font-bold text-white">
             Ferramentas em destaque
           </h2>
         </div>
-        <p className="max-w-xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-xl text-sm leading-relaxed text-[#a6a6a6]">
           Cada card leva direto para a ferramenta rastreada. A curadoria é pensada para operação, ebook ou vídeo, conforme o caso.
         </p>
       </div>
@@ -210,14 +213,14 @@ function RecursosPage() {
         ))}
       </div>
 
-      <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-6 py-7 text-center sm:px-8">
-        <p className="font-display text-2xl font-bold text-white">Quer saber como usar cada ferramenta?</p>
-        <p className="mt-2 text-sm text-slate-400">
+      <div className="brand-panel px-6 py-7 text-center sm:px-8">
+        <p className="brand-title text-2xl font-bold text-white">Quer saber como usar cada ferramenta?</p>
+        <p className="mt-2 text-sm text-[#a6a6a6]">
           Cada ferramenta tem um tutorial no blog com passo a passo e ebook grátis.
         </p>
         <a
           href="/blog"
-          className="mt-5 inline-flex items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/10 px-6 py-2.5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/20"
+          className="brand-button-secondary mt-5 px-6 py-2.5 text-xs"
         >
           Ver tutoriais →
         </a>

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "agent:news": "node scripts/news-agent.mjs",
+    "check:tool-logos": "node scripts/validate-tool-logos.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

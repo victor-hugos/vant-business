@@ -1,84 +1,134 @@
-# VANT Business — Portfólio Inteligente
+# VANT.Business
 
-## Sobre o projeto
+Site oficial da **VANT.Business**, um hub de automação, IA aplicada, curadoria de ferramentas, conteúdo estratégico e captura de leads.
 
-O **VANT Business** é um portfólio profissional interativo criado para apresentar habilidades, experiências e projetos de **Victor Hugo Santos de Jesus** de forma personalizada conforme a área de interesse do recrutador.
+O projeto combina uma vitrine pública com páginas de recursos, blog, ebooks, formulários de captura, rastreamento de cliques e uma área administrativa privada para curadoria de conteúdo e operação dos agentes.
 
-Diferente de um currículo tradicional, o site permite que o recrutador selecione uma área da vaga e visualize automaticamente os projetos, habilidades e experiências mais relevantes para aquele contexto. A proposta é transformar o portfólio em uma experiência consultiva, organizada e mais fácil de avaliar.
+## Proposta oficial do site
 
-## Problema que o projeto resolve
+A **VANT.Business** existe para transformar o excesso de ferramentas, notícias e promessas de IA em aplicação prática para negócios, criadores e profissionais.
 
-Currículos estáticos nem sempre destacam as informações mais importantes para cada vaga. Um mesmo profissional pode ter experiências em backend, automação, integração de sistemas, Salesforce, MuleSoft e produto digital, mas o recrutador pode não encontrar rapidamente o que é mais relevante.
+O site deve funcionar como uma ponte entre descoberta e execução: a pessoa encontra ferramentas confiáveis, entende como aplicar IA no próprio contexto, recebe conteúdos úteis e pode avançar para automações personalizadas quando precisar de implementação.
 
-Esse problema aumenta quando projetos, links, estudos, currículo e experiências ficam espalhados em diferentes plataformas ou apresentados sem contexto.
-
-## Solução desenvolvida
-
-O VANT Business centraliza currículo, projetos, habilidades e links profissionais em uma experiência interativa. O **Modo Recrutador** permite selecionar uma área de interesse e reorganizar o perfil profissional com base nos dados cadastrados no próprio projeto.
-
-A interface cruza dados de projetos, habilidades, experiências e áreas profissionais para exibir uma visão personalizada do perfil de Victor Hugo.
-
-## Funcionalidades
-
-- Home profissional com posicionamento técnico
-- Modo Recrutador com seleção por área de vaga
-- Filtro automático de habilidades relevantes
-- Filtro automático de projetos alinhados à vaga
-- Filtro de experiências relacionadas
-- Seção de projetos com filtros por área
-- Modal de estudo de caso para cada projeto
-- Seção de currículo e trajetória profissional
-- Links para GitHub, LinkedIn, Trailhead e currículo PDF
-- Design responsivo
-- SEO básico
-- Dados separados da interface
-
-## Tecnologias utilizadas
-
-- **React**: usado para componentizar a interface, organizar seções e criar interações como filtros, seleção de perfil e modal de projeto.
-- **Vite**: usado como ferramenta de build e ambiente de desenvolvimento rápido para aplicações React.
-- **JavaScript**: usado na lógica de renderização, filtros, mapeamento de dados e interação do Modo Recrutador.
-- **Tailwind CSS**: usado para construir o design responsivo, padronizar espaçamentos, cores, cards, botões e estados visuais.
-- **Vercel**: plataforma prevista para deploy da aplicação web.
-- **Git/GitHub**: usados para versionamento, organização do código e publicação do projeto técnico.
-
-## Arquitetura do projeto
-
-A aplicação foi organizada para separar interface, dados e elementos reutilizáveis.
+### Promessa central
 
 ```txt
-src/
-  components/
-  components/ui/
-  data/
-  App.jsx
-  main.jsx
-  index.css
+Automação, IA e estratégia para transformar tecnologia em resultado real.
 ```
 
-- **components**: componentes visuais da interface, como Header, Hero, Modo Recrutador, Projetos, Habilidades, Currículo, Contato e Footer.
-- **components/ui**: elementos reutilizáveis simples, como botões, tags e cabeçalhos de seção.
-- **data**: dados do portfólio separados da interface, incluindo projetos, habilidades, experiências e perfis do Modo Recrutador.
-- **App.jsx**: composição principal das seções do site.
-- **index.css**: estilos globais, configurações base e diretivas do Tailwind CSS.
+### Posicionamento
 
-## Estrutura de pastas
+A VANT.Business não é apenas um portfólio, uma lista de links ou um blog de tecnologia. Ela é uma plataforma editorial e operacional focada em:
+
+- curar ferramentas de IA úteis;
+- explicar aplicações reais sem enrolação;
+- capturar leads interessados em IA, automação e produtividade;
+- conectar conteúdo, ebooks e newsletter a oportunidades comerciais;
+- organizar demanda para projetos de automação e sistemas personalizados.
+
+### Público-alvo
+
+- Empreendedores que querem automatizar processos.
+- Criadores que querem produzir mais com IA.
+- Pequenas empresas que precisam vender, atender e operar melhor.
+- Profissionais que querem escolher boas ferramentas sem perder tempo testando tudo.
+- Leads interessados em implementar agentes, integrações e automações.
+
+### Pilares da marca
+
+- **Estratégia**: escolher o que faz sentido antes de automatizar.
+- **Conexão**: ligar ferramentas, dados, canais e processos.
+- **Resultados**: priorizar ganho real de tempo, clareza, vendas ou operação.
+- **Valor**: transformar conhecimento e tecnologia em ativos úteis.
+
+### Experiência esperada
+
+Quem entra no site deve sair com pelo menos um destes próximos passos:
+
+- testar uma ferramenta recomendada;
+- ler um conteúdo ou notícia curada;
+- baixar ou acessar um ebook;
+- entrar na newsletter;
+- solicitar uma automação;
+- conhecer melhor a proposta da VANT.Business.
+
+## Status do projeto
+
+- Produção: <https://vant.business>
+- Repositório: <https://github.com/victor-hugos/vant-business>
+- Projeto principal na Vercel: `vant-business`
+- Stack principal: React, Vite, Tailwind CSS, Vercel Serverless Functions, Supabase e SMTP
+- Identidade visual atual: tema escuro premium, logomarca oficial em `public/assets`
+
+## O que o site entrega
+
+- Home com posicionamento de marca: automação, IA e escala.
+- Biblioteca de ferramentas de IA em `/recursos`.
+- Página de automações e solicitação comercial em `/automatize`.
+- Blog e curadoria de notícias em `/blog`.
+- Páginas de ebook com formulário de captura em `/ebook/:slug`.
+- Newsletter com leads salvos no Supabase.
+- Rastreamento de cliques em ferramentas e links externos.
+- Área administrativa privada em `/admin-vant`.
+- Fluxo de curadoria com agentes internos e notícias aprovadas manualmente.
+- Deploy centralizado na Vercel usando o projeto `vant-business`.
+
+## Rotas principais
+
+| Rota | Função |
+| --- | --- |
+| `/` | Página inicial da VANT.Business |
+| `/recursos` | Biblioteca de ferramentas de IA |
+| `/automatize` | Página comercial para automações |
+| `/blog` | Notícias, conteúdos e curadoria |
+| `/blog/:slug` | Página individual de artigo |
+| `/ebook/:slug` | Captura de lead para ebook |
+| `/admin-vant` | Painel administrativo privado |
+
+## Tecnologias
+
+- **React**: interface, componentes e rotas.
+- **React Router**: navegação entre páginas públicas e painel admin.
+- **Vite**: desenvolvimento local e build de produção.
+- **Tailwind CSS**: base visual, responsividade e utilitários.
+- **Supabase**: armazenamento de leads, notícias, rascunhos e eventos.
+- **Vercel Functions**: APIs serverless em `api/`.
+- **Nodemailer**: envio de emails via SMTP.
+- **Marked + gray-matter**: leitura de posts em Markdown.
+
+## Estrutura
 
 ```txt
 vant-business/
+├── api/
+│   ├── subscribe.js
+│   ├── newsletter-digest.js
+│   ├── admin-*.js
+│   └── track-click.js
+├── docs/
+│   ├── deploy-checklist.md
+│   ├── maintenance.md
+│   └── supabase-setup.sql
 ├── public/
-│   └── curriculo-victor-hugo.pdf
+│   ├── assets/
+│   │   ├── vant-logo-white.png
+│   │   ├── vant-logo-black.png
+│   │   ├── vant-identity-board.png
+│   │   └── vant-site-reference.png
+│   └── data/
+├── scripts/
+│   └── news-agent.mjs
 ├── src/
 │   ├── components/
-│   ├── components/ui/
 │   ├── data/
-│   │   ├── projects.js
-│   │   ├── skills.js
-│   │   ├── experiences.js
-│   │   └── roles.js
+│   ├── pages/
+│   ├── posts/
+│   ├── utils/
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
+├── supabase/
+│   └── migrations/
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
@@ -87,183 +137,171 @@ vant-business/
 
 ## Como rodar localmente
 
-1. Clone o repositório:
-
-```bash
-git clone https://github.com/victor-hugos/vant-business.git
-```
-
-2. Entre na pasta do projeto:
-
-```bash
-cd vant-business
-```
-
-3. Instale as dependências:
+1. Instale as dependências:
 
 ```bash
 npm install
 ```
 
-4. Rode o projeto:
+2. Rode o servidor local:
 
 ```bash
 npm run dev
 ```
 
-5. Acesse no navegador:
+3. Acesse:
 
 ```txt
 http://localhost:5173
 ```
 
-> Observação: se o nome do repositório for diferente, ajuste a URL do clone antes de executar o comando.
+Se a porta `5173` estiver ocupada, o Vite pode abrir em outra porta, como `5174`.
 
-## Como atualizar projetos
+## Scripts disponíveis
 
-Os projetos ficam no arquivo:
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run agent:news
+```
+
+- `npm run dev`: abre o frontend local com Vite.
+- `npm run build`: gera a versão de produção em `dist/`.
+- `npm run preview`: testa localmente o build gerado.
+- `npm run agent:news`: executa o agente local de curadoria de notícias.
+
+## Variáveis de ambiente
+
+As variáveis abaixo devem ficar na Vercel ou em um `.env` local não versionado.
+
+| Variável | Uso |
+| --- | --- |
+| `SUPABASE_URL` | URL do projeto Supabase |
+| `SUPABASE_SERVICE_KEY` | Chave server-side para APIs e admin |
+| `EMAIL_USER` | Email remetente, exemplo `admin@vant.business` |
+| `EMAIL_PASS` | Senha SMTP ou senha de app |
+| `ADMIN_EMAIL` | Email autorizado no painel admin |
+| `ADMIN_PASSWORD` | Senha do painel admin |
+| `ADMIN_ACCESS_CODE` | Alternativa para senha admin |
+| `ADMIN_SESSION_SECRET` | Segredo para assinar sessão admin |
+| `CRON_SECRET` | Segredo para rotas agendadas |
+| `NEWS_AGENT_LIMIT` | Limite opcional de itens no agente de notícias |
+
+Em produção, configure `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`. Não use credenciais padrão para operar o painel administrativo.
+
+## APIs serverless
+
+As rotas em `api/` rodam como funções serverless na Vercel.
+
+| Arquivo | Função |
+| --- | --- |
+| `api/subscribe.js` | Captura lead, salva no Supabase e envia email |
+| `api/newsletter-digest.js` | Envia digest de newsletter |
+| `api/news.js` | Entrega itens de notícia |
+| `api/out.js` | Redireciona links externos com rastreamento |
+| `api/track-click.js` | Registra eventos de clique |
+| `api/admin-login.js` | Login da área administrativa |
+| `api/admin-data.js` | Dados do painel administrativo |
+| `api/admin-run-agent.js` | Execução lógica dos agentes |
+| `api/admin-content-drafts.js` | Rascunhos de conteúdo |
+| `api/admin-news-update.js` | Atualização de status das notícias |
+
+Para testar o fluxo completo de APIs localmente, use um ambiente compatível com funções da Vercel e as variáveis configuradas.
+
+## Conteúdo e manutenção
+
+### Ferramentas
+
+As ferramentas exibidas em `/recursos` ficam em:
 
 ```txt
-src/data/projects.js
+src/data/recursos.js
 ```
 
-Para adicionar um novo projeto, crie um novo objeto no array `projects` com campos como:
+Cada item pode conter nome, categoria, descrição, link, UTM, badge e indicação de plano gratuito.
 
-- `id`
-- `name`
-- `type`
-- `shortDescription`
-- `fullDescription`
-- `technologies`
-- `relatedAreas`
-- `highlights`
-- `problem`
-- `solution`
-- `status`
-- `githubUrl`
-- `liveUrl`
+### Posts e ebooks
 
-Exemplo:
-
-```js
-{
-  id: 'novo-projeto',
-  name: 'Novo Projeto',
-  type: 'Aplicação web',
-  shortDescription: 'Resumo curto do projeto.',
-  fullDescription: 'Descrição completa do contexto, objetivo e funcionamento do projeto.',
-  technologies: ['React', 'Vite', 'Tailwind CSS'],
-  relatedAreas: ['Frontend', 'Produto Digital'],
-  highlights: ['Interface responsiva', 'Organização por componentes'],
-  problem: 'Problema que motivou o projeto.',
-  solution: 'Solução desenvolvida.',
-  status: 'Em evolução',
-  githubUrl: 'https://github.com/usuario/repositorio',
-  liveUrl: 'https://exemplo.vercel.app'
-}
-```
-
-## Como atualizar habilidades
-
-As habilidades ficam no arquivo:
+Os conteúdos em Markdown ficam em:
 
 ```txt
-src/data/skills.js
+src/posts/
 ```
 
-Cada habilidade possui:
+Posts com metadados de ebook alimentam as páginas `/ebook/:slug` e os cards de captura.
 
-- `name`
-- `category`
-- `level`
-- `relatedAreas`
-- `description`
+### Identidade visual
 
-Esses dados alimentam tanto a seção de habilidades quanto o Modo Recrutador.
-
-## Como atualizar o Modo Recrutador
-
-O Modo Recrutador usa o arquivo:
+Os arquivos oficiais de marca ficam em:
 
 ```txt
-src/data/roles.js
+public/assets/
 ```
 
-Cada área possui:
+Arquivos principais:
 
-- `title`
-- `description`
-- `recommendedSummary`
-- `prioritySkills`
-- `priorityProjects`
-- `relatedExperiences`
+- `vant-logo-white.png`
+- `vant-logo-black.png`
+- `vant-identity-board.png`
+- `vant-site-reference.png`
 
-O sistema cruza esses dados com os arquivos de projetos, habilidades e experiências para montar um perfil recomendado por área de vaga.
+### Supabase
 
-## Lógica do Modo Recrutador
+A base inicial e os campos esperados estão documentados em:
 
-Em linguagem simples, o fluxo funciona assim:
+```txt
+docs/supabase-setup.sql
+supabase/migrations/
+```
 
-1. O usuário seleciona uma área da vaga.
-2. O sistema busca essa área em `roles.js`.
-3. O sistema identifica as habilidades prioritárias.
-4. O sistema identifica os projetos relacionados.
-5. O sistema identifica as experiências conectadas.
-6. A interface renderiza um perfil personalizado para o recrutador.
+Antes de publicar mudanças que dependem do banco, confira se as tabelas, índices e colunas existem no Supabase de produção.
 
-## Projetos destacados no portfólio
+## Deploy
 
-### Certifica Monstros
+O deploy oficial deve ficar centralizado no projeto Vercel:
 
-Plataforma de simulados, ranking, pontuação e acompanhamento de progresso.
+```txt
+vant-business
+```
 
-### LeadFlow Automation
+Configuração esperada:
 
-API de automação comercial para captação, validação, pontuação e classificação de leads.
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Domínios: `vant.business` e `www.vant.business`
+- Branch de produção: `main`
 
-### INSISINT
+Checklist operacional:
 
-Produto digital para planejamento de conteúdo, geração de ideias e apoio estratégico com IA.
+```bash
+git status
+npm run build
+```
 
-### MuleSoft + Salesforce Automation
+Depois do deploy, validar:
 
-Estudos e práticas envolvendo Salesforce Flow, MuleSoft Composer, APIs REST e integração de sistemas.
+- Home
+- `/recursos`
+- `/automatize`
+- `/blog`
+- captura em `/ebook/:slug`
+- login em `/admin-vant`
+- eventos de clique
+- envio de email
 
-## Aprendizados demonstrados
+## Segurança operacional
 
-- Componentização com React
-- Separação entre dados e interface
-- Criação de filtros dinâmicos
-- Lógica condicional aplicada à experiência do usuário
-- Organização de projetos em formato de estudo de caso
-- Design responsivo com Tailwind CSS
-- Documentação técnica
-- Deploy de aplicação web
-- Construção de portfólio como produto digital
-
-## Próximas melhorias
-
-- Criar páginas individuais para cada projeto
-- Adicionar blog técnico
-- Criar painel administrativo para editar projetos sem alterar código
-- Adicionar analytics de cliques
-- Criar versão em inglês
-- Adicionar formulário de contato funcional
-- Adicionar modo claro/escuro
-- Adicionar testes automatizados
-- Melhorar SEO com imagem Open Graph
-
-## Links
-
-- Portfólio: https://vant.business
-- GitHub: https://github.com/victor-hugos
-- LinkedIn: https://www.linkedin.com/in/victor-hugos
-- Trailhead: https://www.salesforce.com/trailblazer/kzu5z6w88yrh1i1bvz
+- Não versionar `.env`, senhas SMTP, service keys ou tokens.
+- Manter `SUPABASE_SERVICE_KEY` apenas no servidor.
+- Proteger `/admin-vant` com `ADMIN_EMAIL`, `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`.
+- Proteger rotas agendadas com `CRON_SECRET`.
+- Revisar permissões do Supabase antes de abrir novas tabelas.
+- Rodar `npm audit --omit=dev` periodicamente.
 
 ## Autor
 
 **Victor Hugo Santos de Jesus**
 
-Desenvolvedor de Sistemas / Automação
-
-Foco em automação de processos, APIs, backend, integração de sistemas, Salesforce, MuleSoft e produtos digitais.
+VANT.Business: automação, IA aplicada, conexão e resultados.

@@ -3,10 +3,11 @@ import { Link, NavLink } from 'react-router-dom';
 import VantLogo from './VantLogo.jsx';
 
 const navItems = [
-  { label: 'Notícias IA', to: '/blog' },
-  { label: 'Ferramentas IA', to: '/recursos' },
-  { label: 'Automatize', to: '/automatize' },
-  { label: 'Guias', to: '/' },
+  { label: 'Início', to: '/' },
+  { label: 'Ferramentas', to: '/recursos' },
+  { label: 'Automações', to: '/automatize' },
+  { label: 'Notícias', to: '/blog' },
+  { label: 'Conteúdos', href: '/#conteudos' },
 ];
 
 function Header() {
@@ -17,51 +18,69 @@ function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0f]/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex min-h-16 items-center justify-between gap-4 py-3">
+        <div className="flex min-h-[58px] items-center justify-between gap-4 py-2">
           <Link
             to="/"
             onClick={closeMenu}
-            className="flex items-center gap-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+            className="flex items-center gap-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
-            <VantLogo size={36} />
+            <VantLogo size={38} />
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-white tracking-tight leading-none">
-                VANT<span className="text-cyan-400">.business</span>
+              <span className="brand-title text-xs font-bold leading-none text-white sm:text-sm">
+                VANT.BUSINESS
               </span>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
-                IA · Automação · Ferramentas
+              <span className="mt-1 hidden text-[9px] uppercase tracking-[0.2em] text-[#a6a6a6] sm:block">
+                Estratégia · Conexão · Resultados
               </span>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-1 text-sm text-slate-300 md:flex">
+          <nav className="hidden items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-[#a6a6a6] lg:flex">
             {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `rounded-full border px-4 py-2 transition text-sm font-medium ${
-                    isActive
-                      ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-300'
-                      : 'border-transparent text-slate-300 hover:border-white/20 hover:bg-white/5 hover:text-white'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
+              item.to ? (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/'}
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `border-b px-3 py-2 transition font-semibold ${
+                      isActive
+                        ? 'border-white text-white'
+                        : 'border-transparent hover:border-white/35 hover:text-white'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  className="border-b border-transparent px-3 py-2 font-semibold transition hover:border-white/35 hover:text-white"
+                >
+                  {item.label}
+                </a>
+              )
             ))}
           </nav>
+
+          <Link
+            to="/automatize"
+            className="brand-button-secondary !hidden px-5 py-2 text-[11px] lg:!inline-flex"
+          >
+            Automatize seu negócio ›
+          </Link>
 
           <button
             type="button"
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((v) => !v)}
-            className="inline-flex rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 md:hidden"
+            className="inline-flex border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/45 hover:bg-white/[0.06] lg:hidden"
           >
             {isMenuOpen ? 'Fechar' : 'Menu'}
           </button>
@@ -70,24 +89,35 @@ function Header() {
         {isMenuOpen && (
           <nav
             id="mobile-menu"
-            className="grid gap-2 border-t border-white/10 py-3 text-sm text-slate-200 md:hidden"
+            className="grid gap-2 border-t border-white/10 py-3 text-sm text-[#c9c9c9] lg:hidden"
           >
             {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `rounded-xl border px-4 py-3 transition ${
-                    isActive
-                      ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-300'
-                      : 'border-white/10 bg-slate-900/80 hover:border-cyan-300/40 hover:bg-cyan-300/10'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
+              item.to ? (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/'}
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `border px-4 py-3 transition ${
+                      isActive
+                        ? 'border-white/45 bg-white/[0.06] text-white'
+                        : 'border-white/10 bg-black/80 hover:border-white/25 hover:bg-white/[0.04]'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  className="border border-white/10 bg-black/80 px-4 py-3 transition hover:border-white/25 hover:bg-white/[0.04]"
+                >
+                  {item.label}
+                </a>
+              )
             ))}
           </nav>
         )}

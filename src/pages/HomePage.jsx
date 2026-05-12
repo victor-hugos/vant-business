@@ -1,219 +1,242 @@
 import { Link } from 'react-router-dom';
+import ToolLogo from '../components/ToolLogo.jsx';
 import { getAllPosts } from '../utils/posts.js';
 import { recursos } from '../data/recursos.js';
 import { trackEvent, trackedToolHref } from '../utils/tracking.js';
 
-function HomePage() {
-  const ebookPosts = getAllPosts().filter((post) => post.ebook !== undefined).slice(0, 3);
-  const featuredTools = recursos.filter((r) => r.badge === 'Que uso').slice(0, 4);
-  const guideTools = recursos.filter((r) => ['IA', 'Produtividade', 'Automação'].includes(r.categoria)).slice(0, 3);
+const pillars = [
+  {
+    title: 'IA Aplicada',
+    text: 'Automação real para negócios e criadores.',
+    icon: 'brain',
+  },
+  {
+    title: 'Ferramentas Curadas',
+    text: 'Biblioteca com ferramentas selecionadas e testadas.',
+    icon: 'box',
+  },
+  {
+    title: 'Agentes Inteligentes',
+    text: 'Bots que pesquisam, organizam e executam por você.',
+    icon: 'nodes',
+  },
+  {
+    title: 'Conteúdo Estratégico',
+    text: 'Notícias e insights para você crescer usando IA.',
+    icon: 'doc',
+  },
+];
+
+function PillarIcon({ type }) {
+  const common = {
+    className: 'h-7 w-7',
+    viewBox: '0 0 32 32',
+    fill: 'none',
+    xmlns: 'http://www.w3.org/2000/svg',
+    'aria-hidden': 'true',
+  };
+
+  if (type === 'brain') {
+    return (
+      <svg {...common}>
+        <path d="M12 6.5c-2.6 0-4.8 2-4.8 4.5v10c0 2.5 2.2 4.5 4.8 4.5M20 6.5c2.6 0 4.8 2 4.8 4.5v10c0 2.5-2.2 4.5-4.8 4.5M12 6.5v19M20 6.5v19" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M9.2 12.2h4.2M9.2 18.8h4.2M18.6 12.2h4.2M18.6 18.8h4.2M13.4 15.5H20" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (type === 'box') {
+    return (
+      <svg {...common}>
+        <path d="M16 4.5 26 10v12L16 27.5 6 22V10L16 4.5Z" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M6.5 10.2 16 15.7l9.5-5.5M16 15.7v11" stroke="currentColor" strokeWidth="1.35" />
+        <path d="m11 7.4 10 5.7M21 7.4l-10 5.7" stroke="currentColor" strokeWidth="1" opacity="0.55" />
+      </svg>
+    );
+  }
+
+  if (type === 'nodes') {
+    return (
+      <svg {...common}>
+        <circle cx="9" cy="11" r="3.3" stroke="currentColor" strokeWidth="1.35" />
+        <circle cx="23" cy="11" r="3.3" stroke="currentColor" strokeWidth="1.35" />
+        <circle cx="16" cy="23" r="3.3" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M12 12.5h8M10.7 13.9l3.7 6.1M21.3 13.9 17.6 20" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+      </svg>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <section className="news-glow overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03]">
-        <div className="news-grid grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.35fr_0.65fr] lg:px-10 lg:py-10">
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
-                  Guias de IA
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
-                  Ebooks e tutoriais gravados
-                </span>
-              </div>
+    <svg {...common}>
+      <path d="M9 5.5h10l4 4v17H9v-21Z" stroke="currentColor" strokeWidth="1.35" />
+      <path d="M19 5.5v4h4M12 14h8M12 18h8M12 22h5" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+      <circle cx="22.5" cy="23.5" r="3.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="m21.2 23.4 1 1 1.7-2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-              <h1 className="font-display mt-5 max-w-3xl text-4xl font-extrabold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
-                Guias
-                <span className="block text-cyan-300">de IA</span>
-              </h1>
+function HomePage() {
+  const ebookPosts = getAllPosts().filter((post) => post.ebook !== undefined).slice(0, 3);
+  const featuredTools = recursos.filter((r) => r.badge === 'Que uso').slice(0, 6);
+  const automationTools = recursos.filter((r) => ['Automação', 'IA', 'Produtividade'].includes(r.categoria)).slice(0, 3);
 
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Uma base organizada de ebooks, tutoriais gravados e materiais práticos sobre ferramentas de IA.
-                O foco aqui é ensinar, demonstrar e acelerar o uso real.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                to="/blog"
-                className="inline-flex items-center justify-center rounded-full bg-cyan-400 px-7 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300"
-              >
-                Ver notícias e capturas →
-              </Link>
-              <Link
-                to="/recursos"
-                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-7 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
-              >
-                Explorar ferramentas
-              </Link>
-            </div>
+  return (
+    <div className="reference-home">
+      <section className="reference-hero">
+        <div className="reference-hero-copy">
+          <div className="reference-kicker">
+            <span />
+            <p>Tecnologia · Estratégia · Resultados</p>
           </div>
 
-          <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/65 p-5 shadow-2xl shadow-cyan-950/20">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">O que você encontra</p>
-            <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm font-semibold text-white">Ebooks por ferramenta</p>
-                <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                  Materiais curtos e objetivos, prontos para captura de email.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm font-semibold text-white">Tutoriais gravados</p>
-                <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                  Guias em vídeo para mostrar uso real, passo a passo e aplicação prática.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm font-semibold text-white">Ferramentas conectadas</p>
-                <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                  Acesso rápido às IAs que entram no fluxo de estudo e produção.
-                </p>
-              </div>
+          <h1>
+            <span>Automação.</span>
+            <span>IA.</span>
+            <span>Escala.</span>
+          </h1>
+
+          <p className="reference-hero-text">
+            Ferramentas, agentes e sistemas para acelerar negócios e criadores na nova economia digital.
+          </p>
+
+          <div className="reference-actions">
+            <Link to="/recursos" className="reference-button reference-button-primary">
+              Explorar ferramentas
+              <span>›</span>
+            </Link>
+            <a href="#cases" className="reference-button reference-button-secondary">
+              Ver projetos
+            </a>
+          </div>
+
+          <div className="reference-proof">
+            <div className="reference-avatars" aria-hidden="true">
+              {['VH', 'IA', 'API', 'CRM'].map((item) => (
+                <span key={item}>{item}</span>
+              ))}
             </div>
+            <p>+1200 criadores e empresas impulsionando resultados com IA</p>
+          </div>
+        </div>
+
+        <div className="reference-hero-mark">
+          <div className="reference-orbit" aria-hidden="true" />
+          <img src="/assets/vant-logo-white.png" alt="VANT.Business" />
+          <div className="reference-light" aria-hidden="true" />
+          <div className="reference-index" aria-label="Seções do destaque">
+            <span className="is-active">01</span>
+            <span>02</span>
+            <span>03</span>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Guias práticos</p>
-              <h2 className="font-display mt-2 text-3xl font-bold text-white">
-                Ebooks disponíveis
-              </h2>
-            </div>
-            <Link to="/blog" className="text-sm text-cyan-400 hover:underline">
-              Ver todos →
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            {ebookPosts.map((post) => {
-              const tags = post.tags ? post.tags.split(',') : [];
-              return (
-                <Link
-                  key={post.slug}
-                  to={`/ebook/${post.slug}`}
-                  onClick={() =>
-                    trackEvent({
-                      eventType: 'click',
-                      itemType: 'ebook',
-                      itemId: post.slug,
-                      itemTitle: post.title,
-                      source: 'home-guide-ebook-card',
-                    })
-                  }
-                  className="group rounded-3xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-cyan-400/35 hover:bg-white/[0.07]"
-                >
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {tags.slice(0, 2).map((t) => (
-                      <span key={t} className="rounded-full bg-cyan-400/10 px-2 py-0.5 text-xs text-cyan-300 border border-cyan-400/20">
-                        {t.trim()}
-                      </span>
-                    ))}
-                  </div>
-                  <h3 className="font-display text-xl font-bold leading-snug text-white transition group-hover:text-cyan-300">
-                    {post.title}
-                  </h3>
-                  {post.description && (
-                    <p className="mt-2 text-sm leading-relaxed text-slate-400 line-clamp-3">
-                      {post.description}
-                    </p>
-                  )}
-                  <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
-                    <span className="text-xs text-slate-500">{post.date}</span>
-                    <span className="text-xs font-semibold text-cyan-400 group-hover:text-cyan-300">
-                      Receber guia →
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Guias em vídeo</p>
-              <h2 className="font-display mt-2 text-3xl font-bold text-white">
-                Ferramentas para tutorial
-              </h2>
-            </div>
-            <Link to="/recursos" className="text-sm text-cyan-400 hover:underline">
-              Explorar →
-            </Link>
-          </div>
-          <div className="mt-5 space-y-3">
-            {guideTools.map((tool) => (
-              <a
-                key={tool.id}
-                href={trackedToolHref(tool.id, 'home-guide-tool')}
-                target="_blank"
-                rel="noreferrer"
-                className="group flex items-start gap-4 rounded-3xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-cyan-400/35 hover:bg-white/[0.07]"
-              >
-                <span className="text-2xl leading-none">{tool.emoji}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-lg font-bold text-white group-hover:text-cyan-300">
-                    {tool.name}
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-400 line-clamp-2">
-                    {tool.description}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
+      <section className="reference-pillars" aria-labelledby="vant-definition">
+        <h2 id="vant-definition">O que é a VANT.Business</h2>
+        <div className="reference-pillar-grid">
+          {pillars.map((item) => (
+            <article key={item.title} className="reference-pillar-card">
+              <div className="reference-icon-frame">
+                <PillarIcon type={item.icon} />
+              </div>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+              <span className="reference-card-arrow">›</span>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
-        <div className="flex items-end justify-between gap-3">
+      <section className="reference-library">
+        <div className="reference-section-head">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">Ferramentas conectadas</p>
-            <h2 className="font-display mt-2 text-3xl font-bold text-white">
-              Base de apoio para os guias
-            </h2>
+            <p>Biblioteca de ferramentas IA</p>
+            <h2>Ferramentas, guias e automações em um só fluxo.</h2>
           </div>
-          <Link to="/recursos" className="text-sm text-cyan-400 hover:underline">
-            Ver todas →
-          </Link>
+          <Link to="/recursos">Ver todas</Link>
         </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div className="reference-tool-grid">
           {featuredTools.map((tool) => (
             <a
               key={tool.id}
-              href={trackedToolHref(tool.id, 'home-featured-tool')}
+              href={trackedToolHref(tool.id, 'home-reference-tool')}
               target="_blank"
               rel="noreferrer"
-              className="group rounded-3xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-cyan-400/35 hover:bg-white/[0.07]"
+              className="reference-tool-card"
             >
-              <span className="text-2xl">{tool.emoji}</span>
-              <p className="mt-3 font-display text-xl font-bold text-white group-hover:text-cyan-300 transition">
-                {tool.name}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400 line-clamp-3">
-                {tool.description}
-              </p>
+              <ToolLogo tool={tool} className="reference-tool-logo" />
+              <h3>{tool.name}</h3>
+              <p>{tool.description}</p>
+              <div>
+                <span>{tool.categoria}</span>
+                <strong>Ver detalhes</strong>
+              </div>
             </a>
           ))}
         </div>
       </section>
 
-      <section className="rounded-[1.5rem] border border-cyan-400/20 bg-cyan-400/5 p-7 text-center">
-        <p className="font-display text-3xl font-bold text-white">Precisa automatizar algo?</p>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-400">
-          Bots de WhatsApp, integrações entre sistemas e fluxos automáticos continuam aqui, no mesmo ecossistema dos guias.
-        </p>
-        <Link
-          to="/automatize"
-          className="mt-5 inline-flex items-center justify-center rounded-full bg-cyan-400 px-8 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300"
-        >
-          Falar com Victor →
-        </Link>
+      <section className="reference-split" id="conteudos">
+        <div>
+          <div className="reference-section-head compact">
+            <div>
+              <p>Conteúdos prontos</p>
+              <h2>Ebooks disponíveis</h2>
+            </div>
+            <Link to="/blog">Ver todos</Link>
+          </div>
+
+          <div className="reference-list">
+            {ebookPosts.map((post) => (
+              <Link
+                key={post.slug}
+                to={`/ebook/${post.slug}`}
+                onClick={() =>
+                  trackEvent({
+                    eventType: 'click',
+                    itemType: 'ebook',
+                    itemId: post.slug,
+                    itemTitle: post.title,
+                    source: 'home-reference-ebook-card',
+                  })
+                }
+              >
+                <span>{post.date}</span>
+                <strong>{post.title}</strong>
+                <em>Receber guia ›</em>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div id="cases">
+          <div className="reference-section-head compact">
+            <div>
+              <p>Automações que geram resultados</p>
+              <h2>Projetos e agentes IA</h2>
+            </div>
+            <Link to="/automatize">Automatizar</Link>
+          </div>
+
+          <div className="reference-list">
+            {automationTools.map((tool) => (
+              <a
+                key={tool.id}
+                href={trackedToolHref(tool.id, 'home-reference-automation')}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span>{tool.categoria}</span>
+                <strong>{tool.name}</strong>
+                <em>Saiba mais ›</em>
+              </a>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );

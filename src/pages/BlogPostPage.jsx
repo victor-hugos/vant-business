@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getPostBySlug } from '../utils/posts.js';
 
 function BlogPostPage() {
@@ -8,8 +8,8 @@ function BlogPostPage() {
   if (!post) {
     return (
       <div className="max-w-2xl mx-auto py-20 text-center">
-        <p className="text-slate-400 text-lg">Post não encontrado.</p>
-        <Link to="/blog" className="mt-4 inline-block text-cyan-400 hover:underline text-sm">
+        <p className="text-[#a6a6a6] text-lg">Post não encontrado.</p>
+        <Link to="/blog" className="mt-4 inline-block text-sm text-white hover:underline">
           ← Voltar ao blog
         </Link>
       </div>
@@ -20,48 +20,48 @@ function BlogPostPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-cyan-300 transition mb-8">
+      <Link to="/blog" className="mb-8 inline-flex items-center gap-1 text-sm text-[#a6a6a6] transition hover:text-white">
         ← Blog
       </Link>
 
-      <article>
+      <article className="brand-panel p-5 sm:p-8">
         <div className="flex flex-wrap gap-2 mb-4">
           {tags.map((t) => (
             <span
               key={t}
-              className="rounded-full bg-cyan-400/10 px-2.5 py-0.5 text-xs font-medium text-cyan-300 border border-cyan-400/20"
+              className="brand-pill px-2.5 py-0.5 text-xs font-medium"
             >
               {t.trim()}
             </span>
           ))}
           {post.tempo && (
-            <span className="rounded-full bg-slate-700/60 px-2.5 py-0.5 text-xs text-slate-400">
+            <span className="brand-pill px-2.5 py-0.5 text-xs">
               ⏱ {post.tempo}
             </span>
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-white leading-tight sm:text-4xl">
+        <h1 className="brand-title text-3xl font-bold leading-tight text-white sm:text-4xl">
           {post.title}
         </h1>
 
         {post.description && (
-          <p className="mt-4 text-lg text-slate-400 leading-relaxed">{post.description}</p>
+          <p className="mt-4 text-lg leading-relaxed text-[#a6a6a6]">{post.description}</p>
         )}
 
-        <p className="mt-3 text-xs text-slate-500">{post.date}</p>
+        <p className="mt-3 text-xs text-[#6f6f6f]">{post.date}</p>
 
         {post.ebook !== undefined && (
-          <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="brand-card mt-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-cyan-300">📥 Ebook grátis</p>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-sm font-semibold text-white">📥 Ebook grátis</p>
+              <p className="mt-0.5 text-xs text-[#a6a6a6]">
                 Guia completo com prompts e fluxos prontos para usar.
               </p>
             </div>
             <Link
               to={`/ebook/${post.slug}`}
-              className="shrink-0 rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition text-center"
+              className="brand-button-primary shrink-0 px-5 py-2.5 text-center text-xs"
             >
               Baixar grátis
             </Link>
@@ -74,14 +74,14 @@ function BlogPostPage() {
         />
 
         {post.ebook !== undefined && (
-          <div className="mt-12 rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 to-slate-900/80 p-8 text-center">
+          <div className="brand-card mt-12 p-8 text-center">
             <p className="text-xl font-bold text-white">Quer o guia completo?</p>
-            <p className="mt-2 text-slate-400 text-sm">
+            <p className="mt-2 text-sm text-[#a6a6a6]">
               Baixe o ebook com passo a passo, prompts prontos e fluxos de automação.
             </p>
             <Link
               to={`/ebook/${post.slug}`}
-              className="mt-5 inline-block rounded-full bg-cyan-400 px-8 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition"
+              className="brand-button-primary mt-5 px-8 py-3 text-xs"
             >
               Baixar ebook grátis →
             </Link>
