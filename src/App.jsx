@@ -7,7 +7,7 @@ import BlogPostPage from './pages/BlogPostPage.jsx';
 import RecursosPage from './pages/RecursosPage.jsx';
 import AutomatizePage from './pages/AutomatizePage.jsx';
 import EbookPage from './pages/EbookPage.jsx';
-import AdminPage from './pages/AdminPage.jsx';
+import AdminPublishingPage from './pages/AdminPublishingPage.jsx';
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
             <Route path="/recursos" element={<RecursosPage />} />
             <Route path="/automatize" element={<AutomatizePage />} />
             <Route path="/ebook/:slug" element={<EbookPage />} />
-            <Route path="/admin-vant" element={<AdminPage />} />
+            <Route path="/admin-vant" element={<AdminPublishingPage />} />
           </Routes>
         </main>
         <Footer />

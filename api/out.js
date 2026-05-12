@@ -1,10 +1,10 @@
 import { affiliateTools, ebookTools } from '../src/data/aiPipeline.js';
-import { recursos } from '../src/data/recursos.js';
 import { recordEvent } from './_trackEvent.js';
+import { findPublishedToolById } from './_toolsStore.js';
 
-function findTool(kind, id) {
+async function findTool(kind, id) {
   if (kind === 'tool') {
-    const tool = recursos.find((item) => item.id === id);
+    const tool = await findPublishedToolById(id);
     if (!tool) return null;
     return {
       id: tool.id,
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   const kind = String(req.query?.kind || 'tool');
   const id = String(req.query?.id || '');
   const source = String(req.query?.source || 'public');
-  const item = findTool(kind, id);
+  const item = await findTool(kind, id);
 
   if (!item) {
     return res.status(404).json({ error: 'Destino nao encontrado' });

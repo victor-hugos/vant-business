@@ -3,6 +3,7 @@ import path from 'node:path';
 import { isAdminRequest } from './_adminAuth.js';
 import { getSupabaseAdmin } from './_supabaseAdmin.js';
 import { getNewsItems } from './_newsStore.js';
+import { getToolItems } from './_toolsStore.js';
 import { affiliateTools, agentSchedule, ebookTools } from '../src/data/aiPipeline.js';
 
 export const agentWorkflow = [
@@ -50,6 +51,7 @@ async function loadSeedAgentResponses() {
 async function fetchAdminRows(req) {
   const supabase = getSupabaseAdmin();
   const news = await getNewsItems(req);
+  const tools = await getToolItems();
   const seedResponses = await loadSeedAgentResponses();
 
   if (!supabase) {
@@ -57,7 +59,8 @@ async function fetchAdminRows(req) {
       clicks: [],
       agentResponses: seedResponses,
       newsItems: news.items,
-      warnings: ['Supabase ainda nao configurado no ambiente.'],
+      tools: tools.items,
+      warnings: ['Supabase ainda nao configurado no ambiente.', ...(tools.warnings || [])],
     };
   }
 
@@ -87,7 +90,14 @@ async function fetchAdminRows(req) {
     subscribers: subscribersResult.data || [],
     agentResponses,
     newsItems: news.items,
-    warnings: [clicksResult.error?.message, subscribersResult.error?.message, responsesResult.error?.message, ...(news.warnings || [])].filter(Boolean),
+    tools: tools.items,
+    warnings: [
+      clicksResult.error?.message,
+      subscribersResult.error?.message,
+      responsesResult.error?.message,
+      ...(news.warnings || []),
+      ...(tools.warnings || []),
+    ].filter(Boolean),
   };
 }
 

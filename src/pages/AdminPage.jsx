@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { affiliateTools, agentSchedule, ebookTools } from '../data/aiPipeline.js';
+import { recursos as publicToolsCatalog } from '../data/recursos.js';
+import { getAdminWorkspaceSummary } from '../utils/adminDashboard.js';
 import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import AdminOverviewScreen from '../components/AdminOverviewScreen.jsx';
 
@@ -361,7 +363,7 @@ function ToolRoutingBoard({ affiliateItems, ebookItems, localMode, onSaved }) {
   );
 }
 
-function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, refreshSignal = 0 }) {
+function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, refreshSignal = 0, onDraftsChange }) {
   const baseDrafts = useMemo(() => buildContentDrafts(affiliateItems, ebookItems), [affiliateItems, ebookItems]);
   const [selectedDraftId, setSelectedDraftId] = useState(null);
   const [drafts, setDrafts] = useState(baseDrafts);
@@ -424,6 +426,10 @@ function ContentLabPanel({ affiliateItems, ebookItems, newsItems, localMode, ref
       return drafts[0].id;
     });
   }, [drafts]);
+
+  useEffect(() => {
+    onDraftsChange?.(drafts);
+  }, [drafts, onDraftsChange]);
 
   const selectedDraft = drafts.find((draft) => draft.id === selectedDraftId) || drafts[0] || null;
   const ebookDrafts = drafts.filter((draft) => draft.kind === 'ebook');
@@ -781,8 +787,12 @@ function formatDate(date) {
   }).format(new Date(date));
 }
 
+function getAgentResponseId(response) {
+  return response?.item_id || response?.agentId || response?.payload?.agentId;
+}
+
 function AgentRunner({ workflow, responses, onRun, running }) {
-  const completed = new Set(responses.map((response) => response.item_id));
+  const completed = new Set(responses.map(getAgentResponseId));
   const nextIndex = workflow.findIndex((agent) => !completed.has(agent.id));
   const allowedIndex = nextIndex === -1 ? workflow.length - 1 : nextIndex;
 
@@ -797,7 +807,7 @@ function AgentRunner({ workflow, responses, onRun, running }) {
       </div>
       <div className="grid gap-3 lg:grid-cols-2">
         {workflow.map((agent, index) => {
-          const response = responses.find((item) => item.item_id === agent.id);
+          const response = responses.find((item) => getAgentResponseId(item) === agent.id);
           const disabled = running === agent.id || (!response && index > allowedIndex);
           const payload = response?.payload;
 
@@ -1047,10 +1057,368 @@ function NewsOutputPanel({ items }) {
   );
 }
 
+function MetricTile({ label, value, hint, tone = 'slate' }) {
+  const tones = {
+    cyan: 'border-cyan-400/20 bg-cyan-400/10',
+    emerald: 'border-emerald-400/20 bg-emerald-400/10',
+    amber: 'border-amber-300/20 bg-amber-300/10',
+    slate: 'border-white/10 bg-white/[0.04]',
+  };
+
+  return (
+    <div className={`rounded-xl border p-4 ${tones[tone] || tones.slate}`}>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{label}</p>
+      <p className="mt-2 text-2xl font-bold text-white">{value}</p>
+      <p className="mt-1 text-xs leading-relaxed text-slate-500">{hint}</p>
+    </div>
+  );
+}
+
+function WorkspaceNav({ workspaces, active, onChange }) {
+  return (
+    <nav className="grid gap-2 md:grid-cols-2 xl:grid-cols-5" aria-label="Areas do painel admin">
+      {workspaces.map((workspace) => {
+        const selected = active === workspace.id;
+        return (
+          <button
+            key={workspace.id}
+            type="button"
+            onClick={() => onChange(workspace.id)}
+            className={`rounded-xl border p-4 text-left transition ${
+              selected
+                ? 'border-cyan-400/40 bg-cyan-400/10 shadow-lg shadow-cyan-950/20'
+                : 'border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.05]'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className={selected ? 'text-sm font-bold text-white' : 'text-sm font-semibold text-slate-200'}>
+                  {workspace.label}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">{workspace.description}</p>
+              </div>
+              <StatusPill tone={selected ? 'cyan' : 'slate'}>{workspace.badge}</StatusPill>
+            </div>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+function OperationalSchedulePanel({ schedule }) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Ritmo da operacao</p>
+          <h2 className="mt-2 text-base font-bold text-white">Cronograma operacional</h2>
+        </div>
+        <StatusPill tone="slate">{schedule.length} blocos</StatusPill>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {schedule.map((item) => (
+          <div key={item.day} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
+            <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
+            <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
+            <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TodayPanel({ summary, onOpenWorkspace }) {
+  const { metrics, nextAction, queues, codexFillables, operatingSteps } = summary;
+  const queueCards = [
+    { label: 'Inbox da IA', value: queues.aiInbox, hint: 'pesquisas, noticias e ferramentas no fluxo', tone: 'cyan' },
+    { label: 'Revisar', value: queues.reviewNeeded, hint: 'itens que ainda precisam da sua decisao', tone: 'amber' },
+    { label: 'Prontos', value: queues.readyToPublish, hint: 'aprovados ou prontos para postar', tone: 'emerald' },
+    { label: 'Rascunhos', value: queues.contentDrafts, hint: 'ebooks e roteiros gerados', tone: 'slate' },
+    { label: 'Lacunas', value: queues.toolGaps, hint: 'ferramentas fora do catalogo publico', tone: 'amber' },
+  ];
+
+  return (
+    <section className="space-y-5">
+      <div className="grid gap-5 lg:grid-cols-[0.86fr_1.14fr]">
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-5">
+          <p className="text-xs uppercase tracking-widest text-cyan-300">Proxima acao</p>
+          <h2 className="mt-3 text-2xl font-bold text-white">{nextAction.label}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">{nextAction.detail}</p>
+          <button
+            type="button"
+            onClick={() => onOpenWorkspace(nextAction.workspace)}
+            className="mt-5 inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300"
+          >
+            {nextAction.cta}
+          </button>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Fila operacional</p>
+          <h2 className="mt-2 text-base font-bold text-white">O que precisa de acao agora</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {queueCards.map((item) => (
+              <MetricTile key={item.label} label={item.label} value={item.value} hint={item.hint} tone={item.tone} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <p className="text-xs uppercase tracking-widest text-cyan-400">Fluxo com Codex</p>
+        <h2 className="mt-2 text-base font-bold text-white">Da ideia ate a publicacao</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {operatingSteps.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onOpenWorkspace(item.workspace)}
+              className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-left transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
+            >
+              <p className="text-sm font-semibold text-white">{item.label}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">{item.detail}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 lg:col-span-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">O que eu posso preencher</p>
+            <h2 className="mt-2 text-base font-bold text-white">Entradas que viram fila revisavel</h2>
+          </div>
+          <StatusPill tone="cyan">{codexFillables.length} tipos</StatusPill>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {codexFillables.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onOpenWorkspace(item.workspace)}
+              className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-left transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
+            >
+              <p className="text-sm font-semibold text-white">{item.label}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">Entrada: {item.input}</p>
+              <p className="mt-2 text-xs leading-relaxed text-cyan-200/80">Saida: {item.output}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <p className="text-xs uppercase tracking-widest text-cyan-400">Saude do sistema</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <MetricTile label="Agentes" value={`${metrics.completedAgents}/${metrics.totalAgents}`} hint="pesquisas executadas" tone="cyan" />
+          <MetricTile label="Ferramentas" value={metrics.publicTools} hint={`${metrics.candidateTools} candidatas no fluxo`} tone="slate" />
+          <MetricTile label="Pendencias" value={metrics.pendingNews} hint="noticias para revisar" tone="amber" />
+          <MetricTile label="Prontas" value={metrics.approvedNews} hint="noticias publicaveis" tone="emerald" />
+          <MetricTile label="Leads" value={metrics.leads} hint={`${metrics.clicks} cliques rastreados`} tone="cyan" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ResearchReviewPanel({ responses }) {
+  const items = responses || [];
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Pesquisas feitas</p>
+          <h2 className="mt-2 text-base font-bold text-white">Respostas para validar</h2>
+        </div>
+        <StatusPill tone="slate">{items.length} registros</StatusPill>
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        {items.length === 0 ? (
+          <p className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-500">
+            Rode o primeiro agente para gerar pesquisas e decisoes revisaveis.
+          </p>
+        ) : (
+          items.slice(0, 6).map((item) => {
+            const payload = item.payload || item;
+            return (
+              <article key={item.id || item.item_id || payload.agentId} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{payload.title || item.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">{item.agent_name || payload.agentName || 'agente'}</p>
+                  </div>
+                  <StatusPill tone="amber">{item.status || 'em revisao'}</StatusPill>
+                </div>
+                <p className="mt-3 text-xs leading-relaxed text-slate-400">{payload.summary || 'Sem resumo salvo.'}</p>
+                {payload.nextStep && <p className="mt-2 text-xs leading-relaxed text-emerald-300">{payload.nextStep}</p>}
+              </article>
+            );
+          })
+        )}
+      </div>
+    </section>
+  );
+}
+
+function PublicationStatusPanel({ summary }) {
+  const { queues } = summary;
+  const items = [
+    { label: 'Para revisar', value: queues.reviewNeeded, hint: 'noticias e rascunhos sem aprovacao', tone: 'amber' },
+    { label: 'Prontos', value: queues.readyToPublish, hint: 'materiais liberados para postagem', tone: 'emerald' },
+    { label: 'Rascunhos', value: queues.contentDrafts, hint: 'ebooks e roteiros gerados', tone: 'cyan' },
+    { label: 'Ferramentas fora', value: queues.toolGaps, hint: 'candidatas ainda sem pagina publica', tone: 'slate' },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Central de publicacao</p>
+          <h2 className="mt-2 text-base font-bold text-white">Status antes de ir para o site</h2>
+        </div>
+        <StatusPill tone={queues.reviewNeeded > 0 ? 'amber' : 'emerald'}>
+          {queues.reviewNeeded > 0 ? 'revisao aberta' : 'fila limpa'}
+        </StatusPill>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {items.map((item) => (
+          <MetricTile key={item.label} label={item.label} value={item.value} hint={item.hint} tone={item.tone} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ToolsWorkspace({ publicTools, candidateTools, affiliateItems, ebookItems, localMode, onSaved }) {
+  const publicIds = new Set(publicTools.map((tool) => tool.id));
+
+  return (
+    <div className="space-y-6">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Publicacao de ferramentas</p>
+            <h2 className="mt-2 text-base font-bold text-white">Fluxo para eu preencher e voce aprovar</h2>
+          </div>
+          <StatusPill tone="cyan">catalogo + conteudo</StatusPill>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+            <p className="text-sm font-semibold text-white">1. Entrada</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">Voce me passa nicho, tipo de publico ou ferramenta que quer testar.</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+            <p className="text-sm font-semibold text-white">2. Organizacao</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">Eu separo catalogo publico, afiliados, ebook, roteiro e SEO.</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+            <p className="text-sm font-semibold text-white">3. Revisao</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">Voce confere aqui antes de qualquer deploy ou publicacao.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Mapa de ferramentas</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Do achado ao catalogo</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              Veja o que ja aparece publicamente, o que vira afiliado e o que deve virar ebook, SEO ou roteiro.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-center">
+            <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
+              <p className="text-lg font-bold text-emerald-100">{publicTools.length}</p>
+              <p className="text-[11px] text-emerald-200/70">Publicas</p>
+            </div>
+            <div className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2">
+              <p className="text-lg font-bold text-cyan-100">{candidateTools.length}</p>
+              <p className="text-[11px] text-cyan-100/70">Candidatas</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 lg:grid-cols-2">
+          {candidateTools.map((tool) => {
+            const inCatalog = publicIds.has(tool.id) || (tool.id === 'elevenlabs' && publicIds.has('eleven-labs'));
+            const affiliate = tool.affiliateStatus && tool.affiliateStatus !== 'sem_link_configurado';
+            return (
+              <article key={tool.id} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-cyan-300">{tool.category}</p>
+                    <h3 className="mt-1 text-base font-semibold text-white">{tool.name}</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <StatusPill tone={inCatalog ? 'emerald' : 'amber'}>{inCatalog ? 'no catalogo' : 'fora do catalogo'}</StatusPill>
+                    <StatusPill tone={affiliate ? 'cyan' : 'slate'}>{affiliate ? 'rota afiliado' : 'rota ebook'}</StatusPill>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-slate-300">{tool.description}</p>
+                <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+                  <p className="text-xs uppercase tracking-widest text-cyan-400">Proxima publicacao</p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{tool.nextOutput}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <ToolRoutingBoard
+        affiliateItems={affiliateItems}
+        ebookItems={ebookItems}
+        localMode={localMode}
+        onSaved={onSaved}
+      />
+    </div>
+  );
+}
+
+function LeadsPanel({ leads }) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Leads</p>
+          <h2 className="mt-2 text-base font-bold text-white">Contatos recentes</h2>
+        </div>
+        <StatusPill tone="emerald">{leads.length} leads</StatusPill>
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        {leads.length === 0 ? (
+          <p className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-500">
+            Nenhum lead captado ainda.
+          </p>
+        ) : (
+          leads.slice(0, 8).map((lead) => (
+            <article key={lead.id || lead.email} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-white">{lead.nome || 'Lead sem nome'}</p>
+                  <p className="mt-1 text-sm text-cyan-300">{lead.email}</p>
+                  <p className="mt-1 text-xs text-slate-500">{lead.product_title || lead.ebook || 'sem produto'} · {lead.source || 'sem origem'}</p>
+                </div>
+                <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
 function AdminPage() {
   const location = useLocation();
   const forceLoginView = new URLSearchParams(location.search).get('view') === 'login';
   const [screen, setScreen] = useState('overview');
+  const [activeWorkspace, setActiveWorkspace] = useState('today');
   const [auth, setAuth] = useState(() => {
     if (forceLoginView) {
       return 'login';
@@ -1066,6 +1434,32 @@ function AdminPage() {
   const [running, setRunning] = useState(null);
   const [reviewingNews, setReviewingNews] = useState(null);
   const [contentRefreshKey, setContentRefreshKey] = useState(0);
+  const [contentDraftsForSummary, setContentDraftsForSummary] = useState([]);
+  const updateContentDraftsForSummary = useCallback((drafts) => {
+    setContentDraftsForSummary(drafts || []);
+  }, []);
+  const summaryContentDrafts = useMemo(() => {
+    if (!data?.pipeline) return [];
+    if (contentDraftsForSummary.length > 0) return contentDraftsForSummary;
+    return buildContentDrafts(data.pipeline.affiliateTools || [], data.pipeline.ebookTools || []);
+  }, [contentDraftsForSummary, data]);
+  const adminSummary = useMemo(
+    () =>
+      data
+        ? getAdminWorkspaceSummary({
+            ...data,
+            publicTools: publicToolsCatalog,
+            pipelineTools: [...(data.pipeline?.affiliateTools || []), ...(data.pipeline?.ebookTools || [])],
+            contentDrafts: summaryContentDrafts,
+          })
+        : null,
+    [data, summaryContentDrafts]
+  );
+
+  function openOperations(workspace = 'today') {
+    setActiveWorkspace(workspace);
+    setScreen('operations');
+  }
 
   async function loadLocalData() {
     const newsItems = await loadLocalNewsItems();
@@ -1085,7 +1479,6 @@ function AdminPage() {
       warnings: ['Modo local: login, armazenamento real e cliques dependem das APIs rodando no Vercel/Vercel Dev.'],
     });
     setAuth('ok');
-    setScreen('overview');
     return true;
   }
 
@@ -1110,7 +1503,6 @@ function AdminPage() {
       ],
     });
     setAuth('ok');
-    setScreen('overview');
     return true;
   }
 
@@ -1130,7 +1522,6 @@ function AdminPage() {
 
       setData(await response.json());
       setAuth('ok');
-      setScreen('overview');
       return true;
     } catch {
       return await loadFallbackData('Area administrativa caiu para modo local por falha de carregamento.');
@@ -1263,36 +1654,103 @@ function AdminPage() {
   }
 
   if (screen === 'overview') {
-    return <AdminOverviewScreen data={data} onOpenOperations={() => setScreen('operations')} />;
+    return <AdminOverviewScreen data={data} onOpenOperations={() => openOperations('today')} />;
   }
 
   const { affiliateTools, ebookTools, agentSchedule } = data.pipeline;
+  const candidateTools = [...affiliateTools, ...ebookTools];
+  const { metrics, workspaces } = adminSummary;
+  const currentWorkspace = workspaces.find((workspace) => workspace.id === activeWorkspace) || workspaces[0];
+
+  function renderWorkspace() {
+    if (activeWorkspace === 'today') {
+      return <TodayPanel summary={adminSummary} onOpenWorkspace={setActiveWorkspace} />;
+    }
+
+    if (activeWorkspace === 'research') {
+      return (
+        <div className="space-y-6">
+          <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
+          <ResearchReviewPanel responses={data.agentResponses || []} />
+          <OperationalSchedulePanel schedule={agentSchedule} />
+        </div>
+      );
+    }
+
+    if (activeWorkspace === 'publish') {
+      return (
+        <div className="space-y-6">
+          <PublicationStatusPanel summary={adminSummary} />
+          <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
+          <NewsOutputPanel items={data.newsItems || []} />
+          <ContentLabPanel
+            affiliateItems={affiliateTools}
+            ebookItems={ebookTools}
+            newsItems={data.newsItems || []}
+            localMode={Boolean(data.localPreview)}
+            refreshSignal={contentRefreshKey}
+            onDraftsChange={updateContentDraftsForSummary}
+          />
+        </div>
+      );
+    }
+
+    if (activeWorkspace === 'tools') {
+      return (
+        <ToolsWorkspace
+          publicTools={publicToolsCatalog}
+          candidateTools={candidateTools}
+          affiliateItems={affiliateTools}
+          ebookItems={ebookTools}
+          localMode={Boolean(data.localPreview)}
+          onSaved={() => setContentRefreshKey((value) => value + 1)}
+        />
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <LeadsPanel leads={data.subscribers || []} />
+        <ClicksPanel clicks={data.clicks || []} />
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-cyan-400">Admin VANT</p>
-          <h1 className="mt-2 text-3xl font-bold text-white">Central de avaliacao dos agentes</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
-            Painel privado para revisar fila, ativar agentes em ordem e acompanhar cliques por ferramenta ou ebook.
-          </p>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <header className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Admin VANT</p>
+            <h1 className="mt-2 text-3xl font-bold text-white">Painel operacional</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
+              Comece por Hoje, siga a proxima acao e publique somente o que passou por revisao.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setScreen('overview')}
+              className="rounded-full border border-cyan-400/30 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
+            >
+              Visao geral
+            </button>
+            <button
+              type="button"
+              onClick={logout}
+              className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:border-white/30 hover:text-white"
+            >
+              Sair
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setScreen('overview')}
-            className="rounded-full border border-cyan-400/30 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
-          >
-            Visao geral
-          </button>
-          <button
-            type="button"
-            onClick={logout}
-            className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:border-white/30 hover:text-white"
-          >
-            Sair
-          </button>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <MetricTile label="Agentes" value={`${metrics.completedAgents}/${metrics.totalAgents}`} hint="etapas respondidas" tone="cyan" />
+          <MetricTile label="Leads" value={metrics.leads} hint="contatos captados" tone="emerald" />
+          <MetricTile label="Noticias pendentes" value={metrics.pendingNews} hint="aguardando aprovacao" tone="amber" />
+          <MetricTile label="Ferramentas" value={metrics.publicTools} hint={`${metrics.candidateTools} candidatas`} tone="slate" />
+          <MetricTile label="Resultados" value={metrics.clicks} hint="cliques rastreados" tone="cyan" />
         </div>
       </header>
 
@@ -1302,42 +1760,20 @@ function AdminPage() {
         </div>
       )}
 
-      <AgentRunner workflow={data.agentWorkflow} responses={data.agentResponses} onRun={runAgent} running={running} />
+      <WorkspaceNav workspaces={workspaces} active={activeWorkspace} onChange={setActiveWorkspace} />
 
-      <ToolRoutingBoard
-        affiliateItems={affiliateTools}
-        ebookItems={ebookTools}
-        localMode={Boolean(data.localPreview)}
-        onSaved={() => setContentRefreshKey((value) => value + 1)}
-      />
-
-      <ContentLabPanel
-        affiliateItems={affiliateTools}
-        ebookItems={ebookTools}
-        newsItems={data.newsItems || []}
-        localMode={Boolean(data.localPreview)}
-        refreshSignal={contentRefreshKey}
-      />
-
-      <NewsOutputPanel items={data.newsItems || []} />
-
-      <NewsReviewPanel items={data.newsItems || []} onReview={reviewNews} reviewing={reviewingNews} />
-
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <h2 className="text-base font-bold text-white">Cronograma operacional</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {agentSchedule.map((item) => (
-            <div key={item.day} className="rounded-xl border border-white/10 bg-slate-950/45 p-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">{item.day}</p>
-              <p className="mt-2 text-sm font-semibold text-white">{item.owner}</p>
-              <p className="mt-1 text-xs text-slate-500">{item.cadence}</p>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">{item.output}</p>
-            </div>
-          ))}
+      <section className="space-y-5">
+        <div className="flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Area ativa</p>
+            <h2 className="mt-1 text-2xl font-bold text-white">{currentWorkspace.label}</h2>
+            <p className="mt-1 text-sm text-slate-500">{currentWorkspace.description}</p>
+          </div>
+          <StatusPill tone="cyan">{currentWorkspace.badge}</StatusPill>
         </div>
-      </section>
 
-      <ClicksPanel clicks={data.clicks || []} />
+        {renderWorkspace()}
+      </section>
     </div>
   );
 }

@@ -125,3 +125,28 @@ create index if not exists ai_content_drafts_draft_type_idx on ai_content_drafts
 alter table ai_content_drafts enable row level security;
 drop policy if exists "service only" on ai_content_drafts;
 create policy "service only" on ai_content_drafts using (false) with check (false);
+
+create table if not exists ai_tools (
+  id text primary key,
+  name text not null,
+  description text not null default '',
+  link text not null,
+  utm text,
+  categoria text not null default 'IA',
+  badge text,
+  gratis boolean not null default false,
+  logo text,
+  emoji text,
+  affiliate_status text not null default 'nao_verificado',
+  affiliate_url text,
+  status text not null default 'rascunho',
+  payload jsonb default '{}'::jsonb,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index if not exists ai_tools_status_idx on ai_tools (status);
+create index if not exists ai_tools_categoria_idx on ai_tools (categoria);
+alter table ai_tools enable row level security;
+drop policy if exists "service only" on ai_tools;
+create policy "service only" on ai_tools using (false) with check (false);
