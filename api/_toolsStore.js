@@ -82,6 +82,22 @@ export function getPublishedTools(items = []) {
   return items.filter((tool) => publishedToolStatuses.includes(tool.status));
 }
 
+function getStaticPublishedTools() {
+  return getPublishedTools(recursos.map((tool) => normalizeToolItem(tool, tool.status || 'publicada')));
+}
+
+export function getPublicToolItemsWithFallback(items = []) {
+  const publishedItems = getPublishedTools(items);
+  if (publishedItems.length > 0) {
+    return { items: publishedItems, usedFallback: false };
+  }
+
+  return {
+    items: getStaticPublishedTools(),
+    usedFallback: true,
+  };
+}
+
 export function buildToolCategories(items = []) {
   const categories = [...new Set(items.map((tool) => tool.categoria).filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'pt-BR')
@@ -118,11 +134,18 @@ export async function getToolItems() {
 
 export async function getPublicTools() {
   const tools = await getToolItems();
-  const items = getPublishedTools(tools.items);
+  const publicTools = getPublicToolItemsWithFallback(tools.items);
+  const warnings = [...(tools.warnings || [])];
+
+  if (publicTools.usedFallback) {
+    warnings.push('Catalogo publico vazio no banco; usando catalogo estatico como fallback.');
+  }
+
   return {
     ...tools,
-    items,
-    categorias: buildToolCategories(items),
+    items: publicTools.items,
+    categorias: buildToolCategories(publicTools.items),
+    warnings,
   };
 }
 
