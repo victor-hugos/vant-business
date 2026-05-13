@@ -72,7 +72,7 @@ async function fetchAdminRows(req) {
       .limit(100),
     supabase
       .from('subscribers')
-      .select('id,nome,email,whatsapp,ebook,product_title,lead_type,newsletter_opt_in,source,created_at')
+      .select('id,nome,email,whatsapp,ebook,product_title,lead_type,newsletter_opt_in,source,metadata,created_at')
       .order('created_at', { ascending: false })
       .limit(100),
     supabase

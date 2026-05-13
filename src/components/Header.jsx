@@ -5,9 +5,8 @@ import VantLogo from './VantLogo.jsx';
 const navItems = [
   { label: 'Início', to: '/' },
   { label: 'Ferramentas', to: '/recursos' },
-  { label: 'Automações', to: '/automatize' },
+  { label: 'Soluções', to: '/solucoes-digitais' },
   { label: 'Notícias', to: '/blog' },
-  { label: 'Conteúdos', href: '/#conteudos' },
 ];
 
 function Header() {
@@ -69,10 +68,10 @@ function Header() {
           </nav>
 
           <Link
-            to="/automatize"
+            to="/solucoes-digitais"
             className="brand-button-secondary !hidden px-5 py-2 text-[11px] lg:!inline-flex"
           >
-            Automatize seu negócio ›
+            Criar presença digital ›
           </Link>
 
           <button

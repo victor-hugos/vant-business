@@ -210,12 +210,13 @@ function SelectInput(props) {
 function AdminTabs({ active, onChange }) {
   const tabs = [
     { id: 'clicks', label: 'Cliques' },
+    { id: 'leads', label: 'Leads' },
     { id: 'news', label: 'Noticias' },
     { id: 'tools', label: 'Ferramentas' },
   ];
 
   return (
-    <nav className="grid gap-2 sm:grid-cols-3" aria-label="Areas do admin">
+    <nav className="grid gap-2 sm:grid-cols-4" aria-label="Areas do admin">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -231,6 +232,54 @@ function AdminTabs({ active, onChange }) {
         </button>
       ))}
     </nav>
+  );
+}
+
+function LeadsPanel({ leads }) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Leads</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Briefings comerciais</h2>
+        </div>
+        <StatusPill tone="emerald">{leads.length} contatos</StatusPill>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">
+        {leads.length === 0 ? (
+          <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
+            Ainda nao ha leads comerciais registrados.
+          </p>
+        ) : (
+          leads.slice(0, 20).map((lead) => (
+            <article key={lead.id || lead.email} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-white">{lead.nome || 'Lead sem nome'}</p>
+                  <p className="mt-1 text-sm text-cyan-300">{lead.email}</p>
+                  {lead.whatsapp ? <p className="mt-1 text-xs text-slate-400">{lead.whatsapp}</p> : null}
+                  <p className="mt-1 text-xs text-slate-500">
+                    {lead.product_title || lead.ebook || 'sem produto'} · {lead.lead_type || 'lead'} · {lead.source || 'sem origem'}
+                  </p>
+                </div>
+                <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
+              </div>
+
+              {lead.lead_type === 'service' && lead.metadata ? (
+                <div className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-xs leading-relaxed text-slate-400">
+                  <p className="font-semibold text-slate-200">{lead.metadata.solutionType || 'Solucao digital'}</p>
+                  {lead.metadata.businessName ? <p className="mt-1">Empresa: {lead.metadata.businessName}</p> : null}
+                  {lead.metadata.projectStage ? <p className="mt-1">Momento: {lead.metadata.projectStage}</p> : null}
+                  {lead.metadata.budgetRange ? <p className="mt-1">Investimento: {lead.metadata.budgetRange}</p> : null}
+                  {lead.metadata.message ? <p className="mt-2 text-slate-300">{lead.metadata.message}</p> : null}
+                </div>
+              ) : null}
+            </article>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -559,6 +608,7 @@ function AdminPublishingPage() {
       ok: true,
       localPreview: true,
       clicks: [],
+      subscribers: [],
       newsItems: mergeById(staticNews, localNews),
       tools,
       warnings: ['Modo local: rascunhos ficam no navegador. No preview da Vercel, a publicacao usa API/Supabase.'],
@@ -717,6 +767,7 @@ function AdminPublishingPage() {
     const tools = data?.tools || [];
     return {
       clicks: data?.clicks?.length || 0,
+      leads: data?.subscribers?.length || 0,
       publishedNews: news.filter((item) => isPublished(item.status)).length,
       draftNews: news.filter((item) => !isPublished(item.status)).length,
       publishedTools: tools.filter((item) => isPublished(item.status)).length,
@@ -740,7 +791,7 @@ function AdminPublishingPage() {
             <p className="text-xs uppercase tracking-widest text-cyan-400">Admin VANT</p>
             <h1 className="mt-2 text-3xl font-bold text-white">Publicacao e cliques</h1>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
-              Use esta tela para ver cliques, cadastrar noticias e publicar ferramentas no site.
+              Use esta tela para ver cliques, leads comerciais, cadastrar noticias e publicar ferramentas no site.
             </p>
           </div>
           <button
@@ -754,9 +805,10 @@ function AdminPublishingPage() {
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <StatCard label="Cliques" value={metrics.clicks} hint="eventos rastreados" />
+          <StatCard label="Leads" value={metrics.leads} hint="briefings e contatos" />
           <StatCard label="Noticias publicadas" value={metrics.publishedNews} hint={`${metrics.draftNews} em rascunho/revisao`} />
           <StatCard label="Ferramentas publicadas" value={metrics.publishedTools} hint={`${metrics.draftTools} em rascunho/revisao`} />
-          <StatCard label="Admin" value="3" hint="cliques, noticias, ferramentas" />
+          <StatCard label="Admin" value="4" hint="cliques, leads, noticias, ferramentas" />
           <StatCard label="Publicacao" value="Site" hint="blog e /recursos" />
         </div>
       </header>
@@ -770,6 +822,7 @@ function AdminPublishingPage() {
       <AdminTabs active={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'clicks' && <ClicksPanel clicks={data.clicks || []} />}
+      {activeTab === 'leads' && <LeadsPanel leads={data.subscribers || []} />}
       {activeTab === 'news' && (
         <NewsPanel
           items={data.newsItems || []}

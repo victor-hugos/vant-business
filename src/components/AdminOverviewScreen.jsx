@@ -140,6 +140,11 @@ function AdminOverviewScreen({ data, onOpenOperations }) {
                       <p className="mt-1 text-xs text-slate-500">
                         {lead.product_title || lead.ebook} · {lead.lead_type} · {lead.source || 'sem origem'}
                       </p>
+                      {lead.lead_type === 'service' && lead.metadata?.solutionType ? (
+                        <p className="mt-2 text-xs text-slate-300">
+                          {lead.metadata.solutionType}
+                        </p>
+                      ) : null}
                     </div>
                     <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
                   </div>

@@ -32,6 +32,70 @@ function normalize(value = '') {
   return String(value).trim();
 }
 
+function normalizeMetadata(metadata = {}, context = {}) {
+  const normalized = {};
+
+  if (metadata && typeof metadata === 'object' && !Array.isArray(metadata)) {
+    Object.entries(metadata).forEach(([key, value]) => {
+      if (value === null || value === undefined || value === '') return;
+
+      if (typeof value === 'string') {
+        const cleanValue = normalize(value);
+        if (!cleanValue) return;
+        normalized[key] = cleanValue;
+        return;
+      }
+
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        normalized[key] = value;
+      }
+    });
+  }
+
+  return {
+    ...normalized,
+    userAgent: context.userAgent || null,
+    referer: context.referer || null,
+  };
+}
+
+export function normalizeSubscribePayload(input = {}, context = {}) {
+  const {
+    nome,
+    email,
+    whatsapp,
+    ebook,
+    productTitle,
+    leadType = 'ebook',
+    newsletterOptIn = false,
+    source = 'unknown',
+    metadata = {},
+  } = input;
+
+  const cleanName = normalize(nome);
+  const cleanEmail = normalize(email).toLowerCase();
+  const cleanWhatsapp = normalize(whatsapp);
+  const rawLeadType = normalize(leadType).toLowerCase();
+  const cleanLeadType = ['ebook', 'newsletter', 'service'].includes(rawLeadType)
+    ? rawLeadType
+    : 'ebook';
+  const cleanEbook = normalize(ebook) || (cleanLeadType === 'service' ? 'solucoes-digitais' : '');
+  const cleanProductTitle = normalize(productTitle) || cleanEbook;
+  const wantsNewsletter = cleanLeadType === 'newsletter' || Boolean(newsletterOptIn);
+
+  return {
+    cleanName,
+    cleanEmail,
+    cleanWhatsapp,
+    cleanEbook,
+    cleanProductTitle,
+    cleanLeadType,
+    wantsNewsletter,
+    source: normalize(source) || 'unknown',
+    metadata: normalizeMetadata(metadata, context),
+  };
+}
+
 function buildNewsPreviewHtml(items) {
   if (!items.length) {
     return `
@@ -105,29 +169,49 @@ function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, eboo
   `;
 }
 
+function buildServiceConfirmationHtml(nome, { productTitle }) {
+  const safeName = escapeHtml(nome);
+  const safeProductTitle = escapeHtml(productTitle);
+
+  return `
+    <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
+      <p style="margin:0 0 8px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">VANT Business</p>
+      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">Ola, ${safeName}</h1>
+      <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
+        Recebi seu briefing para <strong>${safeProductTitle}</strong>. Vou analisar o contexto do seu negocio e responder com o melhor proximo passo.
+      </p>
+      <div style="margin-top:20px;padding:18px;border-radius:18px;background:#0f172a;color:#f8fafc;">
+        <p style="margin:0 0 8px;color:#67e8f9;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Proximo passo</p>
+        <p style="margin:0;font-size:15px;line-height:1.65;">
+          A VANT avalia identidade digital, presenca online, site, perfil profissional, funil e solucoes digitais antes de sugerir uma entrega.
+        </p>
+      </div>
+      <p style="margin:20px 0 0;color:#64748b;font-size:12px;line-height:1.6;">
+        Esta mensagem confirma que seu contato entrou no fluxo comercial da VANT Business.
+      </p>
+    </div>
+  `;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const {
-    nome,
-    email,
-    whatsapp,
-    ebook,
-    productTitle,
-    leadType = 'ebook',
-    newsletterOptIn = false,
-    source = 'unknown',
-  } = req.body || {};
-
-  const cleanName = normalize(nome);
-  const cleanEmail = normalize(email).toLowerCase();
-  const cleanWhatsapp = normalize(whatsapp);
-  const cleanEbook = normalize(ebook);
-  const cleanProductTitle = normalize(productTitle) || cleanEbook;
-  const cleanLeadType = leadType === 'newsletter' ? 'newsletter' : 'ebook';
-  const wantsNewsletter = cleanLeadType === 'newsletter' || Boolean(newsletterOptIn);
+    cleanName,
+    cleanEmail,
+    cleanWhatsapp,
+    cleanEbook,
+    cleanProductTitle,
+    cleanLeadType,
+    wantsNewsletter,
+    source,
+    metadata,
+  } = normalizeSubscribePayload(req.body, {
+    userAgent: req.headers['user-agent'] || null,
+    referer: req.headers.referer || null,
+  });
 
   if (!cleanEmail || !cleanName || !cleanWhatsapp || !cleanEbook) {
     return res.status(400).json({ error: 'Dados incompletos' });
@@ -164,10 +248,7 @@ export default async function handler(req, res) {
           lead_type: cleanLeadType,
           newsletter_opt_in: wantsNewsletter,
           source,
-          metadata: {
-            userAgent: req.headers['user-agent'] || null,
-            referer: req.headers.referer || null,
-          },
+          metadata,
           created_at: now,
           updated_at: now,
         },
@@ -177,16 +258,45 @@ export default async function handler(req, res) {
     if (error) throw error;
 
     const news = await getNewsItems(req);
-    const subscriberSubject = cleanLeadType === 'newsletter'
-      ? `${cleanName}, bem-vindo ao canal de noticias de IA`
-      : `${cleanName}, seu material e a curadoria da VANT Business`;
+    const subscriberSubject = cleanLeadType === 'service'
+      ? `${cleanName}, recebemos seu briefing na VANT Business`
+      : cleanLeadType === 'newsletter'
+        ? `${cleanName}, bem-vindo ao canal de noticias de IA`
+        : `${cleanName}, seu material e a curadoria da VANT Business`;
 
-    const subscriberHtml = buildWelcomeHtml(cleanName, {
-      productTitle: cleanProductTitle,
-      newsletterOptIn: wantsNewsletter,
-      newsItems: news.items || [],
-      ebookUrl,
-    });
+    const subscriberHtml = cleanLeadType === 'service'
+      ? buildServiceConfirmationHtml(cleanName, { productTitle: cleanProductTitle })
+      : buildWelcomeHtml(cleanName, {
+          productTitle: cleanProductTitle,
+          newsletterOptIn: wantsNewsletter,
+          newsItems: news.items || [],
+          ebookUrl,
+        });
+
+    const serviceDetailsHtml = cleanLeadType === 'service'
+      ? `
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Empresa</td>
+                <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.businessName || '-')}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Solucao</td>
+                <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.solutionType || '-')}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Momento</td>
+                <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.projectStage || '-')}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Orcamento</td>
+                <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.budgetRange || '-')}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Briefing</td>
+                <td style="padding:8px 0;color:#475569;line-height:1.6;">${escapeHtml(metadata.message || '-')}</td>
+              </tr>
+        `
+      : '';
 
     // 2. Emails em paralelo
     await Promise.all([
@@ -227,6 +337,7 @@ export default async function handler(req, res) {
                 <td style="padding:8px 0;color:#64748b;">Origem</td>
                 <td style="padding:8px 0;color:#475569;">${safeSource}</td>
               </tr>
+              ${serviceDetailsHtml}
               <tr>
                 <td style="padding:8px 0;color:#64748b;">Data</td>
                 <td style="padding:8px 0;color:#475569;">${new Date(now).toLocaleString('pt-BR')}</td>
