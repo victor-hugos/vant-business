@@ -20,6 +20,7 @@ function App() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/recursos" element={<RecursosPage />} />
+            <Route path="/solucoes-digitais" element={<AutomatizePage />} />
             <Route path="/automatize" element={<AutomatizePage />} />
             <Route path="/ebook/:slug" element={<EbookPage />} />
             <Route path="/admin-vant" element={<AdminPublishingPage />} />

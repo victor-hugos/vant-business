@@ -1402,10 +1402,19 @@ function LeadsPanel({ leads }) {
                 <div>
                   <p className="text-sm font-semibold text-white">{lead.nome || 'Lead sem nome'}</p>
                   <p className="mt-1 text-sm text-cyan-300">{lead.email}</p>
-                  <p className="mt-1 text-xs text-slate-500">{lead.product_title || lead.ebook || 'sem produto'} · {lead.source || 'sem origem'}</p>
+                  <p className="mt-1 text-xs text-slate-500">{lead.product_title || lead.ebook || 'sem produto'} · {lead.lead_type || 'lead'} · {lead.source || 'sem origem'}</p>
                 </div>
                 <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
               </div>
+              {lead.lead_type === 'service' && lead.metadata ? (
+                <div className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-xs leading-relaxed text-slate-400">
+                  <p className="font-semibold text-slate-200">{lead.metadata.solutionType || 'Solucao digital'}</p>
+                  {lead.metadata.businessName ? <p className="mt-1">Empresa: {lead.metadata.businessName}</p> : null}
+                  {lead.metadata.projectStage ? <p className="mt-1">Momento: {lead.metadata.projectStage}</p> : null}
+                  {lead.metadata.budgetRange ? <p className="mt-1">Investimento: {lead.metadata.budgetRange}</p> : null}
+                  {lead.metadata.message ? <p className="mt-2 text-slate-300">{lead.metadata.message}</p> : null}
+                </div>
+              ) : null}
             </article>
           ))
         )}

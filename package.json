@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node --test tests/*.test.js",
     "agent:news": "node scripts/news-agent.mjs",
     "check:tool-logos": "node scripts/validate-tool-logos.mjs",
     "build": "vite build",

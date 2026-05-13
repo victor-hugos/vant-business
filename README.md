@@ -1,34 +1,38 @@
 # VANT.Business
 
-Site oficial da **VANT.Business**, um hub de automação, IA aplicada, curadoria de ferramentas, conteúdo estratégico e captura de leads.
+Site oficial da **VANT.Business**, uma marca unica que combina agencia premium de identidade digital, presenca online, solucoes digitais, IA aplicada, curadoria de ferramentas, conteudo estrategico e captura de leads.
 
 O projeto combina uma vitrine pública com páginas de recursos, blog, ebooks, formulários de captura, rastreamento de cliques e uma área administrativa privada para curadoria de conteúdo e operação dos agentes.
 
 ## Proposta oficial do site
 
-A **VANT.Business** existe para transformar o excesso de ferramentas, notícias e promessas de IA em aplicação prática para negócios, criadores e profissionais.
+A **VANT.Business** existe para ajudar empresas e criadores a crescer com tecnologia, IA, automacao, identidade digital e posicionamento online.
 
 O site deve funcionar como uma ponte entre descoberta e execução: a pessoa encontra ferramentas confiáveis, entende como aplicar IA no próprio contexto, recebe conteúdos úteis e pode avançar para automações personalizadas quando precisar de implementação.
 
 ### Promessa central
 
 ```txt
-Automação, IA e estratégia para transformar tecnologia em resultado real.
+Identidade digital, IA e estrategia para transformar presenca em crescimento.
 ```
 
 ### Posicionamento
 
-A VANT.Business não é apenas um portfólio, uma lista de links ou um blog de tecnologia. Ela é uma plataforma editorial e operacional focada em:
+A VANT.Business não é apenas um portfólio, uma lista de links ou um blog de tecnologia. Ela é uma agencia e plataforma editorial-operacional focada em:
 
+- captar clientes interessados em identidade digital, sites, Instagram,
+  Google Meu Negocio, funis e solucoes digitais;
 - curar ferramentas de IA úteis;
 - explicar aplicações reais sem enrolação;
-- capturar leads interessados em IA, automação e produtividade;
+- capturar leads interessados em IA, automação, produtividade e crescimento
+  digital;
 - conectar conteúdo, ebooks e newsletter a oportunidades comerciais;
 - organizar demanda para projetos de automação e sistemas personalizados.
 
 ### Público-alvo
 
-- Empreendedores que querem automatizar processos.
+- Empreendedores que querem melhorar presenca digital, captar clientes e
+  automatizar processos.
 - Criadores que querem produzir mais com IA.
 - Pequenas empresas que precisam vender, atender e operar melhor.
 - Profissionais que querem escolher boas ferramentas sem perder tempo testando tudo.
@@ -49,7 +53,8 @@ Quem entra no site deve sair com pelo menos um destes próximos passos:
 - ler um conteúdo ou notícia curada;
 - baixar ou acessar um ebook;
 - entrar na newsletter;
-- solicitar uma automação;
+- solicitar uma identidade digital, site, melhoria de presença online ou
+  solução digital;
 - conhecer melhor a proposta da VANT.Business.
 
 ## Status do projeto
@@ -64,7 +69,7 @@ Quem entra no site deve sair com pelo menos um destes próximos passos:
 
 - Home com posicionamento de marca: automação, IA e escala.
 - Biblioteca de ferramentas de IA em `/recursos`.
-- Página de automações e solicitação comercial em `/automatize`.
+- Página comercial para identidade digital e soluções digitais em `/solucoes-digitais` com compatibilidade em `/automatize`.
 - Blog e curadoria de notícias em `/blog`.
 - Páginas de ebook com formulário de captura em `/ebook/:slug`.
 - Newsletter com leads salvos no Supabase.
@@ -79,7 +84,8 @@ Quem entra no site deve sair com pelo menos um destes próximos passos:
 | --- | --- |
 | `/` | Página inicial da VANT.Business |
 | `/recursos` | Biblioteca de ferramentas de IA |
-| `/automatize` | Página comercial para automações |
+| `/solucoes-digitais` | Página comercial para identidade digital e soluções digitais |
+| `/automatize` | Compatibilidade para links antigos da página comercial |
 | `/blog` | Notícias, conteúdos e curadoria |
 | `/blog/:slug` | Página individual de artigo |
 | `/ebook/:slug` | Captura de lead para ebook |
@@ -284,6 +290,7 @@ Depois do deploy, validar:
 
 - Home
 - `/recursos`
+- `/solucoes-digitais`
 - `/automatize`
 - `/blog`
 - captura em `/ebook/:slug`

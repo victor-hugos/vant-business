@@ -16,7 +16,7 @@ function Footer() {
             </div>
           </div>
           <p className="mt-4 text-sm text-[#a6a6a6] leading-relaxed">
-            Hub de ferramentas IA, ebooks, notícias e automações para negócios digitais.
+            Agência e hub de IA para presença digital, ferramentas, conteúdo e soluções para negócios.
           </p>
         </div>
         <div>
@@ -24,7 +24,7 @@ function Footer() {
           <ul className="space-y-2 text-sm text-[#a6a6a6]">
             <li><Link to="/blog" className="transition hover:text-white">Notícias IA</Link></li>
             <li><Link to="/recursos" className="transition hover:text-white">Ferramentas IA</Link></li>
-            <li><Link to="/automatize" className="transition hover:text-white">Automatize seu negócio</Link></li>
+            <li><Link to="/solucoes-digitais" className="transition hover:text-white">Identidade digital</Link></li>
           </ul>
         </div>
         <div>
