@@ -34,27 +34,23 @@ const goalOptions = [
   'Ainda estou definindo isso',
 ];
 
-const deliveryHighlights = [
-  'Identidade visual e posicionamento para parecer forte no digital',
-  'Site profissional e páginas focadas em conversão',
-  'Instagram, Google Meu Negócio e presença online mais confiáveis',
-  'Automação, funis e sistemas quando a operação pede escala',
-];
-
 const processSteps = [
   {
-    title: '1. Diagnóstico',
-    text: 'Você envia o briefing com contexto, objetivo e momento do projeto.',
+    title: '1. Diagnostico',
+    text: 'Voce envia o briefing com contexto, objetivo e momento do projeto.',
   },
   {
-    title: '2. Direção',
-    text: 'A VANT analisa a demanda e define o caminho mais coerente para sua presença digital.',
+    title: '2. Direcao',
+    text: 'A VANT analisa a demanda e define o caminho mais coerente para sua presenca digital.',
   },
   {
-    title: '3. Próximo passo',
-    text: 'Você recebe retorno com recomendação, escopo inicial e melhor formato de execução.',
+    title: '3. Proximo passo',
+    text: 'Voce recebe retorno com recomendacao, escopo inicial e melhor formato de execucao.',
   },
 ];
+
+const inputClassName = 'brand-input min-h-[46px] rounded-xl border-white/12 bg-white/[0.035] px-3.5 py-2.5 text-sm text-white placeholder:text-[#707070]';
+const labelClassName = 'mb-1.5 block text-[0.82rem] font-medium text-[#d1d1d1]';
 
 function AutomatizePage() {
   const [sent, setSent] = useState(false);
@@ -74,7 +70,7 @@ function AutomatizePage() {
       email: data.get('email'),
       whatsapp: data.get('whatsapp'),
       ebook: 'solucoes-digitais',
-      productTitle: 'Identidade digital e soluções digitais',
+      productTitle: 'Identidade digital e solucoes digitais',
       leadType: 'service',
       source: 'digital-solutions-page',
       metadata: {
@@ -109,56 +105,82 @@ function AutomatizePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
       <section className="brand-panel">
-        <div className="brand-mark-panel grid gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-10 lg:py-10">
-          <div className="flex flex-col justify-between">
+        <div className="brand-mark-panel px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
+          <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
             <div>
-              <div className="flex items-center gap-4">
-                <span className="h-px w-10 bg-white/40" />
-                <p className="brand-kicker">Identidade digital · Sites · Presença</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-4">
+                  <span className="h-px w-10 bg-white/40" />
+                  <p className="brand-kicker">Identidade digital · Sites · Presenca</p>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+                  <VantLogo size={24} />
+                  <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#d7d7d7]">
+                    VANT.BUSINESS
+                  </span>
+                </div>
               </div>
-              <h1 className="brand-title mt-5 text-4xl font-bold leading-tight text-white sm:text-5xl">
-                Estruture uma presença digital
-                <span className="brand-metal block">com percepção premium</span>
+
+              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-tight text-white sm:text-5xl">
+                Estruture uma presenca digital
+                <span className="brand-metal block">com percepcao premium</span>
               </h1>
-              <p className="mt-4 max-w-xl text-base leading-8 text-[#c9c9c9]">
-                Preencha o briefing e a VANT responde com a direção mais coerente para posicionamento, presença digital ou estrutura operacional.
+              <p className="mt-4 max-w-2xl text-[0.98rem] leading-7 text-[#c9c9c9]">
+                A VANT responde com a direcao mais coerente para posicionamento, presenca digital ou estrutura operacional,
+                sem transformar seu primeiro contato em um formulario pesado.
               </p>
 
-              <div className="mt-8 grid gap-3">
+              <div className="mt-7 grid gap-3 sm:grid-cols-3">
                 {processSteps.map((step) => (
-                  <div key={step.title} className="border-l border-white/15 pl-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-[#8f8f8f]">{step.title}</p>
-                    <p className="mt-1 text-sm leading-6 text-[#c9c9c9]">{step.text}</p>
+                  <div
+                    key={step.title}
+                    className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 backdrop-blur-sm"
+                  >
+                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-[#8f8f8f]">{step.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-[#c9c9c9]">{step.text}</p>
                   </div>
                 ))}
               </div>
+            </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+            <div className="brand-card rounded-3xl p-5 sm:p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+                  <VantLogo size={44} />
+                </div>
+                <div>
+                  <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#6f6f6f]">
+                    Estrategia · Conexao · Resultados
+                  </p>
+                </div>
+              </div>
+              <p className="mt-5 text-sm leading-6 text-[#bdbdbd]">
+                Se o seu foco agora e parecer mais forte, comunicar melhor e estruturar sua presenca digital, esse briefing e o ponto de partida.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
                 <a href="#briefing-form" className="brand-button-primary px-7 py-3 text-xs">
                   Quero apresentar meu projeto
                 </a>
               </div>
             </div>
-
-            <div className="mt-8 flex items-center gap-4 border-t border-white/10 pt-5">
-              <VantLogo size={58} />
-              <div>
-                <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#6f6f6f]">
-                  Estratégia · Conexão · Resultados
-                </p>
-              </div>
-            </div>
           </div>
+        </div>
+      </section>
 
-          {sent ? (
-            <div className="brand-card flex min-h-[420px] flex-col items-center justify-center p-8 text-center">
-              <VantLogo size={82} />
+      <section className="brand-panel px-5 py-6 sm:px-8 lg:px-10">
+        {sent ? (
+          <div className="mx-auto max-w-3xl">
+            <div className="brand-card flex min-h-[300px] flex-col items-center justify-center rounded-3xl p-8 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-white/10 bg-white/[0.05] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+                <VantLogo size={56} />
+              </div>
               <p className="brand-title mt-6 text-2xl font-bold text-white">Recebi seu briefing</p>
               <p className="mt-3 max-w-md text-sm leading-6 text-[#a6a6a6]">
-                Vou analisar sua necessidade e responder com a direção mais coerente para posicionamento, presença digital ou solução operacional da sua empresa.
+                Vou analisar sua necessidade e responder com a direcao mais coerente para posicionamento,
+                presenca digital ou solucao operacional da sua empresa.
               </p>
               <button
                 type="button"
@@ -168,81 +190,88 @@ function AutomatizePage() {
                 Enviar outro briefing
               </button>
             </div>
-          ) : (
-            <form id="briefing-form" onSubmit={handleSubmit} className="brand-card flex flex-col gap-5 p-5 sm:p-6">
+          </div>
+        ) : (
+          <div className="mx-auto max-w-4xl space-y-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="brand-kicker">Briefing comercial</p>
-                <h2 className="brand-title mt-2 text-2xl font-bold text-white">
+                <h2 className="brand-title mt-2 text-[1.8rem] font-bold text-white sm:text-[2rem]">
                   Apresente seu projeto com clareza
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-[#a6a6a6]">
-                  Responda o essencial para eu entender prioridade, momento e melhor próximo passo.
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#a6a6a6]">
+                  Responda o essencial para eu entender prioridade, momento e melhor proximo passo.
                 </p>
               </div>
+              <p className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[0.72rem] uppercase tracking-[0.14em] text-[#9d9d9d]">
+                Diagnostico objetivo · sem excesso de friccao
+              </p>
+            </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+            <form id="briefing-form" onSubmit={handleSubmit} className="brand-card flex flex-col gap-4 rounded-3xl p-4 sm:p-5">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="nome">Seu nome</label>
+                  <label className={labelClassName} htmlFor="nome">Seu nome</label>
                   <input
                     id="nome"
                     name="nome"
                     type="text"
                     required
                     placeholder="Como posso te chamar?"
-                    className="brand-input px-4 py-3 text-sm"
+                    className={inputClassName}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="empresa">Empresa ou projeto</label>
+                  <label className={labelClassName} htmlFor="empresa">Empresa ou projeto</label>
                   <input
                     id="empresa"
                     name="empresa"
                     type="text"
                     placeholder="Nome da empresa, marca ou projeto"
-                    className="brand-input px-4 py-3 text-sm"
+                    className={inputClassName}
                   />
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="email">E-mail</label>
+                  <label className={labelClassName} htmlFor="email">E-mail</label>
                   <input
                     id="email"
                     name="email"
                     type="email"
                     required
                     placeholder="seu@email.com"
-                    className="brand-input px-4 py-3 text-sm"
+                    className={inputClassName}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="whatsapp">WhatsApp</label>
+                  <label className={labelClassName} htmlFor="whatsapp">WhatsApp</label>
                   <input
                     id="whatsapp"
                     name="whatsapp"
                     type="tel"
                     required
-                    placeholder="Número para contato"
-                    className="brand-input px-4 py-3 text-sm"
+                    placeholder="Numero para contato"
+                    className={inputClassName}
                   />
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="solucao">Qual solução parece mais próxima do que você precisa?</label>
-                  <select id="solucao" name="solucao" required className="brand-input px-4 py-3 text-sm">
-                    <option value="">Selecione uma opção</option>
+                  <label className={labelClassName} htmlFor="solucao">Qual solucao parece mais proxima do que voce precisa?</label>
+                  <select id="solucao" name="solucao" required className={inputClassName}>
+                    <option value="">Selecione uma opcao</option>
                     {serviceOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="momento">Em que momento o projeto está hoje?</label>
-                  <select id="momento" name="momento" required className="brand-input px-4 py-3 text-sm">
-                    <option value="">Selecione uma opção</option>
+                  <label className={labelClassName} htmlFor="momento">Em que momento o projeto esta hoje?</label>
+                  <select id="momento" name="momento" required className={inputClassName}>
+                    <option value="">Selecione uma opcao</option>
                     {stageOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
                     ))}
@@ -250,19 +279,19 @@ function AutomatizePage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="objetivo">Qual é o principal objetivo agora?</label>
-                  <select id="objetivo" name="objetivo" className="brand-input px-4 py-3 text-sm">
-                    <option value="">Selecione uma opção</option>
+                  <label className={labelClassName} htmlFor="objetivo">Qual e o principal objetivo agora?</label>
+                  <select id="objetivo" name="objetivo" className={inputClassName}>
+                    <option value="">Selecione uma opcao</option>
                     {goalOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="orcamento">Faixa de investimento</label>
-                  <select id="orcamento" name="orcamento" className="brand-input px-4 py-3 text-sm">
+                  <label className={labelClassName} htmlFor="orcamento">Faixa de investimento</label>
+                  <select id="orcamento" name="orcamento" className={inputClassName}>
                     {budgetOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
                     ))}
@@ -271,43 +300,47 @@ function AutomatizePage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm text-[#c9c9c9]" htmlFor="descricao">
-                  Descreva o que você quer construir ou melhorar
+                <label className={labelClassName} htmlFor="descricao">
+                  Descreva o que voce quer construir ou melhorar
                 </label>
                 <textarea
                   id="descricao"
                   name="descricao"
                   required
-                  rows={6}
-                  placeholder="Ex: hoje meu negócio depende de indicação, meu Instagram está desorganizado e eu preciso parecer mais profissional para gerar contatos pelo digital."
-                  className="brand-input resize-none px-4 py-3 text-sm"
+                  rows={5}
+                  placeholder="Ex: hoje meu negocio depende de indicacao, meu Instagram esta desorganizado e eu preciso parecer mais profissional para gerar contatos pelo digital."
+                  className={`${inputClassName} min-h-[132px] resize-none py-3`}
                 />
               </div>
 
               {error ? (
-                <p className="border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">
+                <p className="rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">
                   {error}
                 </p>
               ) : null}
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="brand-button-primary self-start px-8 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isSubmitting ? 'Enviando...' : 'Enviar briefing'}
-              </button>
-
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="brand-button-primary px-7 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSubmitting ? 'Enviando...' : 'Enviar briefing'}
+                </button>
+                <p className="text-xs leading-5 text-[#7f7f7f]">
+                  Quanto mais objetivo, melhor a direcao inicial.
+                </p>
+              </div>
             </form>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
       <section className="brand-panel px-6 py-7 sm:px-8">
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
             <p className="brand-kicker">Como funciona</p>
-            <h2 className="brand-title mt-3 text-3xl font-bold text-white">Diagnóstico curto, direção clara.</h2>
+            <h2 className="brand-title mt-3 text-3xl font-bold text-white">Diagnostico curto, direcao clara.</h2>
           </div>
           <div className="grid gap-3">
             {processSteps.map((step) => (
