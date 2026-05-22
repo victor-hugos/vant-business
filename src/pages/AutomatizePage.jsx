@@ -49,8 +49,8 @@ const processSteps = [
   },
 ];
 
-const inputClassName = 'brand-input min-h-[46px] rounded-xl border-white/12 bg-white/[0.035] px-3.5 py-2.5 text-sm text-white placeholder:text-[#707070]';
-const labelClassName = 'mb-1.5 block text-[0.82rem] font-medium text-[#d1d1d1]';
+const inputClassName = 'brand-input min-h-[44px] rounded-2xl border-white/12 bg-white/[0.04] px-3.5 py-2 text-sm text-white placeholder:text-[#707070]';
+const labelClassName = 'mb-1.5 block text-[0.8rem] font-medium text-[#d1d1d1]';
 
 function AutomatizePage() {
   const [sent, setSent] = useState(false);
@@ -105,10 +105,10 @@ function AutomatizePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
+    <div className="mx-auto max-w-6xl space-y-5 sm:space-y-7">
       <section className="brand-panel">
         <div className="brand-mark-panel px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
-          <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
+          <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-4">
@@ -132,20 +132,20 @@ function AutomatizePage() {
                 sem transformar seu primeiro contato em um formulario pesado.
               </p>
 
-              <div className="mt-7 grid gap-3 sm:grid-cols-3">
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
                 {processSteps.map((step) => (
                   <div
                     key={step.title}
-                    className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 backdrop-blur-sm"
+                    className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4 backdrop-blur-sm"
                   >
-                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-[#8f8f8f]">{step.title}</p>
+                    <p className="text-[0.66rem] uppercase tracking-[0.18em] text-[#8f8f8f]">{step.title}</p>
                     <p className="mt-2 text-sm leading-6 text-[#c9c9c9]">{step.text}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="brand-card rounded-3xl p-5 sm:p-6">
+            <div className="brand-card rounded-[1.7rem] p-5 sm:p-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
                   <VantLogo size={44} />
@@ -173,7 +173,7 @@ function AutomatizePage() {
       <section className="brand-panel px-5 py-6 sm:px-8 lg:px-10">
         {sent ? (
           <div className="mx-auto max-w-3xl">
-            <div className="brand-card flex min-h-[300px] flex-col items-center justify-center rounded-3xl p-8 text-center">
+            <div className="brand-card flex min-h-[300px] flex-col items-center justify-center rounded-[1.8rem] p-8 text-center">
               <div className="flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-white/10 bg-white/[0.05] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
                 <VantLogo size={56} />
               </div>
@@ -192,23 +192,23 @@ function AutomatizePage() {
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-4xl space-y-5">
+          <div className="mx-auto max-w-4xl space-y-4 sm:space-y-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="brand-kicker">Briefing comercial</p>
-                <h2 className="brand-title mt-2 text-[1.8rem] font-bold text-white sm:text-[2rem]">
+                <h2 className="brand-title mt-2 text-[1.7rem] font-bold text-white sm:text-[1.95rem]">
                   Apresente seu projeto com clareza
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-[#a6a6a6]">
                   Responda o essencial para eu entender prioridade, momento e melhor proximo passo.
                 </p>
               </div>
-              <p className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[0.72rem] uppercase tracking-[0.14em] text-[#9d9d9d]">
+              <p className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-[#9d9d9d]">
                 Diagnostico objetivo · sem excesso de friccao
               </p>
             </div>
 
-            <form id="briefing-form" onSubmit={handleSubmit} className="brand-card flex flex-col gap-4 rounded-3xl p-4 sm:p-5">
+            <form id="briefing-form" onSubmit={handleSubmit} className="brand-card flex flex-col gap-3.5 rounded-[1.8rem] p-4 sm:p-5">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className={labelClassName} htmlFor="nome">Seu nome</label>
@@ -261,7 +261,7 @@ function AutomatizePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className={labelClassName} htmlFor="solucao">Qual solucao parece mais proxima do que voce precisa?</label>
-                  <select id="solucao" name="solucao" required className={inputClassName}>
+                  <select id="solucao" name="solucao" required className={`${inputClassName} appearance-none`}>
                     <option value="">Selecione uma opcao</option>
                     {serviceOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
@@ -270,7 +270,7 @@ function AutomatizePage() {
                 </div>
                 <div>
                   <label className={labelClassName} htmlFor="momento">Em que momento o projeto esta hoje?</label>
-                  <select id="momento" name="momento" required className={inputClassName}>
+                  <select id="momento" name="momento" required className={`${inputClassName} appearance-none`}>
                     <option value="">Selecione uma opcao</option>
                     {stageOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
@@ -282,7 +282,7 @@ function AutomatizePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className={labelClassName} htmlFor="objetivo">Qual e o principal objetivo agora?</label>
-                  <select id="objetivo" name="objetivo" className={inputClassName}>
+                  <select id="objetivo" name="objetivo" className={`${inputClassName} appearance-none`}>
                     <option value="">Selecione uma opcao</option>
                     {goalOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
@@ -291,7 +291,7 @@ function AutomatizePage() {
                 </div>
                 <div>
                   <label className={labelClassName} htmlFor="orcamento">Faixa de investimento</label>
-                  <select id="orcamento" name="orcamento" className={inputClassName}>
+                  <select id="orcamento" name="orcamento" className={`${inputClassName} appearance-none`}>
                     {budgetOptions.map((option) => (
                       <option key={option} value={option}>{option}</option>
                     ))}
@@ -309,7 +309,7 @@ function AutomatizePage() {
                   required
                   rows={5}
                   placeholder="Ex: hoje meu negocio depende de indicacao, meu Instagram esta desorganizado e eu preciso parecer mais profissional para gerar contatos pelo digital."
-                  className={`${inputClassName} min-h-[132px] resize-none py-3`}
+                  className={`${inputClassName} min-h-[128px] resize-none py-3`}
                 />
               </div>
 
