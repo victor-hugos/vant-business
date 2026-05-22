@@ -141,3 +141,156 @@ Data: 2026-05-12
 - Confirmar quais servicos entram primeiro na homepage.
 - Confirmar se biblioteca IA e noticias IA continuam como secoes principais
   ou passam a funcionar como portas de entrada de conteudo.
+
+## 2026-05-16 - Ajuste operacional da homepage
+
+### Fatos
+
+- A homepage passou a priorizar linguagem de posicionamento digital, presenca
+  premium, IA aplicada e crescimento.
+- O CTA principal da home agora aponta para `solucoes-digitais`.
+- Ferramentas, ebooks e conteudo permaneceram na home, mas com mensagem de
+  apoio e descoberta, nao como proposta principal.
+
+### Inferencias
+
+- O site esta mais proximo da direcao "TikTok atrai, Instagram convence, site
+  converte", porque a home passou a empurrar o visitante para a oferta de
+  solucoes.
+- O proximo desalinhamento mais provavel agora esta na profundidade comercial
+  da pagina `solucoes-digitais`, nao mais no hero principal da home.
+
+### Sugestoes
+
+- Revisar a pagina `solucoes-digitais` com foco em prova, escopo inicial,
+  qualificacao do lead e proximo passo comercial.
+- Decidir se o README deve ser atualizado agora ou apenas depois de aprovar a
+  narrativa definitiva da nova VANT.
+
+## 2026-05-22 - Refinamento do posicionamento por canal
+
+### Fatos informados pelo Victor
+
+- O TikTok deve funcionar com entrada mais editorial e descoberta:
+  noticias de IA, ferramentas e, em breve, ebooks com mini projetos de uso.
+- O Instagram deve funcionar com entrada mais comercial:
+  solucoes, presenca digital, percepcao premium e conversa sobre projeto.
+
+### Inferencias
+
+- Nao existem duas marcas diferentes; existem duas portas de entrada no mesmo
+  funil.
+- O TikTok opera como topo de funil, com promessa de curadoria, repertorio e
+  aplicacao pratica.
+- O Instagram opera como meio/fundo de funil, com promessa de confianca,
+  direcao e solucao.
+- O site precisa reconciliar as duas entradas, sem parecer nem um simples hub
+  de noticias/ferramentas, nem uma landing desconectada do ecossistema
+  editorial.
+
+### Sugestoes
+
+- Tratar a homepage como ponte entre autoridade editorial e oferta de
+  solucoes, preservando a hierarquia:
+  posicionamento principal, solucoes, depois ecossistema de conteudo.
+- Manter dois trilhos claros no site:
+  - Trilho editorial: noticias, ferramentas, ebooks, mini projetos e
+    newsletter.
+  - Trilho de solucoes: briefing, diagnostico, presenca digital,
+    posicionamento e estrutura operacional.
+- Usar a seguinte regra de consistencia:
+  - TikTok: o que esta acontecendo e como usar.
+  - Instagram: por que isso importa para posicionamento e negocio.
+  - Site: ecossistema completo e proximo passo certo.
+- Consolidar a mensagem-mae da marca como proposta operacional:
+  "A VANT transforma tecnologia, presenca digital e IA em crescimento real."
+- Tratar as subpromessas dos canais como apoio, nao como reposicionamentos
+  concorrentes:
+  - Trilha editorial: curadoria de IA, ferramentas e aplicacoes praticas.
+  - Trilha de solucoes: direcao, presenca digital e estrutura para crescer.
+
+### Pontos para aprovacao do Victor
+
+- Confirmar se a homepage deve assumir explicitamente a hierarquia:
+  marca/solucoes primeiro, conteudo/editorial depois.
+- Confirmar se TikTok deve empurrar principalmente para newsletter, ebooks e
+  paginas de conteudo, enquanto o Instagram empurra principalmente para
+  `solucoes-digitais`.
+
+## 2026-05-22 - Copy-base para canais e homepage
+
+### Fatos
+
+- O posicionamento por canal foi refinado para duas entradas no mesmo funil:
+  TikTok editorial e Instagram comercial.
+- Ainda nao ha decisao final registrada sobre bios e hero definitivos.
+
+### Sugestoes
+
+- Usar a seguinte copy-base como proposta operacional inicial.
+
+#### Bio TikTok - opcao principal
+
+- Noticias de IA, ferramentas e aplicacoes praticas.
+- Menos ruido. Mais contexto.
+- Ebooks, mini projetos e curadoria da VANT.
+
+#### Bio TikTok - opcao curta
+
+- IA, ferramentas e mini projetos.
+- Curadoria pratica sem ruido.
+- Newsletter e ebooks da VANT.
+
+#### Bio Instagram - opcao principal
+
+- Presenca digital, IA e estrutura para crescer.
+- Marca, paginas, automacao e direcao.
+- Fale com a VANT sobre seu projeto.
+
+#### Bio Instagram - opcao curta
+
+- Presenca premium + IA aplicada.
+- Estrutura digital para crescer.
+- Briefing aberto na VANT.
+
+#### Hero homepage - proposta principal
+
+- Titulo:
+  Presenca. IA. Crescimento.
+- Subtitulo:
+  A VANT transforma presenca digital, tecnologia e IA em crescimento real.
+  Explore ferramentas, noticias e guias práticos ou avance para a pagina de
+  solucoes se o seu foco for posicionamento, estrutura e conversao.
+- CTA primario:
+  Conhecer solucoes
+- CTA secundario:
+  Explorar conteudo
+
+#### Hero homepage - proposta alternativa
+
+- Titulo:
+  Posicionamento forte. Tecnologia util. Crescimento real.
+- Subtitulo:
+  Conteudo, curadoria e aplicacao pratica para atrair a audiencia certa.
+  Direcao, presenca digital e estrutura para transformar interesse em
+  oportunidade.
+- CTA primario:
+  Falar sobre seu projeto
+- CTA secundario:
+  Ver noticias e ferramentas
+
+### Inferencias
+
+- A homepage deve falar primeiro com quem chega pelo Instagram, sem expulsar a
+  audiencia que entra pelo TikTok.
+- O CTA primario deve continuar levando para `solucoes-digitais`, enquanto o
+  CTA secundario funciona como ponte para o trilho editorial.
+- As bios devem compartilhar o mesmo nucleo de marca, mudando apenas a
+  promessa principal de entrada.
+
+### Pontos para aprovacao do Victor
+
+- Escolher qual versao de bio do TikTok vira base oficial.
+- Escolher qual versao de bio do Instagram vira base oficial.
+- Confirmar se a hero da homepage deve usar a formula mais curta
+  ("Presenca. IA. Crescimento.") ou a mais explicativa.

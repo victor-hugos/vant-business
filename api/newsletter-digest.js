@@ -28,6 +28,41 @@ function escapeHtml(value = '') {
     .replace(/'/g, '&#039;');
 }
 
+export function selectDigestRecipients(subscribers = []) {
+  const uniqueRecipients = new Map();
+
+  for (const subscriber of subscribers) {
+    const email = String(subscriber?.email || '').trim().toLowerCase();
+    if (!email) continue;
+
+    const nome = String(subscriber?.nome || '').trim();
+    const currentRecipient = {
+      nome: nome || 'Leitor VANT',
+      email,
+      _isNewsletter: String(subscriber?.lead_type || '').trim().toLowerCase() === 'newsletter',
+      _hasRealName: Boolean(nome),
+    };
+
+    if (!uniqueRecipients.has(email)) {
+      uniqueRecipients.set(email, currentRecipient);
+      continue;
+    }
+
+    const existing = uniqueRecipients.get(email);
+    const shouldReplace =
+      (currentRecipient._isNewsletter && !existing._isNewsletter) ||
+      (currentRecipient._isNewsletter === existing._isNewsletter &&
+        currentRecipient._hasRealName &&
+        !existing._hasRealName);
+
+    if (shouldReplace) {
+      uniqueRecipients.set(email, currentRecipient);
+    }
+  }
+
+  return Array.from(uniqueRecipients.values()).map(({ nome, email }) => ({ nome, email }));
+}
+
 function buildDigestHtml(nome, items) {
   const newsHtml = items
     .map(
@@ -88,15 +123,16 @@ export default async function handler(req, res) {
 
     const { data: subscribers, error } = await supabase
       .from('subscribers')
-      .select('nome,email')
+      .select('nome,email,lead_type,newsletter_opt_in')
       .or('newsletter_opt_in.eq.true,lead_type.eq.newsletter');
 
     if (error) throw error;
+    const recipients = selectDigestRecipients(subscribers || []);
 
     const dryRun = req.query?.dryRun === 'true';
     if (!dryRun) {
       await Promise.all(
-        (subscribers || []).map((subscriber) =>
+        recipients.map((subscriber) =>
           transporter.sendMail({
             from: `"VANT Business" <${VICTOR_EMAIL}>`,
             to: subscriber.email,
@@ -110,8 +146,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       dryRun,
-      sent: dryRun ? 0 : subscribers?.length || 0,
-      recipients: subscribers?.length || 0,
+      sent: dryRun ? 0 : recipients.length,
+      recipients: recipients.length,
       news: digestItems.length,
     });
   } catch (error) {
