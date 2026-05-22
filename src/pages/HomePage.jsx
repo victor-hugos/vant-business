@@ -6,24 +6,45 @@ import { trackEvent, trackedToolHref } from '../utils/tracking.js';
 
 const pillars = [
   {
-    title: 'IA Aplicada',
-    text: 'Automação real para negócios e criadores.',
+    title: 'Posicionamento Premium',
+    text: 'Marca, presença digital e autoridade para empresas que precisam parecer fortes.',
     icon: 'brain',
   },
   {
-    title: 'Ferramentas Curadas',
-    text: 'Biblioteca com ferramentas selecionadas e testadas.',
+    title: 'IA Aplicada',
+    text: 'Automação, agentes e sistemas para ganhar velocidade com método.',
     icon: 'box',
   },
   {
-    title: 'Agentes Inteligentes',
-    text: 'Bots que pesquisam, organizam e executam por você.',
+    title: 'Soluções Digitais',
+    text: 'Sites, identidade digital, funis e estrutura para crescer com clareza.',
     icon: 'nodes',
   },
   {
-    title: 'Conteúdo Estratégico',
-    text: 'Notícias e insights para você crescer usando IA.',
+    title: 'Conteúdo de Entrada',
+    text: 'Ferramentas, notícias e guias que atraem audiência e geram oportunidades.',
     icon: 'doc',
+  },
+];
+
+const newsHighlights = [
+  {
+    slug: 'curadoria-diaria',
+    label: 'Radar diário',
+    title: 'Leituras para acompanhar lançamentos, movimentos de mercado e sinais de produto.',
+    cta: 'Ler curadoria ›',
+  },
+  {
+    slug: 'traducao-pratica',
+    label: 'Tradução prática',
+    title: 'Resumo em português do que merece atenção antes de virar pauta, teste ou automação.',
+    cta: 'Ver leitura ›',
+  },
+  {
+    slug: 'menos-ruido',
+    label: 'Sem ruído',
+    title: 'A seleção da VANT filtra hype e destaca o que tem impacto real para operação e conteúdo.',
+    cta: 'Abrir notícias ›',
   },
 ];
 
@@ -79,7 +100,6 @@ function PillarIcon({ type }) {
 function HomePage() {
   const ebookPosts = getAllPosts().filter((post) => post.ebook !== undefined).slice(0, 3);
   const featuredTools = recursos.filter((r) => r.badge === 'Que uso').slice(0, 6);
-  const automationTools = recursos.filter((r) => ['Automação', 'IA', 'Produtividade'].includes(r.categoria)).slice(0, 3);
 
   return (
     <div className="reference-home">
@@ -91,32 +111,30 @@ function HomePage() {
           </div>
 
           <h1>
-            <span>Automação.</span>
+            <span>Presença.</span>
             <span>IA.</span>
-            <span>Escala.</span>
+            <span>Crescimento.</span>
           </h1>
 
           <p className="reference-hero-text">
-            Ferramentas, agentes e sistemas para acelerar negócios e criadores na nova economia digital.
+            A VANT transforma presenca digital, tecnologia e IA em crescimento real. Explore ferramentas, noticias e guias práticos ou avance para a página de soluções se o seu foco for posicionamento, estrutura e conversão.
           </p>
 
           <div className="reference-actions">
-            <Link to="/recursos" className="reference-button reference-button-primary">
-              Explorar ferramentas
+            <Link to="/solucoes-digitais" className="reference-button reference-button-primary">
+              Conhecer soluções
               <span>›</span>
             </Link>
-            <a href="#cases" className="reference-button reference-button-secondary">
-              Ver projetos
-            </a>
+            <Link to="/blog" className="reference-button reference-button-secondary">Explorar conteúdo</Link>
           </div>
 
           <div className="reference-proof">
             <div className="reference-avatars" aria-hidden="true">
-              {['VH', 'IA', 'API', 'CRM'].map((item) => (
+              {['BR', 'IA', 'WEB', 'CRM'].map((item) => (
                 <span key={item}>{item}</span>
               ))}
             </div>
-            <p>+1200 criadores e empresas impulsionando resultados com IA</p>
+            <p>Branding, presença digital, automação, conteúdo e inteligência comercial na mesma marca.</p>
           </div>
         </div>
 
@@ -133,7 +151,7 @@ function HomePage() {
       </section>
 
       <section className="reference-pillars" aria-labelledby="vant-definition">
-        <h2 id="vant-definition">O que é a VANT.Business</h2>
+        <h2 id="vant-definition">A VANT conecta percepção, tecnologia e conversão</h2>
         <div className="reference-pillar-grid">
           {pillars.map((item) => (
             <article key={item.title} className="reference-pillar-card">
@@ -153,10 +171,10 @@ function HomePage() {
       <section className="reference-library">
         <div className="reference-section-head">
           <div>
-            <p>Biblioteca de ferramentas IA</p>
-            <h2>Ferramentas, guias e automações em um só fluxo.</h2>
+            <p>Ferramentas para pesquisa aplicada</p>
+            <h2>Curadoria para entender o que vale teste, estudo e integração.</h2>
           </div>
-          <Link to="/recursos">Ver todas</Link>
+          <Link to="/recursos">Explorar acervo</Link>
         </div>
 
         <div className="reference-tool-grid">
@@ -173,7 +191,7 @@ function HomePage() {
               <p>{tool.description}</p>
               <div>
                 <span>{tool.categoria}</span>
-                <strong>Ver detalhes</strong>
+                <strong>Abrir análise</strong>
               </div>
             </a>
           ))}
@@ -184,10 +202,10 @@ function HomePage() {
         <div>
           <div className="reference-section-head compact">
             <div>
-              <p>Conteúdos prontos</p>
-              <h2>Ebooks disponíveis</h2>
+              <p>Guias para aprofundar a prática</p>
+              <h2>Ebooks e guias para aprofundar a prática</h2>
             </div>
-            <Link to="/blog">Ver todos</Link>
+            <Link to="/blog">Ver biblioteca</Link>
           </div>
 
           <div className="reference-list">
@@ -207,7 +225,7 @@ function HomePage() {
               >
                 <span>{post.date}</span>
                 <strong>{post.title}</strong>
-                <em>Receber guia ›</em>
+                <em>Ler guia ›</em>
               </Link>
             ))}
           </div>
@@ -216,24 +234,19 @@ function HomePage() {
         <div id="cases">
           <div className="reference-section-head compact">
             <div>
-              <p>Automações que geram resultados</p>
-              <h2>Projetos e agentes IA</h2>
+              <p>Leituras e sinais de mercado</p>
+              <h2>Notícias para acompanhar sem ruído</h2>
             </div>
-            <Link to="/automatize">Automatizar</Link>
+            <Link to="/blog">Ver curadoria</Link>
           </div>
 
           <div className="reference-list">
-            {automationTools.map((tool) => (
-              <a
-                key={tool.id}
-                href={trackedToolHref(tool.id, 'home-reference-automation')}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span>{tool.categoria}</span>
-                <strong>{tool.name}</strong>
-                <em>Saiba mais ›</em>
-              </a>
+            {newsHighlights.map((item) => (
+              <Link key={item.slug} to="/blog">
+                <span>{item.label}</span>
+                <strong>{item.title}</strong>
+                <em>{item.cta}</em>
+              </Link>
             ))}
           </div>
         </div>

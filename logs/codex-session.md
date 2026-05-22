@@ -132,3 +132,124 @@ Riscos:
 Proximo passo:
 - Ajustar a homepage para chamar a VANT como agencia premium de crescimento
   digital com IA, mantendo ferramentas/noticias como portas de entrada.
+
+## 2026-05-16 - Newsletter recorrente e reposicionamento da homepage
+
+Pedido:
+- Cobrir os pontos pendentes em etapas, retomando o que havia ficado aberto no
+  fluxo de newsletter/digest e no posicionamento principal da homepage.
+
+Arquivos alterados:
+- `tests/newsletter-digest.test.js`
+- `src/pages/HomePage.jsx`
+- `src/components/Header.jsx`
+
+Validacao:
+- Feita: `npm test` passou com 4 testes apos reforco da cobertura do digest.
+- Feita: `npm run build` passou apos a etapa de newsletter/digest.
+- Feita: `npm run build` passou novamente apos o reposicionamento da homepage.
+
+Riscos:
+- O fluxo de digest segue coberto no nivel de helper e normalizacao, mas ainda
+  nao possui teste direto do handler completo com Supabase e envio de email.
+- A homepage ficou mais alinhada com a visao premium, mas o visual e a prova de
+  autoridade ainda podem evoluir em outra etapa sem mexer na arquitetura.
+
+Proximo passo:
+- Revisar a pagina de `solucoes-digitais` para alinhar oferta, prova,
+  qualificacao comercial e CTA com a nova mensagem da homepage.
+
+## 2026-05-16 - Alinhamento comercial da pagina de solucoes digitais
+
+Pedido:
+- Continuar a retomada em etapas, agora alinhando a pagina
+  `solucoes-digitais` com o novo posicionamento da homepage.
+
+Arquivos alterados:
+- `src/pages/AutomatizePage.jsx`
+
+Validacao:
+- Feita: `npm run build` passou apos os ajustes na pagina.
+
+Riscos:
+- A pagina comunica melhor a oferta e o processo, mas ainda nao possui prova
+  social, cases reais ou SLA/tempo de resposta explicito.
+- O fluxo continua baseado em formulario unico; se a qualificacao comercial
+  crescer, pode ser util separar tipos de lead ou aprofundar perguntas depois.
+
+Proximo passo:
+- Definir se o proximo corte deve focar em prova visual/comercial na home e em
+  `solucoes-digitais`, ou em atualizar `README.md` para refletir o novo
+  posicionamento aprovado operacionalmente.
+
+## 2026-05-16 - Landing page inicial para solucoes digitais
+
+Pedido:
+- Reposicionar a area de `solucoes-digitais` como uma landing page mais
+  orientada a venda, sem depender de prova comercial que ainda nao existe.
+
+Arquivos alterados:
+- `src/pages/AutomatizePage.jsx`
+
+Validacao:
+- Feita: `npm run build` passou apos a reestruturacao da pagina.
+
+Riscos:
+- A pagina vende melhor por clareza, encaixe e processo, mas ainda nao possui
+  prova social, cases, depoimentos ou portfolio visual.
+- O formulario continua sendo o principal CTA; se a oferta amadurecer, pode
+  valer separar descoberta, qualificacao e fechamento em etapas diferentes.
+
+Proximo passo:
+- Tornar `noticias`, `ferramentas` e `ebooks` mais informativos e editoriais,
+  reduzindo a sensacao de venda direta nessas areas.
+
+## 2026-05-22 - Refinamento do funil por canal
+
+Pedido:
+- Integrar ao segundo cerebro o refinamento do posicionamento:
+  TikTok como entrada editorial para noticias, ferramentas, ebooks e mini
+  projetos; Instagram como entrada comercial para solucoes.
+
+Arquivos alterados:
+- `docs/ai-notes.md`
+- `logs/codex-session.md`
+
+Validacao:
+- Feita: leitura das notas operacionais existentes antes da edicao para evitar
+  duplicidade.
+- Feita: registro como memoria operacional e nao como decisao final.
+- Nao necessario: build/testes, pois a alteracao foi apenas documental.
+
+Riscos:
+- Se esse refinamento nao for promovido depois para copy, CTA e arquitetura do
+  site, o reposicionamento pode continuar implicito e gerar leitura ambigua.
+
+Proximo passo:
+- Se aprovado pelo Victor, refletir essa arquitetura de canais na homepage,
+  bios e CTAs sem criar duas marcas paralelas.
+
+## 2026-05-22 - Proposta de copy para canais e homepage
+
+Pedido:
+- Transformar o posicionamento refinado em copy operacional inicial para
+  TikTok, Instagram e hero da homepage.
+
+Arquivos alterados:
+- `docs/ai-notes.md`
+- `logs/codex-session.md`
+
+Validacao:
+- Feita: a proposta foi registrada como sugestao operacional, sem promover a
+  copy a decisao final.
+- Feita: a proposta foi alinhada ao funil ja documentado para evitar
+  duplicidade conceitual.
+- Nao necessario: build/testes, pois a alteracao foi apenas documental.
+
+Riscos:
+- Sem aprovacao da copy-base, o projeto pode continuar com mensagens parciais
+  ou inconsistentes entre canal, home e pagina de solucoes.
+
+Proximo passo:
+- Escolher uma versao-base para TikTok, Instagram e hero da homepage e depois
+  refletir isso na interface do site e nos perfis.

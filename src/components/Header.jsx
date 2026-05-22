@@ -71,7 +71,7 @@ function Header() {
             to="/solucoes-digitais"
             className="brand-button-secondary !hidden px-5 py-2 text-[11px] lg:!inline-flex"
           >
-            Criar presença digital ›
+            Falar sobre seu projeto ›
           </Link>
 
           <button

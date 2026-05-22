@@ -64,7 +64,7 @@ function NewsCard({ item }) {
           <span className="text-sm text-[#f0f0f0]">{item.source}</span>
         </div>
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white">
-          Ler agora →
+          Abrir matéria →
         </span>
       </div>
       <p className="mt-3 text-xs text-[#6f6f6f]">{formatDate(item.publishedAt)}</p>
@@ -156,7 +156,7 @@ function BlogPage() {
                   Últimas notícias de IA
                 </span>
                 <span className="brand-pill px-3 py-1 text-[11px] font-medium">
-                  Curadoria aprovada no admin
+                  Curadoria editorial de IA
                 </span>
               </div>
 
@@ -166,8 +166,8 @@ function BlogPage() {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
-                Uma seleção direta do que importa, traduzida para português e liberada só depois da avaliação.
-                Entre no canal por email e receba o resumo diário sem ruído.
+                Uma leitura contínua do que importa, traduzida para português e liberada só depois da avaliação.
+                Entre no canal por email e receba o resumo diário com contexto e menos ruído.
               </p>
             </div>
 
@@ -200,10 +200,10 @@ function BlogPage() {
             </div>
             <div className="mb-4">
               <h3 className="font-display text-2xl font-bold text-white">
-                Receba a curadoria de IA por email
+                Receba a leitura essencial por email
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-[#a6a6a6]">
-                Cadastre nome, email e WhatsApp para entrar no fluxo diário de notícias aprovadas.
+                Cadastre nome, email e WhatsApp para acompanhar a curadoria diária de notícias aprovadas.
               </p>
             </div>
 

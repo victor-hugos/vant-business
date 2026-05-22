@@ -77,7 +77,7 @@ function ToolCard({ tool }) {
           {tool.categoria}
         </span>
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white">
-          Acessar →
+          Abrir referência →
         </span>
       </div>
     </a>
@@ -144,7 +144,7 @@ function RecursosPage() {
                   Ferramentas de IA
                 </span>
                 <span className="brand-pill px-3 py-1 text-[11px] font-medium">
-                  Curadoria para uso real
+                  Curadoria para pesquisa e operação
                 </span>
               </div>
 
@@ -154,7 +154,7 @@ function RecursosPage() {
               </h1>
 
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
-                Uma vitrine direta das ferramentas que entram no fluxo da VANT. Filtre por categoria, acesse o que interessa e siga para os tutoriais quando precisar de contexto prático.
+                Um acervo prático das ferramentas que entram no radar da VANT. Filtre por categoria, compare opções e siga para os tutoriais quando precisar de contexto aplicado.
               </p>
             </div>
 
@@ -208,7 +208,7 @@ function RecursosPage() {
               Escolha o filtro certo
             </h2>
             <p className="mt-0.5 max-w-2xl text-xs leading-relaxed text-[#a6a6a6] sm:text-sm">
-              Use as categorias para ir direto ao tipo de ferramenta que você quer testar ou vender.
+              Use os filtros para encontrar referências, comparar categorias e abrir a ferramenta certa no momento certo.
             </p>
           </div>
         </div>
@@ -239,13 +239,13 @@ function RecursosPage() {
 
       <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="brand-kicker">Catálogo aprovado</p>
+          <p className="brand-kicker">Curadoria em destaque</p>
           <h2 className="brand-title mt-2 text-3xl font-bold text-white">
             Ferramentas em destaque
           </h2>
         </div>
         <p className="max-w-xl text-sm leading-relaxed text-[#a6a6a6]">
-          Cada card leva direto para a ferramenta rastreada. A curadoria é pensada para operação, ebook ou vídeo, conforme o caso.
+          Cada card leva direto para a ferramenta rastreada. A seleção foi organizada para pesquisa, operação e produção de conteúdo, conforme o caso.
         </p>
       </div>
 
@@ -258,13 +258,13 @@ function RecursosPage() {
       <div className="brand-panel px-6 py-7 text-center sm:px-8">
         <p className="brand-title text-2xl font-bold text-white">Quer saber como usar cada ferramenta?</p>
         <p className="mt-2 text-sm text-[#a6a6a6]">
-          Cada ferramenta tem um tutorial no blog com passo a passo e ebook grátis.
+          Cada ferramenta pode ser aprofundada no blog com passo a passo, contexto e guias práticos.
         </p>
         <a
           href="/blog"
           className="brand-button-secondary mt-5 px-6 py-2.5 text-xs"
         >
-          Ver tutoriais →
+          Ler tutoriais →
         </a>
       </div>
     </div>

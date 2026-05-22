@@ -44,3 +44,34 @@ test('normalizes service leads with digital solution metadata', () => {
     referer: 'https://vant.business/automatize',
   });
 });
+
+test('normalizes newsletter leads from blog signup into recurring newsletter recipients', () => {
+  const payload = normalizeSubscribePayload(
+    {
+      nome: '  Leitora IA ',
+      email: 'LEITORA@EXEMPLO.COM ',
+      whatsapp: ' 11988887777 ',
+      ebook: 'daily-ai-news',
+      productTitle: 'Canal diario de noticias de IA',
+      leadType: 'newsletter',
+      newsletterOptIn: true,
+      source: 'blog-hero',
+    },
+    {
+      userAgent: 'node-test',
+      referer: 'https://vant.business/blog',
+    }
+  );
+
+  assert.equal(payload.cleanName, 'Leitora IA');
+  assert.equal(payload.cleanEmail, 'leitora@exemplo.com');
+  assert.equal(payload.cleanWhatsapp, '11988887777');
+  assert.equal(payload.cleanLeadType, 'newsletter');
+  assert.equal(payload.cleanEbook, 'daily-ai-news');
+  assert.equal(payload.cleanProductTitle, 'Canal diario de noticias de IA');
+  assert.equal(payload.wantsNewsletter, true);
+  assert.deepEqual(payload.metadata, {
+    userAgent: 'node-test',
+    referer: 'https://vant.business/blog',
+  });
+});
