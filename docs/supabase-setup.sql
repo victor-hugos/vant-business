@@ -37,6 +37,7 @@ alter table subscribers enable row level security;
 -- Apenas service_role pode inserir/ler (nossa API usa service key)
 drop policy if exists "service only" on subscribers;
 create policy "service only" on subscribers using (false) with check (false);
+revoke all on public.subscribers from anon, authenticated;
 grant select, insert, update, delete on public.subscribers to service_role;
 
 create table if not exists ai_agent_reviews (
@@ -56,6 +57,7 @@ create index if not exists ai_agent_reviews_item_type_idx on ai_agent_reviews (i
 alter table ai_agent_reviews enable row level security;
 drop policy if exists "service only" on ai_agent_reviews;
 create policy "service only" on ai_agent_reviews using (false) with check (false);
+revoke all on public.ai_agent_reviews from anon, authenticated;
 grant select, insert, update, delete on public.ai_agent_reviews to service_role;
 
 create table if not exists analytics_events (
@@ -79,6 +81,7 @@ create index if not exists analytics_events_created_at_idx on analytics_events (
 alter table analytics_events enable row level security;
 drop policy if exists "service only" on analytics_events;
 create policy "service only" on analytics_events using (false) with check (false);
+revoke all on public.analytics_events from anon, authenticated;
 grant select, insert, update, delete on public.analytics_events to service_role;
 
 create table if not exists ai_news_items (
@@ -105,6 +108,7 @@ create index if not exists ai_news_items_published_at_idx on ai_news_items (publ
 alter table ai_news_items enable row level security;
 drop policy if exists "service only" on ai_news_items;
 create policy "service only" on ai_news_items using (false) with check (false);
+revoke all on public.ai_news_items from anon, authenticated;
 grant select, insert, update, delete on public.ai_news_items to service_role;
 
 create table if not exists ai_content_drafts (
@@ -129,6 +133,7 @@ create index if not exists ai_content_drafts_draft_type_idx on ai_content_drafts
 alter table ai_content_drafts enable row level security;
 drop policy if exists "service only" on ai_content_drafts;
 create policy "service only" on ai_content_drafts using (false) with check (false);
+revoke all on public.ai_content_drafts from anon, authenticated;
 grant select, insert, update, delete on public.ai_content_drafts to service_role;
 
 create table if not exists ai_tools (
@@ -155,4 +160,5 @@ create index if not exists ai_tools_categoria_idx on ai_tools (categoria);
 alter table ai_tools enable row level security;
 drop policy if exists "service only" on ai_tools;
 create policy "service only" on ai_tools using (false) with check (false);
+revoke all on public.ai_tools from anon, authenticated;
 grant select, insert, update, delete on public.ai_tools to service_role;
