@@ -105,6 +105,14 @@ function HomePage() {
     <div className="reference-home">
       <section className="reference-hero">
         <div className="reference-hero-copy">
+          <div className="reference-mobile-brand" aria-hidden="true">
+            <img src="/assets/vant-logo-white.png" alt="" />
+            <div>
+              <p>VANT.BUSINESS</p>
+              <span>Estrategia · Conexao · Resultados</span>
+            </div>
+          </div>
+
           <div className="reference-kicker">
             <span />
             <p>Tecnologia · Estratégia · Resultados</p>
@@ -122,10 +130,12 @@ function HomePage() {
 
           <div className="reference-actions">
             <Link to="/solucoes-digitais" className="reference-button reference-button-primary">
-              Conhecer soluções
+              Apresentar meu projeto
               <span>›</span>
             </Link>
-            <Link to="/blog" className="reference-button reference-button-secondary">Explorar conteúdo</Link>
+            <Link to="/blog" className="reference-button reference-button-secondary">Explorar notícias<span aria-hidden="true">›</span></Link>
+            <Link to="/recursos" className="reference-button reference-button-secondary">Explorar ferramentas<span aria-hidden="true">›</span></Link>
+            <a href="#conteudos" className="reference-button reference-button-secondary">Explorar ebooks<span aria-hidden="true">›</span></a>
           </div>
 
           <div className="reference-proof">

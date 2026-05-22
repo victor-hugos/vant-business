@@ -4,7 +4,7 @@ import VantLogo from './VantLogo.jsx';
 function Footer() {
   return (
     <footer className="border-t border-white/10 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl grid gap-8 md:grid-cols-3">
+      <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 xl:grid-cols-[1.15fr_0.85fr_1fr]">
         <div>
           <div className="flex items-center gap-3">
             <VantLogo size={40} />
@@ -27,7 +27,7 @@ function Footer() {
             <li><Link to="/solucoes-digitais" className="transition hover:text-white">Identidade digital</Link></li>
           </ul>
         </div>
-        <div>
+        <div className="md:col-span-2 xl:col-span-1">
           <p className="brand-kicker mb-3">Contato</p>
           <p className="text-sm text-[#a6a6a6]">
             Por Victor Hugo — desenvolvedor de automação e IA.

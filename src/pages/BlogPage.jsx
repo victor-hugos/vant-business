@@ -147,48 +147,9 @@ function BlogPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
-      <section className="brand-panel">
-        <div className="brand-mark-panel grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.3fr_0.9fr] lg:px-10 lg:py-10">
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
-                  Últimas notícias de IA
-                </span>
-                <span className="brand-pill px-3 py-1 text-[11px] font-medium">
-                  Curadoria editorial de IA
-                </span>
-              </div>
-
-              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
-                Últimas
-                <span className="brand-metal block">notícias de IA</span>
-              </h1>
-
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
-                Uma leitura contínua do que importa, traduzida para português e liberada só depois da avaliação.
-                Entre no canal por email e receba o resumo diário com contexto e menos ruído.
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <span className="brand-pill px-4 py-2 text-sm">
-                Email diário
-              </span>
-              <span className="brand-pill px-4 py-2 text-sm">
-                10 notícias selecionadas
-              </span>
-              <span className="brand-pill px-4 py-2 text-sm">
-                Conteúdo aprovado
-              </span>
-            </div>
-
-            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-[#6f6f6f]">
-              {generatedAt ? `Atualizado em ${formatDate(generatedAt)}` : 'Atualização contínua via admin'}
-            </p>
-          </div>
-
-          <div className="brand-card self-start p-5">
+      <section className="brand-panel px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md">
+          <div className="brand-card p-5">
             <div className="mb-5 flex items-center gap-3">
               <VantLogo size={44} />
               <div>
@@ -246,6 +207,51 @@ function BlogPage() {
                 <p className="text-xs text-red-300">Não foi possível cadastrar agora. Tente novamente.</p>
               )}
             </form>
+          </div>
+        </div>
+      </section>
+
+      <section className="brand-panel">
+        <div className="brand-mark-panel px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
+          <div className="mx-auto max-w-4xl">
+            <div className="flex flex-col justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
+                    Últimas notícias de IA
+                  </span>
+                  <span className="brand-pill px-3 py-1 text-[11px] font-medium">
+                    Curadoria editorial de IA
+                  </span>
+                </div>
+
+                <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+                  Últimas
+                  <span className="brand-metal block">notícias de IA</span>
+                </h1>
+
+                <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
+                  Uma leitura contínua do que importa, traduzida para português e liberada só depois da avaliação.
+                  Entre no canal por email e receba o resumo diário com contexto e menos ruído.
+                </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <span className="brand-pill px-4 py-2 text-sm">
+                  Email diário
+                </span>
+                <span className="brand-pill px-4 py-2 text-sm">
+                  10 notícias selecionadas
+                </span>
+                <span className="brand-pill px-4 py-2 text-sm">
+                  Conteúdo aprovado
+                </span>
+              </div>
+
+              <p className="mt-6 text-xs uppercase tracking-[0.22em] text-[#6f6f6f]">
+                {generatedAt ? `Atualizado em ${formatDate(generatedAt)}` : 'Atualização contínua via admin'}
+              </p>
+            </div>
           </div>
         </div>
       </section>

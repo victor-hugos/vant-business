@@ -19,15 +19,15 @@ function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex min-h-[58px] items-center justify-between gap-4 py-2">
+        <div className="flex min-h-[56px] items-center justify-between gap-3 py-2">
           <Link
             to="/"
             onClick={closeMenu}
-            className="flex items-center gap-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            className="flex min-w-0 items-center gap-2.5 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:gap-3"
           >
-            <VantLogo size={38} />
+            <VantLogo size={28} className="sm:size-auto" />
             <div className="flex flex-col">
-              <span className="brand-title text-xs font-bold leading-none text-white sm:text-sm">
+              <span className="brand-title text-[10px] font-bold leading-none tracking-[0.08em] text-white sm:text-sm sm:tracking-normal">
                 VANT.BUSINESS
               </span>
               <span className="mt-1 hidden text-[9px] uppercase tracking-[0.2em] text-[#a6a6a6] sm:block">
@@ -79,9 +79,12 @@ function Header() {
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((v) => !v)}
-            className="inline-flex border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/45 hover:bg-white/[0.06] lg:hidden"
+            className="inline-flex shrink-0 items-center gap-2 rounded-sm border border-white/20 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white transition hover:border-white/45 hover:bg-white/[0.06] sm:px-4 sm:text-sm sm:tracking-normal lg:hidden"
           >
-            {isMenuOpen ? 'Fechar' : 'Menu'}
+            <>
+              {isMenuOpen ? 'Fechar' : 'Menu'}
+              <span aria-hidden="true" className="text-[11px] leading-none text-[#8f8f8f]">≡</span>
+            </>
           </button>
         </div>
 

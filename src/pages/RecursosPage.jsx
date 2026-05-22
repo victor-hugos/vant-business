@@ -136,56 +136,58 @@ function RecursosPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       <section className="brand-panel">
-        <div className="brand-mark-panel grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[1.25fr_0.75fr] lg:px-10 lg:py-8">
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
-                  Ferramentas de IA
-                </span>
-                <span className="brand-pill px-3 py-1 text-[11px] font-medium">
-                  Curadoria para pesquisa e operação
-                </span>
+        <div className="brand-mark-panel px-6 py-7 sm:px-8 lg:px-10 lg:py-8">
+          <div className="mx-auto flex max-w-3xl flex-col gap-7">
+            <div className="flex items-center justify-center">
+              <div className="relative flex min-h-[240px] w-full max-w-md items-center justify-center border border-white/10 bg-black/45 px-5 py-6">
+                <div className="absolute inset-x-10 top-6 h-px bg-white/25" />
+                <div className="absolute inset-x-10 bottom-6 h-px bg-white/15" />
+
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex h-36 w-36 items-center justify-center border border-white/15 bg-white/[0.03] sm:h-40 sm:w-40">
+                    <VantLogo size={118} />
+                  </div>
+                  <div className="text-center">
+                    <p className="brand-kicker">IA em destaque</p>
+                    <p className="mt-1 max-w-xs text-sm leading-relaxed text-[#a6a6a6]">
+                      O espaço visual aqui reforça que o catálogo é focado em inteligência artificial e uso prático.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
+                    Ferramentas de IA
+                  </span>
+                  <span className="brand-pill px-3 py-1 text-[11px] font-medium">
+                    Curadoria para pesquisa e operação
+                  </span>
+                </div>
+
+                <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+                  Ferramentas
+                  <span className="brand-metal block">de IA</span>
+                </h1>
+
+                <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
+                  Um acervo prático das ferramentas que entram no radar da VANT. Filtre por categoria, compare opções e siga para os tutoriais quando precisar de contexto aplicado.
+                </p>
               </div>
 
-              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
-                Ferramentas
-                <span className="brand-metal block">de IA</span>
-              </h1>
-
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
-                Um acervo prático das ferramentas que entram no radar da VANT. Filtre por categoria, compare opções e siga para os tutoriais quando precisar de contexto aplicado.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <span className="brand-pill px-4 py-2 text-sm">
-                Curadoria ativa
-              </span>
-              <span className="brand-pill px-4 py-2 text-sm">
-                Foco em uso real
-              </span>
-              <span className="brand-pill px-4 py-2 text-sm">
-                Tutoriais e ebooks
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center lg:justify-end">
-            <div className="relative flex h-full min-h-[240px] w-full items-center justify-center border border-white/10 bg-black/45 px-5 py-6">
-              <div className="absolute inset-x-10 top-6 h-px bg-white/25" />
-              <div className="absolute inset-x-10 bottom-6 h-px bg-white/15" />
-
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex h-36 w-36 items-center justify-center border border-white/15 bg-white/[0.03] sm:h-40 sm:w-40">
-                  <VantLogo size={118} />
-                </div>
-                <div className="text-center">
-                  <p className="brand-kicker">IA em destaque</p>
-                  <p className="mt-1 max-w-xs text-sm leading-relaxed text-[#a6a6a6]">
-                    O espaço visual aqui reforça que o catálogo é focado em inteligência artificial e uso prático.
-                  </p>
-                </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <span className="brand-pill px-4 py-2 text-sm">
+                  Curadoria ativa
+                </span>
+                <span className="brand-pill px-4 py-2 text-sm">
+                  Foco em uso real
+                </span>
+                <span className="brand-pill px-4 py-2 text-sm">
+                  Tutoriais e ebooks
+                </span>
               </div>
             </div>
           </div>
@@ -193,47 +195,49 @@ function RecursosPage() {
       </section>
 
       <section className="brand-panel px-4 py-3 sm:px-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.03] sm:h-11 sm:w-11">
-            <img
-              src="/assets/vant-logo-white.png"
-              alt=""
-              className="h-14 w-14 max-w-none object-contain"
-            />
-          </div>
+        <div className="space-y-3">
+          <p className="brand-kicker text-[0.62rem]">Navegação rápida</p>
 
-          <div className="min-w-0 flex-1">
-            <p className="brand-kicker text-[0.62rem]">Navegação rápida</p>
-            <h2 className="brand-title mt-0.5 text-lg font-bold leading-tight text-white sm:text-xl">
-              Escolha o filtro certo
-            </h2>
-            <p className="mt-0.5 max-w-2xl text-xs leading-relaxed text-[#a6a6a6] sm:text-sm">
+          <div className="grid grid-cols-[44px_minmax(0,1fr)] gap-x-3 gap-y-2 sm:flex sm:items-start sm:gap-3">
+            <div className="row-span-2 flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.03] sm:row-span-1 sm:h-11 sm:w-11">
+              <img
+                src="/assets/vant-logo-white.png"
+                alt=""
+                className="h-14 w-14 max-w-none object-contain"
+              />
+            </div>
+
+            <div className="min-w-0">
+              <h2 className="brand-title text-lg font-bold leading-tight text-white sm:text-xl">
+                Escolha o filtro certo
+              </h2>
+            </div>
+
+            <p className="col-span-2 max-w-2xl text-xs leading-relaxed text-[#a6a6a6] sm:col-span-1 sm:mt-1 sm:text-sm">
               Use os filtros para encontrar referências, comparar categorias e abrir a ferramenta certa no momento certo.
             </p>
           </div>
         </div>
 
-        <div className="mt-3 overflow-x-auto pb-1">
-          <div className="flex min-w-max flex-wrap gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategoriaAtiva(cat)}
-                className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
-                  categoriaAtiva === cat
-                    ? 'border-white/45 bg-white/[0.08] text-white'
-                    : 'border-white/15 bg-white/[0.03] text-[#a6a6a6] hover:border-white/30 hover:text-white'
-                }`}
-              >
-                {cat}
-                {cat !== 'Todas' && (
-                  <span className="ml-1.5 text-xs opacity-60">
-                    {categoryCounts[cat] || 0}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+        <div className="mt-4 grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setCategoriaAtiva(cat)}
+              className={`flex min-h-[34px] items-center justify-center rounded-lg border px-2 py-1 text-center text-[11px] font-medium transition sm:min-h-0 sm:rounded-full sm:px-3.5 sm:py-1.5 sm:text-sm ${
+                categoriaAtiva === cat
+                  ? 'border-white/45 bg-white/[0.08] text-white'
+                  : 'border-white/15 bg-white/[0.03] text-[#a6a6a6] hover:border-white/30 hover:text-white'
+              }`}
+            >
+              <span className="truncate leading-none tracking-tight">{cat}</span>
+              {cat !== 'Todas' && (
+                <span className="ml-0.5 shrink-0 text-[9px] opacity-60 sm:ml-1.5 sm:text-xs">
+                  {categoryCounts[cat] || 0}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </section>
 

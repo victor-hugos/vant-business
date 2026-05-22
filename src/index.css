@@ -233,6 +233,37 @@ html {
   max-width: 500px;
 }
 
+.reference-mobile-brand {
+  display: none;
+}
+
+.reference-mobile-brand img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.96;
+}
+
+.reference-mobile-brand p {
+  color: #f0f0f0;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reference-mobile-brand span {
+  display: block;
+  margin-top: 0.65rem;
+  color: #8b8479;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
 .reference-kicker {
   display: flex;
   align-items: center;
@@ -271,20 +302,22 @@ html {
 }
 
 .reference-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
   margin-top: 1.7rem;
+  max-width: 34rem;
 }
 
 .reference-button {
   display: inline-flex;
-  min-height: 42px;
+  width: 100%;
+  min-height: 52px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.8rem;
   border: 1px solid rgba(240, 240, 240, 0.34);
-  padding: 0.75rem 1.35rem;
+  padding: 0.85rem 1.05rem;
   color: #f0f0f0;
   font-size: 0.72rem;
   font-weight: 700;
@@ -295,6 +328,11 @@ html {
 .reference-button:hover {
   border-color: rgba(240, 240, 240, 0.72);
   transform: translateY(-1px);
+}
+
+.reference-button span {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .reference-button-primary {
@@ -662,14 +700,46 @@ html {
 @media (max-width: 1100px) {
   .reference-hero {
     grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2.4rem 1.4rem 2rem;
+  }
+
+  .reference-hero::after {
+    inset: auto 5% 0 18%;
+    height: 34%;
   }
 
   .reference-hero-copy {
     max-width: none;
   }
 
+  .reference-hero-text {
+    max-width: 42rem;
+  }
+
+  .reference-proof p {
+    max-width: 28rem;
+  }
+
+  .reference-hero-mark {
+    min-height: 300px;
+  }
+
   .reference-hero-mark img {
     width: min(74vw, 360px);
+  }
+
+  .reference-orbit {
+    inset: 8% 14% 0 14%;
+  }
+
+  .reference-index {
+    top: auto;
+    right: 0.6rem;
+    bottom: 1.4rem;
+    gap: 0.9rem;
+    padding-left: 1rem;
+    font-size: 0.78rem;
   }
 
   .reference-pillar-grid,
@@ -689,29 +759,114 @@ html {
 
   .reference-hero {
     min-height: auto;
-    padding: 2rem 1rem;
+    gap: 1.35rem;
+    padding: 1.05rem 0.95rem 1.6rem;
+    border-top: 1px solid rgba(240, 240, 240, 0.08);
+    background-size: 48px 48px, 48px 48px, auto, auto;
+  }
+
+  .reference-hero::after {
+    display: none;
+  }
+
+  .reference-mobile-brand {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-bottom: 1.35rem;
+    padding: 0 0 0.95rem;
+    border-bottom: 1px solid rgba(240, 240, 240, 0.08);
+  }
+
+  .reference-mobile-brand img {
+    width: 31px;
+    height: 31px;
+    margin-top: 0.08rem;
+    opacity: 0.92;
+  }
+
+  .reference-mobile-brand p {
+    font-size: 1.02rem;
+    letter-spacing: 0.12em;
+    line-height: 1.02;
+  }
+
+  .reference-mobile-brand span {
+    margin-top: 0.42rem;
+    font-size: 0.49rem;
+    letter-spacing: 0.26em;
+    line-height: 1.7;
+  }
+
+  .reference-kicker {
+    display: none;
   }
 
   .reference-hero h1 {
-    font-size: clamp(2.45rem, 11.4vw, 3.1rem);
-    line-height: 1;
+    margin-top: 0;
+    max-width: 9.5ch;
+    font-size: clamp(2.15rem, 10.6vw, 3.05rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+
+  .reference-hero-text {
+    max-width: 19rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: #cfcfcf;
   }
 
   .reference-actions {
     display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.62rem;
+    margin-top: 1.35rem;
+    max-width: none;
+  }
+
+  .reference-button {
+    width: 100%;
+    min-height: 56px;
+    justify-content: flex-start;
+    align-items: center;
+    border-color: rgba(240, 240, 240, 0.16);
+    padding: 0.82rem 0.9rem;
+    font-size: 0.58rem;
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+  }
+
+  .reference-button span {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: #8f8f8f;
+  }
+
+  .reference-button-primary {
+    border-color: rgba(240, 240, 240, 0.22);
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    box-shadow: 0 0 18px rgba(255,255,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.03);
+  }
+
+  .reference-button-secondary {
+    background: rgba(255,255,255,0.01);
+    color: #dddddd;
   }
 
   .reference-proof {
-    align-items: flex-start;
+    display: none;
   }
 
   .reference-hero-mark {
-    min-height: 320px;
+    display: none;
   }
 
-  .reference-index {
-    right: 0.4rem;
-    padding-left: 0.9rem;
+  .reference-orbit,
+  .reference-index,
+  .reference-light {
+    display: none;
   }
 
   .reference-pillar-grid,
