@@ -258,6 +258,24 @@ Data: 2026-05-12
 - Titulo:
   Presenca. IA. Crescimento.
 - Subtitulo:
+
+## 2026-05-23 - Publicacao limpa de ferramentas e noticias
+
+### Fatos
+
+- O endpoint publico de ferramentas em `/api/news?kind=tools` servia o catalogo correto, mas expunha warning quando o banco nao tinha itens publicados e o baseline estatico precisava sustentar `/recursos`.
+- O endpoint publico de noticias em `/api/news` retornava `generatedAt` preso ao arquivo estatico `public/data/ai-news.json`, mesmo quando havia itens mais recentes vindos do banco.
+
+### Inferencias
+
+- Para o visitante publico, o baseline estatico de ferramentas deve ser tratado como camada valida de publicacao, nao como degradacao visivel.
+- O blog pode parecer desatualizado mesmo com conteudo mais novo aprovado no banco se o carimbo de atualizacao nao refletir a mesclagem real.
+
+### Sugestoes
+
+- Manter o catalogo estatico como baseline publica e deixar o banco sobrescrever apenas itens efetivamente publicados.
+- Calcular `generatedAt` publico a partir do timestamp mais recente entre arquivo estatico e itens mesclados do banco.
+- Popular o banco de ferramentas depois, quando voce quiser migrar de baseline estatico para operacao 100% via admin, mas sem bloquear o deploy atual.
   A VANT transforma presenca digital, tecnologia e IA em crescimento real.
   Explore ferramentas, noticias e guias práticos ou avance para a pagina de
   solucoes se o seu foco for posicionamento, estrutura e conversao.

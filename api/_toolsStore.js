@@ -86,6 +86,27 @@ function getStaticPublishedTools() {
   return getPublishedTools(recursos.map((tool) => normalizeToolItem(tool, tool.status || 'publicada')));
 }
 
+export function buildPublicToolCatalog(staticItems = [], dbItems = []) {
+  const publicById = new Map(getPublishedTools(staticItems).map((tool) => [tool.id, normalizeToolItem(tool, tool.status)]));
+  const publishedDbItems = getPublishedTools(dbItems).map((tool) => normalizeToolItem(tool, tool.status));
+
+  publishedDbItems.forEach((tool) => {
+    publicById.set(tool.id, tool);
+  });
+
+  if (publicById.size > 0) {
+    return {
+      items: [...publicById.values()],
+      usedFallback: false,
+    };
+  }
+
+  return {
+    items: getStaticPublishedTools(),
+    usedFallback: true,
+  };
+}
+
 export function getPublicToolItemsWithFallback(items = []) {
   const publishedItems = getPublishedTools(items);
   if (publishedItems.length > 0) {
@@ -109,6 +130,7 @@ export async function getToolItems() {
   const itemsById = new Map(recursos.map((tool) => [tool.id, normalizeToolItem(tool, tool.status || 'publicada')]));
   const supabase = getSupabaseAdmin();
   const warnings = [];
+  const dbItems = [];
 
   if (supabase) {
     const { data, error } = await supabase
@@ -121,25 +143,24 @@ export async function getToolItems() {
     } else {
       (data || []).forEach((row) => {
         const current = itemsById.get(row.id) || {};
-        itemsById.set(row.id, { ...current, ...fromDbTool(row) });
+        const next = fromDbTool(row);
+        dbItems.push(next);
+        itemsById.set(row.id, { ...current, ...next });
       });
     }
   }
 
   return {
     items: [...itemsById.values()],
+    dbItems,
     warnings,
   };
 }
 
 export async function getPublicTools() {
   const tools = await getToolItems();
-  const publicTools = getPublicToolItemsWithFallback(tools.items);
+  const publicTools = buildPublicToolCatalog(getStaticPublishedTools(), tools.dbItems || []);
   const warnings = [...(tools.warnings || [])];
-
-  if (publicTools.usedFallback) {
-    warnings.push('Catalogo publico vazio no banco; usando catalogo estatico como fallback.');
-  }
 
   return {
     ...tools,
