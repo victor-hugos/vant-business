@@ -253,3 +253,29 @@ Riscos:
 Proximo passo:
 - Escolher uma versao-base para TikTok, Instagram e hero da homepage e depois
   refletir isso na interface do site e nos perfis.
+
+## 2026-05-25 - Configuracao administravel para canal de WhatsApp
+
+Pedido:
+- Tornar o link do grupo de noticias no WhatsApp gerenciavel no admin e registrar um padrao para sistemas futuros mais vendaveis.
+
+Arquivos alterados:
+- `src/pages/AdminPublishingPage.jsx`
+- `api/_siteSettingsStore.js`
+- `api/admin-site-settings.js`
+- `api/admin-data.js`
+- `src/utils/offerTrigger.js`
+- `tests/site-settings-store.test.js`
+- `tests/offer-trigger.test.js`
+- `docs/ai-notes.md`
+- `logs/codex-session.md`
+
+Validacao:
+- Pendente nesta etapa: rodar `npm test` e `npm run build` apos fechar a camada admin/settings.
+
+Riscos:
+- O link real do grupo continua dependendo de configuracao no admin ou fallback de ambiente em producao.
+- O valor comercial do padrao depende de manter esse principio tambem nos proximos sistemas, nao so na VANT.
+
+Proximo passo:
+- Validar testes/build e revisar se a tabela `site_settings` cobre bem links, thresholds e pontos de captura sem virar deposito generico.

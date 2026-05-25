@@ -3,8 +3,10 @@ import path from 'node:path';
 import { isAdminRequest } from './_adminAuth.js';
 import { getSupabaseAdmin } from './_supabaseAdmin.js';
 import { getNewsItems } from './_newsStore.js';
+import { getSiteSettings } from './_siteSettingsStore.js';
 import { getToolItems } from './_toolsStore.js';
 import { affiliateTools, agentSchedule, ebookTools } from '../src/data/aiPipeline.js';
+import { evaluateOfferTrigger, getOfferTriggerCriteriaFromSettings } from '../src/utils/offerTrigger.js';
 
 export const agentWorkflow = [
   {
@@ -52,15 +54,23 @@ async function fetchAdminRows(req) {
   const supabase = getSupabaseAdmin();
   const news = await getNewsItems(req);
   const tools = await getToolItems();
+  const siteSettings = await getSiteSettings();
   const seedResponses = await loadSeedAgentResponses();
 
   if (!supabase) {
     return {
       clicks: [],
+      subscribers: [],
       agentResponses: seedResponses,
       newsItems: news.items,
       tools: tools.items,
-      warnings: ['Supabase ainda nao configurado no ambiente.', ...(tools.warnings || [])],
+      siteSettings: siteSettings.items,
+      triggerAnalysis: evaluateOfferTrigger({
+        criteria: getOfferTriggerCriteriaFromSettings(siteSettings.map),
+        subscribers: [],
+        clicks: [],
+      }),
+      warnings: ['Supabase ainda nao configurado no ambiente.', ...(tools.warnings || []), ...(siteSettings.warnings || [])],
     };
   }
 
@@ -91,12 +101,19 @@ async function fetchAdminRows(req) {
     agentResponses,
     newsItems: news.items,
     tools: tools.items,
+    siteSettings: siteSettings.items,
+    triggerAnalysis: evaluateOfferTrigger({
+      criteria: getOfferTriggerCriteriaFromSettings(siteSettings.map),
+      subscribers: subscribersResult.data || [],
+      clicks: clicksResult.data || [],
+    }),
     warnings: [
       clicksResult.error?.message,
       subscribersResult.error?.message,
       responsesResult.error?.message,
       ...(news.warnings || []),
       ...(tools.warnings || []),
+      ...(siteSettings.warnings || []),
     ].filter(Boolean),
   };
 }

@@ -3,11 +3,14 @@ import { useLocation } from 'react-router-dom';
 import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import { categorias as staticCategories, recursos as staticTools } from '../data/recursos.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
+import { evaluateOfferTrigger, getDefaultOfferTriggerCriteria } from '../utils/offerTrigger.js';
 
 const localAuthKey = 'vant_admin_local_auth';
 const localNewsItemsKey = 'vant_admin_news_items';
 const localNewsStatusesKey = 'vant_admin_news_statuses';
 const localToolsKey = 'vant_admin_tools';
+const localSiteSettingsKey = 'vant_admin_site_settings';
+const localTriggerCriteriaKey = 'vant_offer_trigger_criteria';
 
 const newsStatuses = [
   { value: 'rascunho', label: 'Rascunho' },
@@ -50,6 +53,15 @@ const emptyToolForm = {
   affiliateUrl: '',
   status: 'rascunho',
 };
+
+const defaultSiteSettings = [
+  {
+    key: 'whatsapp_news_group_url',
+    label: 'Grupo de noticias no WhatsApp',
+    description: 'Link do grupo ou canal usado na captura da pagina de noticias.',
+    value: '',
+  },
+];
 
 function isLocalPreview() {
   return ['localhost', '127.0.0.1'].includes(window.location.hostname);
@@ -134,6 +146,15 @@ function mergeById(primary = [], overrides = []) {
   return [...map.values()];
 }
 
+function mergeSettings(primary = [], overrides = []) {
+  const map = new Map(primary.map((item) => [item.key, item]));
+  overrides.forEach((item) => {
+    if (!item?.key) return;
+    map.set(item.key, { ...(map.get(item.key) || {}), ...item });
+  });
+  return [...map.values()];
+}
+
 function isPublished(status) {
   return isPublishedStatus(status);
 }
@@ -213,10 +234,11 @@ function AdminTabs({ active, onChange }) {
     { id: 'leads', label: 'Leads' },
     { id: 'news', label: 'Noticias' },
     { id: 'tools', label: 'Ferramentas' },
+    { id: 'settings', label: 'Configuracoes' },
   ];
 
   return (
-    <nav className="grid gap-2 sm:grid-cols-4" aria-label="Areas do admin">
+    <nav className="grid gap-2 sm:grid-cols-5" aria-label="Areas do admin">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -235,51 +257,230 @@ function AdminTabs({ active, onChange }) {
   );
 }
 
-function LeadsPanel({ leads }) {
+function SettingsPanel({ items, onSave, saving }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-cyan-400">Leads</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Briefings comerciais</h2>
+    <div className="space-y-5">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Configuracoes do site</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Links e pontos de captura</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
+              Mantenha aqui os links operacionais que alimentam o site. Isso reduz hardcode e deixa o projeto mais facil de operar, replicar e vender depois.
+            </p>
+          </div>
+          <StatusPill tone="cyan">{items.length} configuracoes</StatusPill>
         </div>
-        <StatusPill tone="emerald">{leads.length} contatos</StatusPill>
-      </div>
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-2">
-        {leads.length === 0 ? (
-          <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
-            Ainda nao ha leads comerciais registrados.
-          </p>
-        ) : (
-          leads.slice(0, 20).map((lead) => (
-            <article key={lead.id || lead.email} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-white">{lead.nome || 'Lead sem nome'}</p>
-                  <p className="mt-1 text-sm text-cyan-300">{lead.email}</p>
-                  {lead.whatsapp ? <p className="mt-1 text-xs text-slate-400">{lead.whatsapp}</p> : null}
-                  <p className="mt-1 text-xs text-slate-500">
-                    {lead.product_title || lead.ebook || 'sem produto'} · {lead.lead_type || 'lead'} · {lead.source || 'sem origem'}
-                  </p>
+        <div className="mt-5 grid gap-4">
+          {items.map((item) => (
+            <article key={item.key} className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-2xl">
+                  <p className="text-sm font-semibold text-white">{item.label}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.description || 'Sem descricao.'}</p>
+                  <p className="mt-3 text-xs uppercase tracking-widest text-slate-600">{item.key}</p>
                 </div>
-                <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
+                <StatusPill tone={item.value ? 'emerald' : 'amber'}>{item.value ? 'Configurado' : 'Pendente'}</StatusPill>
               </div>
 
-              {lead.lead_type === 'service' && lead.metadata ? (
-                <div className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-xs leading-relaxed text-slate-400">
-                  <p className="font-semibold text-slate-200">{lead.metadata.solutionType || 'Solucao digital'}</p>
-                  {lead.metadata.businessName ? <p className="mt-1">Empresa: {lead.metadata.businessName}</p> : null}
-                  {lead.metadata.projectStage ? <p className="mt-1">Momento: {lead.metadata.projectStage}</p> : null}
-                  {lead.metadata.budgetRange ? <p className="mt-1">Investimento: {lead.metadata.budgetRange}</p> : null}
-                  {lead.metadata.message ? <p className="mt-2 text-slate-300">{lead.metadata.message}</p> : null}
+              <form
+                className="mt-4 space-y-4"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const formData = new FormData(event.currentTarget);
+                  onSave({
+                    ...item,
+                    value: String(formData.get('value') || '').trim(),
+                  });
+                }}
+              >
+                <Field label="Valor atual">
+                  <TextInput
+                    name="value"
+                    defaultValue={item.value || ''}
+                    placeholder="https://chat.whatsapp.com/..."
+                  />
+                </Field>
+
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+                  >
+                    Salvar configuracao
+                  </button>
                 </div>
-              ) : null}
+              </form>
             </article>
-          ))
-        )}
-      </div>
-    </section>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TriggerStatusPill({ status }) {
+  const config = {
+    ainda_nao: 'border-white/10 bg-white/[0.04] text-slate-300',
+    quase_pronto: 'border-amber-300/20 bg-amber-300/10 text-amber-100',
+    gatilho_batido: 'border-emerald-300/20 bg-emerald-300/10 text-emerald-100',
+  };
+
+  const label = {
+    ainda_nao: 'Ainda nao',
+    quase_pronto: 'Quase pronto',
+    gatilho_batido: 'Gatilho batido',
+  };
+
+  return (
+    <span className={'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ' + (config[status] || config.ainda_nao)}>
+      {label[status] || label.ainda_nao}
+    </span>
+  );
+}
+
+function LeadsPanel({ leads, triggerAnalysis, triggerCriteria, onTriggerCriteriaChange, onResetTriggerCriteria, onSaveTriggerCriteria, saving }) {
+  const signalEntries = Object.entries(triggerAnalysis?.signals || {});
+
+  return (
+    <div className="space-y-5">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Gatilho operacional</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Entrada da oferta WhatsApp + leads</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
+              O painel abaixo le os sinais do VANT e mostra se a oferta dedicada ja deve entrar ou se ainda precisa de mais evidencias.
+            </p>
+          </div>
+          <TriggerStatusPill status={triggerAnalysis?.status} />
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-4">
+          <StatCard label="Status" value={triggerAnalysis?.status === 'gatilho_batido' ? 'Pronto' : triggerAnalysis?.status === 'quase_pronto' ? 'Quase' : 'Aguardando'} hint="leitura automatica" />
+          <StatCard label="Sinais" value={(triggerAnalysis?.summary?.metSignals || 0) + '/' + (triggerAnalysis?.summary?.totalSignals || 0)} hint="criterios atendidos" />
+          <StatCard label="Janela" value={String(triggerCriteria.windowDays) + 'd'} hint="periodo analisado" />
+          <StatCard label="Proxima leitura" value={triggerAnalysis?.status === 'gatilho_batido' ? 'Montar oferta' : triggerAnalysis?.status === 'quase_pronto' ? 'Continuar medindo' : 'Captar mais sinais'} hint="acao sugerida" />
+        </div>
+
+        <div className="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+          <div className="rounded-xl border border-white/10 bg-slate-950/35 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold text-white">Critérios editáveis</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={onResetTriggerCriteria}
+                  className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-white/30 hover:text-white"
+                >
+                  Restaurar recomendados
+                </button>
+                <button
+                  type="button"
+                  onClick={onSaveTriggerCriteria}
+                  disabled={saving}
+                  className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-400/15 disabled:opacity-60"
+                >
+                  Salvar critérios
+                </button>
+              </div>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">
+              Estes valores podem ser ajustados. O padrão atual usa os limites recomendados como ponto de partida.
+            </p>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label="Janela em dias">
+                <TextInput type="number" min="1" value={triggerCriteria.windowDays} onChange={(event) => onTriggerCriteriaChange('windowDays', event.target.value)} />
+              </Field>
+              <Field label="Leads service">
+                <TextInput type="number" min="1" value={triggerCriteria.serviceLeadThreshold} onChange={(event) => onTriggerCriteriaChange('serviceLeadThreshold', event.target.value)} />
+              </Field>
+              <Field label="Dores repetidas">
+                <TextInput type="number" min="1" value={triggerCriteria.repeatedPainThreshold} onChange={(event) => onTriggerCriteriaChange('repeatedPainThreshold', event.target.value)} />
+              </Field>
+              <Field label="Interesse operacional">
+                <TextInput type="number" min="1" value={triggerCriteria.operationalInterestThreshold} onChange={(event) => onTriggerCriteriaChange('operationalInterestThreshold', event.target.value)} />
+              </Field>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-slate-950/35 p-4">
+            <h3 className="text-sm font-semibold text-white">Leitura dos sinais</h3>
+            <div className="mt-4 space-y-3">
+              {signalEntries.map(([key, signal]) => (
+                <article key={key} className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">{signal.label}</p>
+                      <p className="mt-1 text-xs text-slate-500">{signal.value} / {signal.threshold}</p>
+                    </div>
+                    <StatusPill tone={signal.met ? 'emerald' : 'slate'}>{signal.met ? 'ok' : 'abaixo'}</StatusPill>
+                  </div>
+                  {signal.details?.length > 0 ? (
+                    <div className="mt-3 space-y-2">
+                      {signal.details.slice(0, 3).map((detail, index) => (
+                        <p key={detail.id || index} className="text-xs leading-relaxed text-slate-400">
+                          {detail.summary || detail.title || detail.source || detail.id}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-xs text-slate-500">Sem evidencias suficientes na janela atual.</p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Leads</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Briefings comerciais</h2>
+          </div>
+          <StatusPill tone="emerald">{leads.length} contatos</StatusPill>
+        </div>
+
+        <div className="mt-5 grid gap-3 lg:grid-cols-2">
+          {leads.length === 0 ? (
+            <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
+              Ainda nao ha leads comerciais registrados.
+            </p>
+          ) : (
+            leads.slice(0, 20).map((lead) => (
+              <article key={lead.id || lead.email} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{lead.nome || 'Lead sem nome'}</p>
+                    <p className="mt-1 text-sm text-cyan-300">{lead.email}</p>
+                    {lead.whatsapp ? <p className="mt-1 text-xs text-slate-400">{lead.whatsapp}</p> : null}
+                    <p className="mt-1 text-xs text-slate-500">
+                      {lead.product_title || lead.ebook || 'sem produto'} · {lead.lead_type || 'lead'} · {lead.source || 'sem origem'}
+                    </p>
+                  </div>
+                  <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
+                </div>
+
+                {lead.lead_type === 'service' && lead.metadata ? (
+                  <div className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-xs leading-relaxed text-slate-400">
+                    <p className="font-semibold text-slate-200">{lead.metadata.solutionType || 'Solucao digital'}</p>
+                    {lead.metadata.businessName ? <p className="mt-1">Empresa: {lead.metadata.businessName}</p> : null}
+                    {lead.metadata.projectStage ? <p className="mt-1">Momento: {lead.metadata.projectStage}</p> : null}
+                    {lead.metadata.budgetRange ? <p className="mt-1">Investimento: {lead.metadata.budgetRange}</p> : null}
+                    {lead.metadata.message ? <p className="mt-2 text-slate-300">{lead.metadata.message}</p> : null}
+                  </div>
+                ) : null}
+              </article>
+            ))
+          )}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -589,6 +790,12 @@ function AdminPublishingPage() {
   const [toolForm, setToolForm] = useState(emptyToolForm);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [triggerCriteria, setTriggerCriteria] = useState(() => getDefaultOfferTriggerCriteria());
+
+  function hydrateTriggerCriteria(recommended = getDefaultOfferTriggerCriteria(), useLocalOverrides = false) {
+    const saved = useLocalOverrides ? readJson(localTriggerCriteriaKey, {}) : {};
+    setTriggerCriteria({ ...recommended, ...saved });
+  }
 
   async function loadLocalData() {
     const response = await fetch('/data/ai-news.json');
@@ -603,6 +810,7 @@ function AdminPublishingPage() {
       staticTools.map((tool) => normalizeToolForm({ ...tool, status: 'publicada' }, 'publicada')),
       readJson(localToolsKey, [])
     );
+    const siteSettings = mergeSettings(defaultSiteSettings, readJson(localSiteSettingsKey, []));
 
     setData({
       ok: true,
@@ -611,8 +819,10 @@ function AdminPublishingPage() {
       subscribers: [],
       newsItems: mergeById(staticNews, localNews),
       tools,
+      siteSettings,
       warnings: ['Modo local: rascunhos ficam no navegador. No preview da Vercel, a publicacao usa API/Supabase.'],
     });
+    hydrateTriggerCriteria(getDefaultOfferTriggerCriteria(), true);
     setAuth('ok');
     return true;
   }
@@ -635,7 +845,9 @@ function AdminPublishingPage() {
       setData({
         ...payload,
         tools: payload.tools || staticTools.map((tool) => normalizeToolForm({ ...tool, status: 'publicada' }, 'publicada')),
+        siteSettings: mergeSettings(defaultSiteSettings, payload.siteSettings || []),
       });
+      hydrateTriggerCriteria(payload.triggerAnalysis?.criteria || getDefaultOfferTriggerCriteria(), false);
       setAuth('ok');
       return true;
     } catch (error) {
@@ -660,6 +872,12 @@ function AdminPublishingPage() {
     loadData();
   }, [forceLoginView]);
 
+  useEffect(() => {
+    if (data?.localPreview) {
+      saveJson(localTriggerCriteriaKey, triggerCriteria);
+    }
+  }, [data?.localPreview, triggerCriteria]);
+
   function upsertStateItem(key, item) {
     setData((current) => {
       if (!current) return current;
@@ -667,6 +885,16 @@ function AdminPublishingPage() {
       return {
         ...current,
         [key]: [item, ...currentItems.filter((existing) => existing.id !== item.id)],
+      };
+    });
+  }
+
+  function upsertSettingItem(item) {
+    setData((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        siteSettings: mergeSettings(current.siteSettings || defaultSiteSettings, [item]),
       };
     });
   }
@@ -749,6 +977,49 @@ function AdminPublishingPage() {
     }
   }
 
+  async function saveSiteSetting(setting) {
+    const item = {
+      key: String(setting?.key || '').trim(),
+      label: String(setting?.label || setting?.key || '').trim(),
+      description: String(setting?.description || '').trim(),
+      value: String(setting?.value || '').trim(),
+    };
+
+    if (!item.key) {
+      setMessage('Configuracao invalida.');
+      return;
+    }
+
+    setSaving(true);
+    setMessage('');
+
+    if (data?.localPreview) {
+      const nextSettings = mergeSettings(readJson(localSiteSettingsKey, []), [item]);
+      saveJson(localSiteSettingsKey, nextSettings);
+      upsertSettingItem(item);
+      setSaving(false);
+      setMessage('Configuracao salva no modo local.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin-site-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ setting: item }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'Falha ao salvar configuracao');
+      upsertSettingItem(payload.item || item);
+      setMessage('Configuracao salva no admin.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function logout() {
     if (isLocalPreview()) {
       window.localStorage.removeItem(localAuthKey);
@@ -760,6 +1031,89 @@ function AdminPublishingPage() {
     await fetch('/api/admin-logout', { method: 'POST', credentials: 'include' });
     setAuth('login');
     setData(null);
+  }
+
+  const triggerAnalysis = useMemo(() => evaluateOfferTrigger({
+    criteria: triggerCriteria,
+    subscribers: data?.subscribers || [],
+    clicks: data?.clicks || [],
+  }), [data, triggerCriteria]);
+
+  function handleTriggerCriteriaChange(field, value) {
+    const numericValue = Number(value);
+    setTriggerCriteria((current) => ({
+      ...current,
+      [field]: Number.isFinite(numericValue) && numericValue > 0 ? numericValue : current[field],
+    }));
+  }
+
+  function resetTriggerCriteria() {
+    setTriggerCriteria(getDefaultOfferTriggerCriteria());
+  }
+
+  async function saveTriggerCriteria() {
+    const settingsPayload = [
+      {
+        key: 'offer_trigger_window_days',
+        label: 'Janela do gatilho em dias',
+        description: 'Quantos dias olhar para os sinais da oferta WhatsApp + leads.',
+        value: String(triggerCriteria.windowDays),
+      },
+      {
+        key: 'offer_trigger_service_leads',
+        label: 'Leads service para o gatilho',
+        description: 'Quantidade recomendada de leads comerciais para considerar recorrencia.',
+        value: String(triggerCriteria.serviceLeadThreshold),
+      },
+      {
+        key: 'offer_trigger_repeated_pain',
+        label: 'Dores repetidas para o gatilho',
+        description: 'Quantidade recomendada de briefs com dor repetida de atendimento/captacao.',
+        value: String(triggerCriteria.repeatedPainThreshold),
+      },
+      {
+        key: 'offer_trigger_operational_interest',
+        label: 'Interesse operacional para o gatilho',
+        description: 'Quantidade recomendada de sinais de clique/interesse operacional.',
+        value: String(triggerCriteria.operationalInterestThreshold),
+      },
+    ];
+
+    if (data?.localPreview) {
+      saveJson(localTriggerCriteriaKey, triggerCriteria);
+      setMessage('Critérios salvos no navegador para o modo local.');
+      return;
+    }
+
+    setSaving(true);
+    setMessage('');
+
+    try {
+      for (const setting of settingsPayload) {
+        const response = await fetch('/api/admin-site-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ setting }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'Falha ao salvar critérios');
+      }
+
+      setData((current) => ({
+        ...current,
+        siteSettings: mergeSettings(current?.siteSettings || defaultSiteSettings, settingsPayload),
+        triggerAnalysis: {
+          ...(current?.triggerAnalysis || {}),
+          criteria: triggerCriteria,
+        },
+      }));
+      setMessage('Critérios do gatilho salvos no admin.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   const metrics = useMemo(() => {
@@ -808,7 +1162,7 @@ function AdminPublishingPage() {
           <StatCard label="Leads" value={metrics.leads} hint="briefings e contatos" />
           <StatCard label="Noticias publicadas" value={metrics.publishedNews} hint={`${metrics.draftNews} em rascunho/revisao`} />
           <StatCard label="Ferramentas publicadas" value={metrics.publishedTools} hint={`${metrics.draftTools} em rascunho/revisao`} />
-          <StatCard label="Admin" value="4" hint="cliques, leads, noticias, ferramentas" />
+          <StatCard label="Gatilho" value={triggerAnalysis.status === 'gatilho_batido' ? 'Pronto' : triggerAnalysis.status === 'quase_pronto' ? 'Quase' : 'Aguardando'} hint={triggerAnalysis.summary.metSignals + '/' + triggerAnalysis.summary.totalSignals + ' sinais'} />
           <StatCard label="Publicacao" value="Site" hint="blog e /recursos" />
         </div>
       </header>
@@ -822,7 +1176,17 @@ function AdminPublishingPage() {
       <AdminTabs active={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'clicks' && <ClicksPanel clicks={data.clicks || []} />}
-      {activeTab === 'leads' && <LeadsPanel leads={data.subscribers || []} />}
+      {activeTab === 'leads' && (
+        <LeadsPanel
+          leads={data.subscribers || []}
+          triggerAnalysis={triggerAnalysis}
+          triggerCriteria={triggerCriteria}
+          onTriggerCriteriaChange={handleTriggerCriteriaChange}
+          onResetTriggerCriteria={resetTriggerCriteria}
+          onSaveTriggerCriteria={saveTriggerCriteria}
+          saving={saving}
+        />
+      )}
       {activeTab === 'news' && (
         <NewsPanel
           items={data.newsItems || []}
@@ -840,6 +1204,13 @@ function AdminPublishingPage() {
           setForm={setToolForm}
           onSave={saveTool}
           onEdit={(item) => setToolForm(normalizeToolForm(item, item.status))}
+          saving={saving}
+        />
+      )}
+      {activeTab === 'settings' && (
+        <SettingsPanel
+          items={data.siteSettings || defaultSiteSettings}
+          onSave={saveSiteSetting}
           saving={saving}
         />
       )}

@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import { approvedStatuses, getNewsItems } from './_newsStore.js';
+import { getSiteSettings, getSiteSettingValue } from './_siteSettingsStore.js';
 
 const supabase =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
@@ -18,7 +19,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const VICTOR_EMAIL = process.env.EMAIL_USER;
-const WHATSAPP_NEWS_GROUP_URL = process.env.WHATSAPP_NEWS_GROUP_URL || '';
 
 function escapeHtml(value = '') {
   return String(value)
@@ -296,6 +296,12 @@ export default async function handler(req, res) {
     if (error) throw error;
 
     const news = await getNewsItems(req);
+    const siteSettings = await getSiteSettings();
+    const whatsappGroupUrl = getSiteSettingValue(
+      siteSettings.map,
+      'whatsapp_news_group_url',
+      process.env.WHATSAPP_NEWS_GROUP_URL || ''
+    );
     const subscriberSubject = cleanLeadType === 'service'
       ? `${cleanName}, recebemos seu briefing na VANT Business`
       : cleanLeadType === 'newsletter'
@@ -313,7 +319,7 @@ export default async function handler(req, res) {
           whatsappNewsOptIn: wantsWhatsappNews,
           newsItems: news.items || [],
           ebookUrl,
-          whatsappGroupUrl: WHATSAPP_NEWS_GROUP_URL,
+          whatsappGroupUrl,
         });
 
     const serviceDetailsHtml = cleanLeadType === 'service'
@@ -413,7 +419,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      whatsappGroupUrl: wantsWhatsappNews && WHATSAPP_NEWS_GROUP_URL ? WHATSAPP_NEWS_GROUP_URL : null,
+      whatsappGroupUrl: wantsWhatsappNews && whatsappGroupUrl ? whatsappGroupUrl : null,
     });
   } catch (err) {
     console.error('Subscribe error:', err);

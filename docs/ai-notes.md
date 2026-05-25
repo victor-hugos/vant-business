@@ -312,3 +312,22 @@ Data: 2026-05-12
 - Escolher qual versao de bio do Instagram vira base oficial.
 - Confirmar se a hero da homepage deve usar a formula mais curta
   ("Presenca. IA. Crescimento.") ou a mais explicativa.
+
+## 2026-05-25 - Configuracoes administraveis e padrao de sistema vendavel
+
+### Fatos
+
+- A captura editorial do blog passou a depender de dois canais distintos: email e WhatsApp.
+- O link do grupo de WhatsApp deixou de depender apenas de variavel de ambiente e agora pode ser administrado pela area `/admin-vant`.
+- O projeto passou a usar a tabela `site_settings` como camada generica para links e limiares operacionais.
+
+### Inferencias
+
+- Essa camada reduz hardcode de negocio e deixa o projeto mais facil de operar por terceiros.
+- Um sistema fica mais vendavel quando links, gatilhos e pontos de captura sao dados administraveis, nao regras escondidas no codigo.
+
+### Sugestoes
+
+- Tratar como padrao futuro: toda automacao, SaaS ou sistema deve separar configuracao de negocio da implementacao tecnica.
+- Preferir `site_settings`, tabelas de metadados ou paineis admin para valores que o operador precise trocar sem deploy.
+- Ao desenhar novos sistemas, manter tres camadas desde o inicio: logica, configuracao e operacao.
