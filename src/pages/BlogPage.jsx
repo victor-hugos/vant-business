@@ -61,12 +61,46 @@ function FieldIcon({ type }) {
   return null;
 }
 
-function FeatureIcon({ tone = 'default' }) {
-  const classes = tone === 'filled'
-    ? 'flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] shadow-[0_10px_35px_rgba(0,0,0,0.32)]'
-    : 'flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]';
+function FeatureIcon({ type }) {
+  const classes = 'flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/90';
 
-  return <div className={classes} />;
+  if (type === 'tools') {
+    return (
+      <div className={classes}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4.5 w-4.5">
+          <path d="M10.25 4.75h3.5l.58 2.15 2.03.84 1.94-.92 2.48 2.48-.92 1.94.84 2.03 2.15.58v3.5l-2.15.58-.84 2.03.92 1.94-2.48 2.48-1.94-.92-2.03.84-.58 2.15h-3.5l-.58-2.15-2.03-.84-1.94.92-2.48-2.48.92-1.94-.84-2.03-2.15-.58v-3.5l2.15-.58.84-2.03-.92-1.94 2.48-2.48 1.94.92 2.03-.84.58-2.15Zm1.75 4.5a4.75 4.75 0 1 0 0 9.5 4.75 4.75 0 0 0 0-9.5Z" fill="currentColor" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === 'insights') {
+    return (
+      <div className={classes}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4.5 w-4.5">
+          <path d="M5 19.25h14v1.5H5v-1.5Zm1-3.25h2.5V9H6v7Zm4.75 0h2.5V5h-2.5v11Zm4.75 0H18v-5h-2.5v5Z" fill="currentColor" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === 'opportunities') {
+    return (
+      <div className={classes}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4.5 w-4.5">
+          <path d="M13.1 2.75 6.7 12.2h4.18l-1.05 9.05 7.47-10.83h-4.16l-.04-.18 1.26-7.49h-1.26Z" fill="currentColor" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4.5 w-4.5">
+        <path d="M6 4.75h12A1.75 1.75 0 0 1 19.75 6.5v12A1.75 1.75 0 0 1 18 20.25H6A1.75 1.75 0 0 1 4.25 18.5v-12A1.75 1.75 0 0 1 6 4.75Zm0 1.5a.25.25 0 0 0-.25.25v12c0 .14.11.25.25.25h12a.25.25 0 0 0 .25-.25v-12a.25.25 0 0 0-.25-.25Zm2.25 2.5h7.5v1.5h-7.5v-1.5Zm0 3.5h7.5v1.5h-7.5v-1.5Zm0 3.5h5v1.5h-5v-1.5Z" fill="currentColor" />
+      </svg>
+    </div>
+  );
 }
 
 function formatDate(date) {
@@ -254,10 +288,10 @@ function BlogPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <section className="brand-panel px-4 py-4 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-5 lg:gap-6 xl:gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
-          <div className="brand-card relative overflow-hidden p-5 sm:p-7 lg:p-8 xl:p-9">
+    <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+      <section className="brand-panel px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:gap-5 lg:gap-6 xl:gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
+          <div className="brand-card relative overflow-hidden p-4 sm:p-7 lg:p-8 xl:p-9">
             <div className="pointer-events-none absolute inset-y-0 right-[-18%] w-[78%] rounded-full border border-white/10 opacity-80 blur-[0.2px]" />
             <div className="pointer-events-none absolute right-[6%] top-[9%] h-[82%] w-[66%] rounded-full border border-white/[0.08]" />
             <div className="pointer-events-none absolute left-[28%] top-[15%] h-[58%] w-[58%] rounded-full border border-white/[0.07]" />
@@ -266,31 +300,31 @@ function BlogPage() {
             <div className="relative z-[1] flex h-full flex-col justify-between">
               <div>
                 <p className="brand-kicker">Curadoria · IA · Oportunidades</p>
-                <h1 className="font-display mt-5 max-w-xl text-4xl font-bold uppercase leading-[0.94] text-white sm:text-5xl lg:text-6xl">
+                <h1 className="font-display mt-4 max-w-xl text-[2.35rem] font-bold uppercase leading-[0.92] tracking-[0.03em] text-white sm:mt-5 sm:text-5xl sm:tracking-normal lg:text-6xl">
                   Entre no
                   <span className="brand-metal block">ecossistema</span>
                   da VANT.
                 </h1>
-                <p className="mt-5 max-w-md text-sm leading-relaxed text-[#b8b8b8] sm:text-base">
+                <p className="mt-4 max-w-md text-sm leading-relaxed text-[#b8b8b8] sm:mt-5 sm:text-base">
                   Receba ferramentas, noticias, insights e oportunidades sobre IA, automacao e crescimento digital.
                 </p>
 
-                <div className="mt-7 grid max-w-xl grid-cols-2 gap-3 sm:gap-4 text-[11px] uppercase tracking-[0.18em] text-[#9f9f9f] sm:grid-cols-4">
-                  <div className="space-y-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3 sm:p-3.5">
-                    <FeatureIcon />
-                    <p>Ferramentas IA</p>
+                <div className="mt-6 grid max-w-xl grid-cols-2 gap-3 sm:mt-7 sm:gap-4 sm:grid-cols-4">
+                  <div className="flex min-h-[102px] flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3 sm:min-h-[116px] sm:p-3.5">
+                    <FeatureIcon type="tools" />
+                    <p className="text-[10px] font-medium uppercase leading-tight tracking-[0.14em] text-[#9f9f9f] sm:text-[11px] sm:tracking-[0.18em]">Ferramentas IA</p>
                   </div>
-                  <div className="space-y-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
-                    <FeatureIcon />
-                    <p>Insights exclusivos</p>
+                  <div className="flex min-h-[102px] flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3 sm:min-h-[116px]">
+                    <FeatureIcon type="insights" />
+                    <p className="text-[10px] font-medium uppercase leading-tight tracking-[0.14em] text-[#9f9f9f] sm:text-[11px] sm:tracking-[0.18em]">Insights exclusivos</p>
                   </div>
-                  <div className="space-y-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
-                    <FeatureIcon />
-                    <p>Oportunidades relevantes</p>
+                  <div className="flex min-h-[102px] flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3 sm:min-h-[116px]">
+                    <FeatureIcon type="opportunities" />
+                    <p className="text-[10px] font-medium uppercase leading-tight tracking-[0.14em] text-[#9f9f9f] sm:text-[11px] sm:tracking-[0.18em]">Oportunidades relevantes</p>
                   </div>
-                  <div className="space-y-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
-                    <FeatureIcon />
-                    <p>Curadoria premium</p>
+                  <div className="flex min-h-[102px] flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3 sm:min-h-[116px]">
+                    <FeatureIcon type="curation" />
+                    <p className="text-[10px] font-medium uppercase leading-tight tracking-[0.14em] text-[#9f9f9f] sm:text-[11px] sm:tracking-[0.18em]">Curadoria premium</p>
                   </div>
                 </div>
               </div>
@@ -333,7 +367,7 @@ function BlogPage() {
             </div>
           </div>
 
-          <div className="brand-card p-5 sm:p-6 lg:p-7 xl:p-8">
+          <div className="brand-card p-4 sm:p-6 lg:p-7 xl:p-8">
             <form onSubmit={handleNewsletterSubmit} className="space-y-4 sm:space-y-5">
               <div>
                 <p className="brand-kicker">Seu acesso começa aqui</p>
@@ -397,7 +431,7 @@ function BlogPage() {
 
               <div>
                 <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#7f7f7f]">Escolha seus canais</p>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <label className="flex cursor-pointer items-start gap-4 rounded-[1.1rem] border border-white/10 bg-white/[0.03] p-4 transition hover:border-white/20">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/[0.08]">
                       <FieldIcon type="whatsapp" />
