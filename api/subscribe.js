@@ -68,6 +68,8 @@ export function normalizeSubscribePayload(input = {}, context = {}) {
     productTitle,
     leadType = 'ebook',
     newsletterOptIn = false,
+    emailEbooksOptIn = false,
+    whatsappNewsOptIn = false,
     source = 'unknown',
     metadata = {},
   } = input;
@@ -76,12 +78,14 @@ export function normalizeSubscribePayload(input = {}, context = {}) {
   const cleanEmail = normalize(email).toLowerCase();
   const cleanWhatsapp = normalize(whatsapp);
   const rawLeadType = normalize(leadType).toLowerCase();
-  const cleanLeadType = ['ebook', 'newsletter', 'service'].includes(rawLeadType)
+  const cleanLeadType = ['ebook', 'newsletter', 'service', 'content'].includes(rawLeadType)
     ? rawLeadType
     : 'ebook';
   const cleanEbook = normalize(ebook) || (cleanLeadType === 'service' ? 'solucoes-digitais' : '');
   const cleanProductTitle = normalize(productTitle) || cleanEbook;
   const wantsNewsletter = cleanLeadType === 'newsletter' || Boolean(newsletterOptIn);
+  const wantsEmailEbooks = Boolean(emailEbooksOptIn);
+  const wantsWhatsappNews = Boolean(whatsappNewsOptIn);
 
   return {
     cleanName,
@@ -91,6 +95,8 @@ export function normalizeSubscribePayload(input = {}, context = {}) {
     cleanProductTitle,
     cleanLeadType,
     wantsNewsletter,
+    wantsEmailEbooks,
+    wantsWhatsappNews,
     source: normalize(source) || 'unknown',
     metadata: normalizeMetadata(metadata, context),
   };
@@ -132,11 +138,20 @@ function buildNewsPreviewHtml(items) {
   `;
 }
 
-function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, ebookUrl }) {
+function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, emailEbooksOptIn, whatsappNewsOptIn, newsItems, ebookUrl }) {
   const previewItems = (newsItems || []).filter((item) => approvedStatuses.includes(item.status)).slice(0, 3);
   const safeName = escapeHtml(nome);
   const safeProductTitle = escapeHtml(productTitle);
   const newsPreviewHtml = buildNewsPreviewHtml(previewItems);
+  const accessLines = [
+    newsletterOptIn ? 'Voce entrou no canal diario de noticias de IA por email.' : null,
+    emailEbooksOptIn ? 'Seu email foi registrado para receber ebooks gratuitos e oportunidades editoriais da VANT.' : null,
+    whatsappNewsOptIn ? 'Seu WhatsApp foi registrado para a trilha diaria de noticias de IA e para o envio do link do grupo quando ele for liberado.' : null,
+  ].filter(Boolean);
+
+  const accessHtml = accessLines.length
+    ? accessLines.map((line) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.65;">${line}</p>`).join('')
+    : '<p style="margin:0;font-size:15px;line-height:1.65;">Seu cadastro foi confirmado na curadoria da VANT.</p>';
 
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
@@ -147,9 +162,7 @@ function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, eboo
       </p>
       <div style="margin-top:20px;padding:18px;border-radius:18px;background:#0f172a;color:#f8fafc;">
         <p style="margin:0 0 8px;color:#67e8f9;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Seu acesso</p>
-        <p style="margin:0;font-size:15px;line-height:1.65;">
-          ${newsletterOptIn ? 'Voce entrou no canal diario de noticias de IA.' : 'Voce também pode ativar o canal diario de noticias de IA a qualquer momento.'}
-        </p>
+        ${accessHtml}
         <p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">
           Material registrado: <strong>${safeProductTitle}</strong>
         </p>
@@ -206,6 +219,8 @@ export default async function handler(req, res) {
     cleanProductTitle,
     cleanLeadType,
     wantsNewsletter,
+    wantsEmailEbooks,
+    wantsWhatsappNews,
     source,
     metadata,
   } = normalizeSubscribePayload(req.body, {
@@ -213,11 +228,26 @@ export default async function handler(req, res) {
     referer: req.headers.referer || null,
   });
 
-  if (!cleanEmail || !cleanName || !cleanWhatsapp || !cleanEbook) {
+  const requiresEmail = cleanLeadType === 'service' || cleanLeadType === 'ebook' || wantsNewsletter || wantsEmailEbooks;
+  const requiresWhatsapp = cleanLeadType === 'service' || cleanLeadType === 'ebook' || wantsWhatsappNews;
+
+  if (!cleanName || !cleanEbook) {
     return res.status(400).json({ error: 'Dados incompletos' });
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+  if (cleanLeadType === 'content' && !wantsEmailEbooks && !wantsWhatsappNews) {
+    return res.status(400).json({ error: 'Selecione pelo menos um canal' });
+  }
+
+  if (requiresEmail && !cleanEmail) {
+    return res.status(400).json({ error: 'Dados incompletos' });
+  }
+
+  if (requiresWhatsapp && !cleanWhatsapp) {
+    return res.status(400).json({ error: 'Dados incompletos' });
+  }
+
+  if (cleanEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
     return res.status(400).json({ error: 'Email invalido' });
   }
 
@@ -232,7 +262,8 @@ export default async function handler(req, res) {
   const safeProductTitle = escapeHtml(cleanProductTitle);
   const safeLeadType = escapeHtml(cleanLeadType);
   const safeSource = escapeHtml(source);
-  const ebookUrl = `https://vant.business/ebook/${encodeURIComponent(cleanEbook)}`;
+  const ebookUrl = cleanLeadType === 'ebook' ? `https://vant.business/ebook/${encodeURIComponent(cleanEbook)}` : null;
+  const subscriberConflictTarget = cleanEmail ? 'email,ebook' : 'whatsapp,ebook';
 
   try {
     // 1. Salva no Supabase
@@ -241,18 +272,20 @@ export default async function handler(req, res) {
       .upsert(
         {
           nome: cleanName,
-          email: cleanEmail,
-          whatsapp: cleanWhatsapp,
+          email: cleanEmail || null,
+          whatsapp: cleanWhatsapp || null,
           ebook: cleanEbook,
           product_title: cleanProductTitle,
           lead_type: cleanLeadType,
           newsletter_opt_in: wantsNewsletter,
+          email_ebooks_opt_in: wantsEmailEbooks,
+          whatsapp_news_opt_in: wantsWhatsappNews,
           source,
           metadata,
           created_at: now,
           updated_at: now,
         },
-        { onConflict: 'email,ebook', ignoreDuplicates: false }
+        { onConflict: subscriberConflictTarget, ignoreDuplicates: false }
       );
 
     if (error) throw error;
@@ -262,6 +295,8 @@ export default async function handler(req, res) {
       ? `${cleanName}, recebemos seu briefing na VANT Business`
       : cleanLeadType === 'newsletter'
         ? `${cleanName}, bem-vindo ao canal de noticias de IA`
+        : cleanLeadType === 'content'
+          ? `${cleanName}, seus canais da curadoria VANT foram ativados`
         : `${cleanName}, seu material e a curadoria da VANT Business`;
 
     const subscriberHtml = cleanLeadType === 'service'
@@ -269,6 +304,8 @@ export default async function handler(req, res) {
       : buildWelcomeHtml(cleanName, {
           productTitle: cleanProductTitle,
           newsletterOptIn: wantsNewsletter,
+          emailEbooksOptIn: wantsEmailEbooks,
+          whatsappNewsOptIn: wantsWhatsappNews,
           newsItems: news.items || [],
           ebookUrl,
         });
@@ -334,6 +371,14 @@ export default async function handler(req, res) {
                 <td style="padding:8px 0;color:#475569;">${wantsNewsletter ? 'sim' : 'nao'}</td>
               </tr>
               <tr>
+                <td style="padding:8px 0;color:#64748b;">Ebooks por email</td>
+                <td style="padding:8px 0;color:#475569;">${wantsEmailEbooks ? 'sim' : 'nao'}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b;">Noticias por WhatsApp</td>
+                <td style="padding:8px 0;color:#475569;">${wantsWhatsappNews ? 'sim' : 'nao'}</td>
+              </tr>
+              <tr>
                 <td style="padding:8px 0;color:#64748b;">Origem</td>
                 <td style="padding:8px 0;color:#475569;">${safeSource}</td>
               </tr>
@@ -348,12 +393,16 @@ export default async function handler(req, res) {
       }),
 
       // Confirmação para o inscrito
-      transporter.sendMail({
-        from: `"Vant Business" <${VICTOR_EMAIL}>`,
-        to: cleanEmail,
-        subject: subscriberSubject,
-        html: subscriberHtml,
-      }),
+      ...(cleanEmail
+        ? [
+            transporter.sendMail({
+              from: `"Vant Business" <${VICTOR_EMAIL}>`,
+              to: cleanEmail,
+              subject: subscriberSubject,
+              html: subscriberHtml,
+            }),
+          ]
+        : []),
     ]);
 
     return res.status(200).json({ ok: true });

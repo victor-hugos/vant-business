@@ -2,12 +2,14 @@
 create table if not exists subscribers (
   id uuid default gen_random_uuid() primary key,
   nome text not null,
-  email text not null,
+  email text,
   whatsapp text,
   ebook text not null,
   product_title text,
   lead_type text not null default 'ebook',
   newsletter_opt_in boolean not null default false,
+  email_ebooks_opt_in boolean not null default false,
+  whatsapp_news_opt_in boolean not null default false,
   source text,
   metadata jsonb default '{}'::jsonb,
   created_at timestamptz default now(),
@@ -18,17 +20,23 @@ alter table subscribers add column if not exists whatsapp text;
 alter table subscribers add column if not exists product_title text;
 alter table subscribers add column if not exists lead_type text not null default 'ebook';
 alter table subscribers add column if not exists newsletter_opt_in boolean not null default false;
+alter table subscribers add column if not exists email_ebooks_opt_in boolean not null default false;
+alter table subscribers add column if not exists whatsapp_news_opt_in boolean not null default false;
 alter table subscribers add column if not exists source text;
 alter table subscribers add column if not exists metadata jsonb default '{}'::jsonb;
 alter table subscribers add column if not exists updated_at timestamptz default now();
+alter table subscribers alter column email drop not null;
 
 alter table subscribers drop constraint if exists subscribers_email_key;
 drop index if exists subscribers_email_key;
 create unique index if not exists subscribers_email_ebook_key on subscribers (email, ebook);
+create unique index if not exists subscribers_whatsapp_ebook_key on subscribers (whatsapp, ebook) where whatsapp is not null and btrim(whatsapp) <> '';
 
 -- Indices para remarketing segmentado
 create index if not exists subscribers_ebook_idx on subscribers (ebook);
 create index if not exists subscribers_newsletter_idx on subscribers (newsletter_opt_in);
+create index if not exists subscribers_email_ebooks_idx on subscribers (email_ebooks_opt_in);
+create index if not exists subscribers_whatsapp_news_idx on subscribers (whatsapp_news_opt_in);
 create index if not exists subscribers_lead_type_idx on subscribers (lead_type);
 
 -- Habilita Row Level Security (segurança)

@@ -75,3 +75,55 @@ test('normalizes newsletter leads from blog signup into recurring newsletter rec
     referer: 'https://vant.business/blog',
   });
 });
+
+test('normalizes content leads with email ebooks and whatsapp news preferences at the same time', () => {
+  const payload = normalizeSubscribePayload(
+    {
+      nome: '  Radar IA ',
+      email: 'RADAR@EXEMPLO.COM ',
+      whatsapp: ' 11 98888-7777 ',
+      ebook: 'vant-news-access',
+      productTitle: 'Noticias diarias no WhatsApp + ebooks gratuitos por email',
+      leadType: 'content',
+      emailEbooksOptIn: true,
+      whatsappNewsOptIn: true,
+      source: 'blog-dual-signup',
+    },
+    {
+      userAgent: 'node-test',
+      referer: 'https://vant.business/blog',
+    }
+  );
+
+  assert.equal(payload.cleanLeadType, 'content');
+  assert.equal(payload.cleanEmail, 'radar@exemplo.com');
+  assert.equal(payload.cleanWhatsapp, '11 98888-7777');
+  assert.equal(payload.wantsNewsletter, false);
+  assert.equal(payload.wantsEmailEbooks, true);
+  assert.equal(payload.wantsWhatsappNews, true);
+});
+
+test('allows whatsapp-only content leads without forcing an email address', () => {
+  const payload = normalizeSubscribePayload(
+    {
+      nome: '  Grupo IA ',
+      email: ' ',
+      whatsapp: ' 11977776666 ',
+      ebook: 'vant-news-access',
+      productTitle: 'Grupo de WhatsApp com noticias diarias sobre IA',
+      leadType: 'content',
+      whatsappNewsOptIn: true,
+      source: 'blog-dual-signup',
+    },
+    {
+      userAgent: 'node-test',
+      referer: 'https://vant.business/blog',
+    }
+  );
+
+  assert.equal(payload.cleanLeadType, 'content');
+  assert.equal(payload.cleanEmail, '');
+  assert.equal(payload.cleanWhatsapp, '11977776666');
+  assert.equal(payload.wantsEmailEbooks, false);
+  assert.equal(payload.wantsWhatsappNews, true);
+});
