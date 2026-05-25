@@ -193,6 +193,7 @@ As variáveis abaixo devem ficar na Vercel ou em um `.env` local não versionado
 | `ADMIN_SESSION_SECRET` | Segredo para assinar sessão admin |
 | `CRON_SECRET` | Segredo para rotas agendadas |
 | `NEWS_AGENT_LIMIT` | Limite opcional de itens no agente de notícias |
+| `WHATSAPP_NEWS_GROUP_URL` | Link real do grupo/canal de WhatsApp usado na captura de notícias |
 
 Em produção, configure `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`. Não use credenciais padrão para operar o painel administrativo.
 

@@ -97,6 +97,7 @@ function BlogPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [signupFeedback, setSignupFeedback] = useState({ tone: 'idle', message: '' });
+  const [whatsappGroupUrl, setWhatsappGroupUrl] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -146,6 +147,7 @@ function BlogPage() {
     }
 
     try {
+      setWhatsappGroupUrl('');
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -168,6 +170,8 @@ function BlogPage() {
         setSignupFeedback({ tone: 'error', message: payload.error || 'Nao foi possivel cadastrar agora. Tente novamente.' });
         return;
       }
+
+      setWhatsappGroupUrl(payload.whatsappGroupUrl || '');
 
       setSignupFeedback({
         tone: 'success',
@@ -315,7 +319,19 @@ function BlogPage() {
               </button>
 
               {signupFeedback.tone === 'success' && (
-                <p className="text-xs text-white">{signupFeedback.message}</p>
+                <div className="space-y-3">
+                  <p className="text-xs text-white">{signupFeedback.message}</p>
+                  {whatsappGroupUrl ? (
+                    <a
+                      href={whatsappGroupUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="brand-button-secondary inline-flex w-full items-center justify-center px-5 py-3 text-xs"
+                    >
+                      Abrir grupo do WhatsApp
+                    </a>
+                  ) : null}
+                </div>
               )}
               {signupFeedback.tone === 'error' && (
                 <p className="text-xs text-red-300">{signupFeedback.message}</p>

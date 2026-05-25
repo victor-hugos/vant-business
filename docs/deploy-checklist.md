@@ -36,6 +36,7 @@
 - [ ] Configurar `EMAIL_USER=admin@vant.business`
 - [ ] Configurar `EMAIL_PASS`
 - [ ] Configurar `CRON_SECRET`
+- [ ] Configurar `WHATSAPP_NEWS_GROUP_URL`
 - [ ] Configurar `ADMIN_EMAIL=admin@vant.business`
 - [ ] Configurar `ADMIN_PASSWORD`
 - [ ] Configurar `ADMIN_SESSION_SECRET`

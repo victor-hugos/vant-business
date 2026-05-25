@@ -18,6 +18,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const VICTOR_EMAIL = process.env.EMAIL_USER;
+const WHATSAPP_NEWS_GROUP_URL = process.env.WHATSAPP_NEWS_GROUP_URL || '';
 
 function escapeHtml(value = '') {
   return String(value)
@@ -138,7 +139,7 @@ function buildNewsPreviewHtml(items) {
   `;
 }
 
-function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, emailEbooksOptIn, whatsappNewsOptIn, newsItems, ebookUrl }) {
+function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, emailEbooksOptIn, whatsappNewsOptIn, newsItems, ebookUrl, whatsappGroupUrl }) {
   const previewItems = (newsItems || []).filter((item) => approvedStatuses.includes(item.status)).slice(0, 3);
   const safeName = escapeHtml(nome);
   const safeProductTitle = escapeHtml(productTitle);
@@ -146,7 +147,11 @@ function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, emailEbooksOptI
   const accessLines = [
     newsletterOptIn ? 'Voce entrou no canal diario de noticias de IA por email.' : null,
     emailEbooksOptIn ? 'Seu email foi registrado para receber ebooks gratuitos e oportunidades editoriais da VANT.' : null,
-    whatsappNewsOptIn ? 'Seu WhatsApp foi registrado para a trilha diaria de noticias de IA e para o envio do link do grupo quando ele for liberado.' : null,
+    whatsappNewsOptIn
+      ? whatsappGroupUrl
+        ? `Seu WhatsApp foi registrado para a trilha diaria de noticias de IA. Link do grupo: ${whatsappGroupUrl}`
+        : 'Seu WhatsApp foi registrado para a trilha diaria de noticias de IA e para o envio do link do grupo quando ele for liberado.'
+      : null,
   ].filter(Boolean);
 
   const accessHtml = accessLines.length
@@ -308,6 +313,7 @@ export default async function handler(req, res) {
           whatsappNewsOptIn: wantsWhatsappNews,
           newsItems: news.items || [],
           ebookUrl,
+          whatsappGroupUrl: WHATSAPP_NEWS_GROUP_URL,
         });
 
     const serviceDetailsHtml = cleanLeadType === 'service'
@@ -405,7 +411,10 @@ export default async function handler(req, res) {
         : []),
     ]);
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({
+      ok: true,
+      whatsappGroupUrl: wantsWhatsappNews && WHATSAPP_NEWS_GROUP_URL ? WHATSAPP_NEWS_GROUP_URL : null,
+    });
   } catch (err) {
     console.error('Subscribe error:', err);
     return res.status(500).json({ error: 'Falha ao processar inscrição' });
