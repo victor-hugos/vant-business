@@ -828,11 +828,11 @@ function AdminPublishingPage() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/admin-news-agent', {
+      const response = await fetch('/api/admin-news-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ limit: 20 }),
+        body: JSON.stringify({ action: 'collect_news', limit: 20 }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Falha ao buscar noticias');
@@ -882,11 +882,11 @@ function AdminPublishingPage() {
     }
 
     try {
-      const response = await fetch('/api/admin-newsletter-issue', {
+      const response = await fetch('/api/admin-news-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(issue),
+        body: JSON.stringify({ ...issue, type: 'newsletter_issue', issueType: issue.type, issueStatus: issue.status }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Falha ao salvar email');
