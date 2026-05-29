@@ -395,7 +395,9 @@ function NewsPanel({
   runningNewsAgent,
 }) {
   const sortedItems = useMemo(() => sortAdminNewsItems(items), [items]);
-  const selectedItems = sortedItems.filter((item) => selectedNewsIds.includes(item.id)).slice(0, 10);
+  const reviewItems = useMemo(() => sortedItems.filter((item) => !isPublished(item.status) && item.status !== 'reprovada'), [sortedItems]);
+  const approvedItems = useMemo(() => sortedItems.filter((item) => isPublished(item.status)), [sortedItems]);
+  const selectedItems = approvedItems.filter((item) => selectedNewsIds.includes(item.id)).slice(0, 10);
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -403,6 +405,43 @@ function NewsPanel({
 
   function updateNewsletter(field, value) {
     setNewsletterForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function renderNewsCard(item, { approved = false } = {}) {
+    const selected = selectedNewsIds.includes(item.id);
+    const selectClass = selected
+      ? 'rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition disabled:cursor-not-allowed disabled:opacity-50'
+      : 'rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50';
+
+    return (
+      <article key={item.id} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-white">{item.titlePt || item.title}</p>
+            <p className="mt-1 text-xs text-slate-500">{item.source || 'sem fonte'} · {formatDate(item.publishedAt || item.updatedAt)}</p>
+          </div>
+          <StatusPill tone={statusTone(item.status)}>{getAdminNewsStatusLabel(item.status)}</StatusPill>
+        </div>
+        {(item.summaryPt || item.summary) && <p className="mt-3 text-sm leading-relaxed text-slate-400">{item.summaryPt || item.summary}</p>}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button type="button" onClick={() => onEdit(item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
+            Editar
+          </button>
+          {approved ? (
+            <button type="button" onClick={() => onToggleEmailItem(item)} className={selectClass}>
+              {selected ? 'No email' : 'Incluir no email'}
+            </button>
+          ) : (
+            <button type="button" onClick={() => onSave('aprovada', item)} className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-300/15">
+              Publicar
+            </button>
+          )}
+          <button type="button" onClick={() => onSave('rascunho', item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
+            Voltar para rascunho
+          </button>
+        </div>
+      </article>
+    );
   }
 
   return (
@@ -413,7 +452,7 @@ function NewsPanel({
             <div>
               <p className="text-xs uppercase tracking-widest text-cyan-400">Noticias</p>
               <h2 className="mt-2 text-xl font-bold text-white">Criar ou editar noticia</h2>
-              <p className="mt-2 text-sm text-slate-500">Salvar como rascunho nao publica. Publicar libera no blog via Supabase.</p>
+              <p className="mt-2 text-sm text-slate-500">Salvar como rascunho nao publica. Publicar move a noticia para Aprovadas e libera no blog.</p>
             </div>
             <button type="button" onClick={onRunNewsAgent} disabled={runningNewsAgent || saving} className="rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-3 text-sm font-bold text-cyan-100 transition hover:bg-cyan-300/15 disabled:opacity-60">
               {runningNewsAgent ? 'Buscando...' : 'Buscar noticias'}
@@ -465,7 +504,7 @@ function NewsPanel({
             <div>
               <p className="text-xs uppercase tracking-widest text-cyan-400">Email programado</p>
               <h2 className="mt-2 text-xl font-bold text-white">Montar curadoria</h2>
-              <p className="mt-2 text-sm text-slate-500">Selecione ate 10 noticias publicadas para a proxima edicao.</p>
+              <p className="mt-2 text-sm text-slate-500">Escolha ate 10 noticias na area Aprovadas.</p>
             </div>
             <StatusPill tone={selectedItems.length === 10 ? 'emerald' : 'amber'}>{selectedItems.length}/10 itens</StatusPill>
           </div>
@@ -507,51 +546,43 @@ function NewsPanel({
         </section>
       </div>
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Fila de noticias</p>
-            <h2 className="mt-2 text-xl font-bold text-white">Rascunhos, revisao e publicadas</h2>
+      <div className="space-y-5">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-cyan-400">Para revisar</p>
+              <h2 className="mt-2 text-xl font-bold text-white">Rascunhos e aguardando avaliacao</h2>
+            </div>
+            <StatusPill tone="amber">{reviewItems.length} itens</StatusPill>
           </div>
-          <StatusPill tone="cyan">{sortedItems.length} itens</StatusPill>
-        </div>
 
-        <div className="mt-5 space-y-3">
-          {sortedItems.map((item) => {
-            const selected = selectedNewsIds.includes(item.id);
-            const canSelect = isPublished(item.status);
-            const selectClass = selected
-              ? 'rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition disabled:cursor-not-allowed disabled:opacity-50'
-              : 'rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50';
-            return (
-              <article key={item.id} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-white">{item.titlePt || item.title}</p>
-                    <p className="mt-1 text-xs text-slate-500">{item.source || 'sem fonte'} · {formatDate(item.publishedAt || item.updatedAt)}</p>
-                  </div>
-                  <StatusPill tone={statusTone(item.status)}>{getAdminNewsStatusLabel(item.status)}</StatusPill>
-                </div>
-                {(item.summaryPt || item.summary) && <p className="mt-3 text-sm leading-relaxed text-slate-400">{item.summaryPt || item.summary}</p>}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => onEdit(item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
-                    Editar
-                  </button>
-                  <button type="button" onClick={() => onSave('aprovada', item)} className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-300/15">
-                    Publicar
-                  </button>
-                  <button type="button" onClick={() => onToggleEmailItem(item)} disabled={!canSelect && !selected} className={selectClass}>
-                    {selected ? 'No email' : 'Incluir no email'}
-                  </button>
-                  <button type="button" onClick={() => onSave('rascunho', item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
-                    Voltar para rascunho
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+          <div className="mt-5 space-y-3">
+            {reviewItems.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">Nao ha noticias pendentes de avaliacao.</p>
+            ) : (
+              reviewItems.map((item) => renderNewsCard(item))
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-emerald-300">Aprovadas</p>
+              <h2 className="mt-2 text-xl font-bold text-white">Publicadas e disponiveis para email</h2>
+            </div>
+            <StatusPill tone="emerald">{approvedItems.length} itens</StatusPill>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {approvedItems.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">Publique uma noticia para ela aparecer aqui.</p>
+            ) : (
+              approvedItems.map((item) => renderNewsCard(item, { approved: true }))
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
