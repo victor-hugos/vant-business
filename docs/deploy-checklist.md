@@ -39,6 +39,7 @@
 - [ ] Configurar `ADMIN_EMAIL=admin@vant.business`
 - [ ] Configurar `ADMIN_PASSWORD`
 - [ ] Configurar `ADMIN_SESSION_SECRET`
+- [ ] Configurar `VITE_VANT_WHATSAPP_NUMBER` com numero internacional da VANT, exemplo `5561981663028`
 - [ ] Publicar deploy
 - [ ] Testar URL gerada
 - [ ] Conectar domínio vant.business

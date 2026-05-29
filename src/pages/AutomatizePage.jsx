@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import VantLogo from '../components/VantLogo.jsx';
+import { buildBriefingWhatsAppUrl } from '../utils/briefingWhatsApp.js';
+
+const defaultVantWhatsAppNumber = '5561981663028';
 
 const serviceOptions = [
   'Identidade digital',
@@ -56,30 +59,49 @@ function AutomatizePage() {
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [deliveryWarning, setDeliveryWarning] = useState('');
+  const [whatsAppUrl, setWhatsAppUrl] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    setDeliveryWarning('');
     setIsSubmitting(true);
 
     const form = e.target;
     const data = new FormData(form);
 
-    const payload = {
+    const formValues = {
       nome: data.get('nome'),
+      empresa: data.get('empresa'),
       email: data.get('email'),
       whatsapp: data.get('whatsapp'),
+      solucao: data.get('solucao'),
+      momento: data.get('momento'),
+      objetivo: data.get('objetivo'),
+      orcamento: data.get('orcamento'),
+      descricao: data.get('descricao'),
+    };
+    const nextWhatsAppUrl = buildBriefingWhatsAppUrl(
+      formValues,
+      import.meta.env.VITE_VANT_WHATSAPP_NUMBER || defaultVantWhatsAppNumber
+    );
+
+    const payload = {
+      nome: formValues.nome,
+      email: formValues.email,
+      whatsapp: formValues.whatsapp,
       ebook: 'solucoes-digitais',
       productTitle: 'Identidade digital e solucoes digitais',
       leadType: 'service',
       source: 'digital-solutions-page',
       metadata: {
-        businessName: data.get('empresa'),
-        solutionType: data.get('solucao'),
-        mainGoal: data.get('objetivo'),
-        projectStage: data.get('momento'),
-        budgetRange: data.get('orcamento'),
-        message: data.get('descricao'),
+        businessName: formValues.empresa,
+        solutionType: formValues.solucao,
+        mainGoal: formValues.objetivo,
+        projectStage: formValues.momento,
+        budgetRange: formValues.orcamento,
+        message: formValues.descricao,
       },
     };
 
@@ -95,10 +117,14 @@ function AutomatizePage() {
         throw new Error(result.error || 'Nao foi possivel enviar agora.');
       }
 
+      setWhatsAppUrl(nextWhatsAppUrl);
       form.reset();
       setSent(true);
     } catch (err) {
-      setError(err.message || 'Nao foi possivel enviar agora.');
+      setWhatsAppUrl(nextWhatsAppUrl);
+      setDeliveryWarning('Nao consegui registrar automaticamente agora, mas seu briefing ja esta pronto para continuar pelo WhatsApp.');
+      form.reset();
+      setSent(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -182,10 +208,29 @@ function AutomatizePage() {
                 Vou analisar sua necessidade e responder com a direcao mais coerente para posicionamento,
                 presenca digital ou solucao operacional da sua empresa.
               </p>
+              {deliveryWarning ? (
+                <p className="mt-5 max-w-md rounded-2xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
+                  {deliveryWarning}
+                </p>
+              ) : null}
+              {whatsAppUrl ? (
+                <a
+                  href={whatsAppUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="brand-button-primary mt-7 px-7 py-3 text-xs"
+                >
+                  Continuar no WhatsApp
+                </a>
+              ) : null}
               <button
                 type="button"
-                onClick={() => setSent(false)}
-                className="brand-button-secondary mt-7 px-6 py-3 text-xs"
+                onClick={() => {
+                  setSent(false);
+                  setDeliveryWarning('');
+                  setWhatsAppUrl('');
+                }}
+                className="brand-button-secondary mt-3 px-6 py-3 text-xs"
               >
                 Enviar outro briefing
               </button>

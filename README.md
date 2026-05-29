@@ -192,6 +192,7 @@ As variáveis abaixo devem ficar na Vercel ou em um `.env` local não versionado
 | `ADMIN_ACCESS_CODE` | Alternativa para senha admin |
 | `ADMIN_SESSION_SECRET` | Segredo para assinar sessão admin |
 | `CRON_SECRET` | Segredo para rotas agendadas |
+| `VITE_VANT_WHATSAPP_NUMBER` | Numero da VANT em formato internacional, exemplo `5561981663028`, para abrir o briefing direto no WhatsApp |
 | `NEWS_AGENT_LIMIT` | Limite opcional de itens no agente de notícias |
 
 Em produção, configure `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`. Não use credenciais padrão para operar o painel administrativo.

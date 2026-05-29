@@ -99,3 +99,44 @@ test('normalizes newsletter leads without requiring whatsapp for editorial captu
   assert.equal(payload.cleanWhatsapp, '');
   assert.equal(payload.wantsNewsletter, true);
 });
+
+import {
+  buildBriefingWhatsAppMessage,
+  buildBriefingWhatsAppUrl,
+  normalizeWhatsAppNumber,
+} from '../src/utils/briefingWhatsApp.js';
+
+test('builds a WhatsApp briefing message from the service form fields', () => {
+  const message = buildBriefingWhatsAppMessage({
+    nome: 'Cliente VANT',
+    empresa: 'Studio Exemplo',
+    email: 'cliente@example.com',
+    whatsapp: '(11) 99999-9999',
+    solucao: 'Site profissional',
+    momento: 'Ja tenho algo, mas preciso melhorar',
+    objetivo: 'Gerar mais contatos e oportunidades',
+    orcamento: 'R$ 1.500 a R$ 3.000',
+    descricao: 'Preciso organizar minha presenca digital.',
+  });
+
+  assert.match(message, /VANT\.Business/);
+  assert.match(message, /Nome: Cliente VANT/);
+  assert.match(message, /Empresa\/projeto: Studio Exemplo/);
+  assert.match(message, /Solucao: Site profissional/);
+  assert.match(message, /Briefing:\nPreciso organizar minha presenca digital\./);
+});
+
+test('builds a WhatsApp URL with an optional target number and encoded briefing', () => {
+  const url = buildBriefingWhatsAppUrl(
+    {
+      nome: 'Cliente VANT',
+      empresa: 'Studio Exemplo',
+      descricao: 'Quero conversar sobre o projeto.',
+    },
+    '+55 (11) 99999-0000'
+  );
+
+  assert.equal(normalizeWhatsAppNumber('+55 (11) 99999-0000'), '5511999990000');
+  assert.ok(url.startsWith('https://wa.me/5511999990000?text='));
+  assert.ok(decodeURIComponent(url).includes('Empresa/projeto: Studio Exemplo'));
+});
