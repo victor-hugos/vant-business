@@ -131,12 +131,11 @@ function EbookPage() {
             </div>
             <div>
               <label className="block text-sm text-[#c9c9c9] mb-1.5" htmlFor="whatsapp">
-                WhatsApp com DDD
+                WhatsApp com DDD <span className="text-[#6f6f6f]">(opcional)</span>
               </label>
               <input
                 id="whatsapp"
                 type="tel"
-                required
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
                 placeholder="(11) 99999-9999"

@@ -93,6 +93,25 @@ export async function readStaticNews(req) {
   }
 }
 
+export function resolvePublicNewsGeneratedAt(staticGeneratedAt, items = []) {
+  const candidates = [
+    staticGeneratedAt,
+    ...items.flatMap((item) => [item.updatedAt, item.reviewedAt, item.publishedAt, item.createdAt]),
+  ].filter(Boolean);
+
+  let freshestValue = null;
+  let freshestTime = -Infinity;
+
+  candidates.forEach((value) => {
+    const time = new Date(value).getTime();
+    if (Number.isNaN(time) || time <= freshestTime) return;
+    freshestTime = time;
+    freshestValue = value;
+  });
+
+  return freshestValue;
+}
+
 export async function getNewsItems(req) {
   const staticNews = await readStaticNews(req);
   const itemsById = new Map((staticNews.items || []).map((item) => [item.id, item]));
@@ -115,16 +134,18 @@ export async function getNewsItems(req) {
     }
   }
 
+  const items = [...itemsById.values()].sort((a, b) => {
+    const aTime = new Date(a.publishedAt || 0).getTime();
+    const bTime = new Date(b.publishedAt || 0).getTime();
+    if (bTime !== aTime) return bTime - aTime;
+    return (a.rank || 999) - (b.rank || 999);
+  });
+
   return {
-    generatedAt: staticNews.generatedAt || null,
+    generatedAt: resolvePublicNewsGeneratedAt(staticNews.generatedAt || null, items),
     reviewStatus: staticNews.reviewStatus || 'aguardando_avaliacao',
     warnings,
-    items: [...itemsById.values()].sort((a, b) => {
-      const aTime = new Date(a.publishedAt || 0).getTime();
-      const bTime = new Date(b.publishedAt || 0).getTime();
-      if (bTime !== aTime) return bTime - aTime;
-      return (a.rank || 999) - (b.rank || 999);
-    }),
+    items,
   };
 }
 
