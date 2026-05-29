@@ -8,6 +8,7 @@ const localAuthKey = 'vant_admin_local_auth';
 const localNewsItemsKey = 'vant_admin_news_items';
 const localNewsStatusesKey = 'vant_admin_news_statuses';
 const localToolsKey = 'vant_admin_tools';
+const localNewsletterIssuesKey = 'vant_admin_newsletter_issues';
 
 const newsStatuses = [
   { value: 'rascunho', label: 'Rascunho' },
@@ -33,6 +34,14 @@ const emptyNewsForm = {
   summaryPt: '',
   summary: '',
   status: 'rascunho',
+};
+
+const emptyNewsletterForm = {
+  subject: 'Curadoria VANT Business',
+  intro: '',
+  type: 'curadoria',
+  status: 'agendada',
+  scheduledAt: '',
 };
 
 const emptyToolForm = {
@@ -369,95 +378,178 @@ function ClicksPanel({ clicks }) {
   );
 }
 
-function NewsPanel({ items, form, setForm, onSave, onEdit, saving }) {
+function NewsPanel({
+  items,
+  form,
+  setForm,
+  onSave,
+  onEdit,
+  saving,
+  selectedNewsIds,
+  onToggleEmailItem,
+  newsletterForm,
+  setNewsletterForm,
+  newsletterIssues,
+  onSaveNewsletter,
+  onRunNewsAgent,
+  runningNewsAgent,
+}) {
   const sortedItems = useMemo(() => sortAdminNewsItems(items), [items]);
+  const selectedItems = sortedItems.filter((item) => selectedNewsIds.includes(item.id)).slice(0, 10);
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function updateNewsletter(field, value) {
+    setNewsletterForm((current) => ({ ...current, [field]: value }));
+  }
+
   return (
     <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-cyan-400">Noticias</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Criar ou editar noticia</h2>
-          <p className="mt-2 text-sm text-slate-500">Salvar como rascunho nao publica. Publicar aparece no blog.</p>
-        </div>
-
-        <form className="mt-5 space-y-4" onSubmit={(event) => event.preventDefault()}>
-          <Field label="Titulo em portugues">
-            <TextInput value={form.titlePt} onChange={(event) => update('titlePt', event.target.value)} placeholder="Ex: OpenAI lanca..." />
-          </Field>
-          <Field label="Link da fonte">
-            <TextInput value={form.link} onChange={(event) => update('link', event.target.value)} placeholder="https://..." />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Fonte">
-              <TextInput value={form.source} onChange={(event) => update('source', event.target.value)} placeholder="OpenAI, Google, The Verge..." />
-            </Field>
-            <Field label="Categoria">
-              <TextInput value={form.category} onChange={(event) => update('category', event.target.value)} placeholder="IA" />
-            </Field>
-          </div>
-          <Field label="Resumo">
-            <TextArea value={form.summaryPt} onChange={(event) => update('summaryPt', event.target.value)} placeholder="Resumo curto para o blog." />
-          </Field>
-          <Field label="Status">
-            <SelectInput value={form.status} onChange={(event) => update('status', event.target.value)}>
-              {newsStatuses.map((status) => (
-                <option key={status.value} value={status.value}>{status.label}</option>
-              ))}
-            </SelectInput>
-          </Field>
-
-          <div className="grid gap-2 sm:grid-cols-3">
-            <button type="button" onClick={() => onSave('rascunho')} disabled={saving} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-bold text-slate-200 transition hover:border-white/30 disabled:opacity-60">
-              Salvar rascunho
-            </button>
-            <button type="button" onClick={() => onSave('aguardando_avaliacao')} disabled={saving} className="rounded-xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm font-bold text-amber-100 transition hover:bg-amber-300/15 disabled:opacity-60">
-              Revisar depois
-            </button>
-            <button type="button" onClick={() => onSave('aprovada')} disabled={saving} className="rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60">
-              Publicar
+      <div className="space-y-5">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-cyan-400">Noticias</p>
+              <h2 className="mt-2 text-xl font-bold text-white">Criar ou editar noticia</h2>
+              <p className="mt-2 text-sm text-slate-500">Salvar como rascunho nao publica. Publicar libera no blog via Supabase.</p>
+            </div>
+            <button type="button" onClick={onRunNewsAgent} disabled={runningNewsAgent || saving} className="rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-3 text-sm font-bold text-cyan-100 transition hover:bg-cyan-300/15 disabled:opacity-60">
+              {runningNewsAgent ? 'Buscando...' : 'Buscar noticias'}
             </button>
           </div>
-        </form>
-      </section>
+
+          <form className="mt-5 space-y-4" onSubmit={(event) => event.preventDefault()}>
+            <Field label="Titulo em portugues">
+              <TextInput value={form.titlePt} onChange={(event) => update('titlePt', event.target.value)} placeholder="Ex: OpenAI lanca..." />
+            </Field>
+            <Field label="Link da fonte">
+              <TextInput value={form.link} onChange={(event) => update('link', event.target.value)} placeholder="https://..." />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Fonte">
+                <TextInput value={form.source} onChange={(event) => update('source', event.target.value)} placeholder="OpenAI, Google, The Verge..." />
+              </Field>
+              <Field label="Categoria">
+                <TextInput value={form.category} onChange={(event) => update('category', event.target.value)} placeholder="IA" />
+              </Field>
+            </div>
+            <Field label="Resumo">
+              <TextArea value={form.summaryPt} onChange={(event) => update('summaryPt', event.target.value)} placeholder="Resumo curto para o blog." />
+            </Field>
+            <Field label="Status">
+              <SelectInput value={form.status} onChange={(event) => update('status', event.target.value)}>
+                {newsStatuses.map((status) => (
+                  <option key={status.value} value={status.value}>{status.label}</option>
+                ))}
+              </SelectInput>
+            </Field>
+
+            <div className="grid gap-2 sm:grid-cols-3">
+              <button type="button" onClick={() => onSave('rascunho')} disabled={saving} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-bold text-slate-200 transition hover:border-white/30 disabled:opacity-60">
+                Salvar rascunho
+              </button>
+              <button type="button" onClick={() => onSave('aguardando_avaliacao')} disabled={saving} className="rounded-xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm font-bold text-amber-100 transition hover:bg-amber-300/15 disabled:opacity-60">
+                Revisar depois
+              </button>
+              <button type="button" onClick={() => onSave('aprovada')} disabled={saving} className="rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60">
+                Publicar
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-cyan-400">Email programado</p>
+              <h2 className="mt-2 text-xl font-bold text-white">Montar curadoria</h2>
+              <p className="mt-2 text-sm text-slate-500">Selecione ate 10 noticias publicadas para a proxima edicao.</p>
+            </div>
+            <StatusPill tone={selectedItems.length === 10 ? 'emerald' : 'amber'}>{selectedItems.length}/10 itens</StatusPill>
+          </div>
+
+          <div className="mt-5 space-y-4">
+            <Field label="Assunto do email">
+              <TextInput value={newsletterForm.subject} onChange={(event) => updateNewsletter('subject', event.target.value)} placeholder="Curadoria VANT Business" />
+            </Field>
+            <Field label="Introducao">
+              <TextArea value={newsletterForm.intro} onChange={(event) => updateNewsletter('intro', event.target.value)} placeholder="Texto curto antes da lista." />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Tipo">
+                <SelectInput value={newsletterForm.type} onChange={(event) => updateNewsletter('type', event.target.value)}>
+                  <option value="curadoria">Curadoria</option>
+                  <option value="ebook">Ebook</option>
+                </SelectInput>
+              </Field>
+              <Field label="Enviar em">
+                <TextInput type="datetime-local" value={newsletterForm.scheduledAt} onChange={(event) => updateNewsletter('scheduledAt', event.target.value)} />
+              </Field>
+            </div>
+            <button type="button" onClick={onSaveNewsletter} disabled={saving || selectedItems.length === 0} className="w-full rounded-xl bg-emerald-300 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-200 disabled:opacity-60">
+              Armazenar selecao para email
+            </button>
+          </div>
+
+          <div className="mt-5 space-y-2">
+            {(newsletterIssues || []).slice(0, 3).map((issue) => (
+              <div key={issue.id} className="rounded-xl border border-white/10 bg-slate-950/50 p-3 text-sm text-slate-300">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-semibold text-white">{issue.subject}</span>
+                  <StatusPill tone={issue.status === 'agendada' ? 'emerald' : 'slate'}>{issue.status}</StatusPill>
+                </div>
+                <p className="mt-1 text-xs text-slate-500">{issue.items?.length || 0} itens · {formatDate(issue.scheduledAt)}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest text-cyan-400">Fila de noticias</p>
-            <h2 className="mt-2 text-xl font-bold text-white">Rascunhos e publicadas</h2>
+            <h2 className="mt-2 text-xl font-bold text-white">Rascunhos, revisao e publicadas</h2>
           </div>
           <StatusPill tone="cyan">{sortedItems.length} itens</StatusPill>
         </div>
 
         <div className="mt-5 space-y-3">
-          {sortedItems.map((item) => (
-            <article key={item.id} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-white">{item.titlePt || item.title}</p>
-                  <p className="mt-1 text-xs text-slate-500">{item.source || 'sem fonte'} · {formatDate(item.publishedAt || item.updatedAt)}</p>
+          {sortedItems.map((item) => {
+            const selected = selectedNewsIds.includes(item.id);
+            const canSelect = isPublished(item.status);
+            const selectClass = selected
+              ? 'rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition disabled:cursor-not-allowed disabled:opacity-50'
+              : 'rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50';
+            return (
+              <article key={item.id} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{item.titlePt || item.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">{item.source || 'sem fonte'} · {formatDate(item.publishedAt || item.updatedAt)}</p>
+                  </div>
+                  <StatusPill tone={statusTone(item.status)}>{getAdminNewsStatusLabel(item.status)}</StatusPill>
                 </div>
-                <StatusPill tone={statusTone(item.status)}>{getAdminNewsStatusLabel(item.status)}</StatusPill>
-              </div>
-              {(item.summaryPt || item.summary) && <p className="mt-3 text-sm leading-relaxed text-slate-400">{item.summaryPt || item.summary}</p>}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => onEdit(item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
-                  Editar
-                </button>
-                <button type="button" onClick={() => onSave('aprovada', item)} className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-300/15">
-                  Publicar
-                </button>
-                <button type="button" onClick={() => onSave('rascunho', item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
-                  Voltar para rascunho
-                </button>
-              </div>
-            </article>
-          ))}
+                {(item.summaryPt || item.summary) && <p className="mt-3 text-sm leading-relaxed text-slate-400">{item.summaryPt || item.summary}</p>}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => onEdit(item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
+                    Editar
+                  </button>
+                  <button type="button" onClick={() => onSave('aprovada', item)} className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-300/15">
+                    Publicar
+                  </button>
+                  <button type="button" onClick={() => onToggleEmailItem(item)} disabled={!canSelect && !selected} className={selectClass}>
+                    {selected ? 'No email' : 'Incluir no email'}
+                  </button>
+                  <button type="button" onClick={() => onSave('rascunho', item)} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:text-white">
+                    Voltar para rascunho
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
     </div>
@@ -587,7 +679,10 @@ function AdminPublishingPage() {
   const [data, setData] = useState(null);
   const [newsForm, setNewsForm] = useState(emptyNewsForm);
   const [toolForm, setToolForm] = useState(emptyToolForm);
+  const [newsletterForm, setNewsletterForm] = useState(emptyNewsletterForm);
+  const [selectedNewsIds, setSelectedNewsIds] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [runningNewsAgent, setRunningNewsAgent] = useState(false);
   const [message, setMessage] = useState('');
 
   async function loadLocalData() {
@@ -611,6 +706,7 @@ function AdminPublishingPage() {
       subscribers: [],
       newsItems: mergeById(staticNews, localNews),
       tools,
+      newsletterIssues: readJson(localNewsletterIssuesKey, []),
       warnings: ['Modo local: rascunhos ficam no navegador. No preview da Vercel, a publicacao usa API/Supabase.'],
     });
     setAuth('ok');
@@ -635,6 +731,7 @@ function AdminPublishingPage() {
       setData({
         ...payload,
         tools: payload.tools || staticTools.map((tool) => normalizeToolForm({ ...tool, status: 'publicada' }, 'publicada')),
+        newsletterIssues: payload.newsletterIssues || [],
       });
       setAuth('ok');
       return true;
@@ -703,6 +800,102 @@ function AdminPublishingPage() {
       upsertStateItem('newsItems', payload.item);
       setNewsForm(payload.item);
       setMessage(status === 'aprovada' ? 'Noticia publicada no blog.' : 'Noticia salva.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function toggleEmailItem(item) {
+    if (!isPublished(item.status) && !selectedNewsIds.includes(item.id)) {
+      setMessage('Publique a noticia antes de incluir no email.');
+      return;
+    }
+
+    setSelectedNewsIds((current) => {
+      if (current.includes(item.id)) return current.filter((id) => id !== item.id);
+      if (current.length >= 10) {
+        setMessage('A edicao de email aceita no maximo 10 noticias.');
+        return current;
+      }
+      return [...current, item.id];
+    });
+  }
+
+  async function runNewsAgent() {
+    setRunningNewsAgent(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('/api/admin-news-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ limit: 20 }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'Falha ao buscar noticias');
+
+      setData((current) => ({
+        ...current,
+        newsItems: mergeById(current?.newsItems || [], payload.items || []),
+        warnings: [...(current?.warnings || []), ...(payload.failedSources || []).map((item) => item.source + ': ' + item.error)],
+      }));
+      setMessage(payload.stored + ' noticias novas/atualizadas entraram para avaliacao.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setRunningNewsAgent(false);
+    }
+  }
+
+  async function saveNewsletterIssue() {
+    const selectedItems = (data?.newsItems || []).filter((item) => selectedNewsIds.includes(item.id)).slice(0, 10);
+    if (selectedItems.length === 0) {
+      setMessage('Selecione noticias publicadas para montar o email.');
+      return;
+    }
+
+    const issue = {
+      ...newsletterForm,
+      status: 'agendada',
+      items: selectedItems,
+    };
+
+    setSaving(true);
+    setMessage('');
+
+    if (data?.localPreview) {
+      const current = readJson(localNewsletterIssuesKey, []);
+      const localIssue = {
+        ...issue,
+        id: issue.id || slugify((issue.subject || 'curadoria') + '-' + new Date().toISOString()),
+        items: selectedItems,
+      };
+      saveJson(localNewsletterIssuesKey, [localIssue, ...current.filter((item) => item.id !== localIssue.id)]);
+      setData((currentData) => ({ ...currentData, newsletterIssues: [localIssue, ...(currentData.newsletterIssues || [])] }));
+      setSelectedNewsIds([]);
+      setSaving(false);
+      setMessage('Selecao armazenada no modo local.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin-newsletter-issue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(issue),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'Falha ao salvar email');
+      setData((current) => ({
+        ...current,
+        newsletterIssues: [payload.issue, ...(current.newsletterIssues || []).filter((item) => item.id !== payload.issue.id)],
+      }));
+      setSelectedNewsIds([]);
+      setMessage('Edicao com ' + payload.issue.items.length + ' itens armazenada para envio programado.');
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -808,8 +1001,8 @@ function AdminPublishingPage() {
           <StatCard label="Leads" value={metrics.leads} hint="briefings e contatos" />
           <StatCard label="Noticias publicadas" value={metrics.publishedNews} hint={`${metrics.draftNews} em rascunho/revisao`} />
           <StatCard label="Ferramentas publicadas" value={metrics.publishedTools} hint={`${metrics.draftTools} em rascunho/revisao`} />
-          <StatCard label="Admin" value="4" hint="cliques, leads, noticias, ferramentas" />
-          <StatCard label="Publicacao" value="Site" hint="blog e /recursos" />
+          <StatCard label="Emails" value={data.newsletterIssues?.length || 0} hint="edicoes armazenadas" />
+          <StatCard label="Publicacao" value="Site" hint="blog, recursos e newsletter" />
         </div>
       </header>
 
@@ -831,6 +1024,14 @@ function AdminPublishingPage() {
           onSave={saveNews}
           onEdit={(item) => setNewsForm(normalizeNewsForm(item, item.status))}
           saving={saving}
+          selectedNewsIds={selectedNewsIds}
+          onToggleEmailItem={toggleEmailItem}
+          newsletterForm={newsletterForm}
+          setNewsletterForm={setNewsletterForm}
+          newsletterIssues={data.newsletterIssues || []}
+          onSaveNewsletter={saveNewsletterIssue}
+          onRunNewsAgent={runNewsAgent}
+          runningNewsAgent={runningNewsAgent}
         />
       )}
       {activeTab === 'tools' && (

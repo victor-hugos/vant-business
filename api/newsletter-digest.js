@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import { approvedStatuses, getNewsItems } from './_newsStore.js';
+import { getNewsletterIssues, markNewsletterIssueSent, selectDigestIssue } from './_newsletterStore.js';
 
 const supabase =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
@@ -51,9 +52,7 @@ export function selectDigestRecipients(subscribers = []) {
     const existing = uniqueRecipients.get(email);
     const shouldReplace =
       (currentRecipient._isNewsletter && !existing._isNewsletter) ||
-      (currentRecipient._isNewsletter === existing._isNewsletter &&
-        currentRecipient._hasRealName &&
-        !existing._hasRealName);
+      (currentRecipient._isNewsletter === existing._isNewsletter && currentRecipient._hasRealName && !existing._hasRealName);
 
     if (shouldReplace) {
       uniqueRecipients.set(email, currentRecipient);
@@ -63,8 +62,8 @@ export function selectDigestRecipients(subscribers = []) {
   return Array.from(uniqueRecipients.values()).map(({ nome, email }) => ({ nome, email }));
 }
 
-function buildDigestHtml(nome, items) {
-  const newsHtml = items
+function buildDigestHtml(nome, digest) {
+  const newsHtml = digest.items
     .map(
       (item) => `
         <li style="margin:0 0 18px;padding:0 0 18px;border-bottom:1px solid #e2e8f0;">
@@ -75,12 +74,15 @@ function buildDigestHtml(nome, items) {
       `
     )
     .join('');
+  const introHtml = digest.intro
+    ? `<p style="margin:0 0 24px;color:#475569;font-size:14px;line-height:1.6;">${escapeHtml(digest.intro)}</p>`
+    : '<p style="margin:0 0 24px;color:#475569;font-size:14px;line-height:1.6;">Curadoria automatizada e revisada antes do envio para manter o canal objetivo.</p>';
 
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
       <p style="margin:0 0 8px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">VANT Business</p>
-      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">${escapeHtml(nome)}, estas sao as 10 noticias de IA de hoje</h1>
-      <p style="margin:0 0 24px;color:#475569;font-size:14px;line-height:1.6;">Curadoria automatizada e revisada antes do envio para manter o canal objetivo.</p>
+      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">${escapeHtml(nome)}, ${escapeHtml(digest.subject)}</h1>
+      ${introHtml}
       <ol style="margin:0;padding-left:20px;">${newsHtml}</ol>
       <p style="margin:24px 0 0;color:#64748b;font-size:12px;line-height:1.6;">
         Voce recebeu este email porque entrou no canal de noticias da VANT Business.
@@ -109,14 +111,15 @@ export default async function handler(req, res) {
   try {
     const news = await getNewsItems(req);
     const approved = (news.items || []).filter((item) => approvedStatuses.includes(item.status));
-    const digestItems = approved.slice(0, 10);
+    const issueResult = await getNewsletterIssues();
+    const digest = selectDigestIssue({ issues: issueResult.issues || [], approvedNews: approved });
 
-    if (digestItems.length === 0) {
+    if (digest.items.length === 0) {
       return res.status(200).json({
         ok: true,
         sent: 0,
         skipped: true,
-        reason: 'Nenhuma noticia aprovada para envio.',
+        reason: 'Nenhuma noticia aprovada ou edicao agendada para envio.',
         availableForReview: (news.items || []).length,
       });
     }
@@ -136,19 +139,25 @@ export default async function handler(req, res) {
           transporter.sendMail({
             from: `"VANT Business" <${VICTOR_EMAIL}>`,
             to: subscriber.email,
-            subject: 'As 10 melhores noticias de IA de hoje',
-            html: buildDigestHtml(subscriber.nome, digestItems),
+            subject: digest.subject,
+            html: buildDigestHtml(subscriber.nome, digest),
           })
         )
       );
+
+      if (digest.source === 'issue' && digest.issue?.id) {
+        await markNewsletterIssueSent(digest.issue.id);
+      }
     }
 
     return res.status(200).json({
       ok: true,
       dryRun,
+      source: digest.source,
+      issueId: digest.issue?.id || null,
       sent: dryRun ? 0 : recipients.length,
       recipients: recipients.length,
-      news: digestItems.length,
+      news: digest.items.length,
     });
   } catch (error) {
     console.error('Newsletter digest error:', error);

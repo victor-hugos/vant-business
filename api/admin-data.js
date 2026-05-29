@@ -4,6 +4,7 @@ import { isAdminRequest } from './_adminAuth.js';
 import { getSupabaseAdmin } from './_supabaseAdmin.js';
 import { getNewsItems } from './_newsStore.js';
 import { getToolItems } from './_toolsStore.js';
+import { getNewsletterIssues } from './_newsletterStore.js';
 import { affiliateTools, agentSchedule, ebookTools } from '../src/data/aiPipeline.js';
 
 export const agentWorkflow = [
@@ -53,6 +54,7 @@ async function fetchAdminRows(req) {
   const news = await getNewsItems(req);
   const tools = await getToolItems();
   const seedResponses = await loadSeedAgentResponses();
+  const newsletterResult = await getNewsletterIssues();
 
   if (!supabase) {
     return {
@@ -60,6 +62,7 @@ async function fetchAdminRows(req) {
       agentResponses: seedResponses,
       newsItems: news.items,
       tools: tools.items,
+      newsletterIssues: newsletterResult.issues || [],
       warnings: ['Supabase ainda nao configurado no ambiente.', ...(tools.warnings || [])],
     };
   }
@@ -91,6 +94,7 @@ async function fetchAdminRows(req) {
     agentResponses,
     newsItems: news.items,
     tools: tools.items,
+    newsletterIssues: newsletterResult.issues || [],
     warnings: [
       clicksResult.error?.message,
       subscribersResult.error?.message,
