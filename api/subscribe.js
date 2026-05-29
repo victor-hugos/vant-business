@@ -19,6 +19,18 @@ const transporter = nodemailer.createTransport({
 
 const VICTOR_EMAIL = process.env.EMAIL_USER;
 
+export function buildEmailBrandHeaderHtml() {
+  return `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <img src="https://vant.business/assets/vant-logo-black.png" alt="VANT Business" width="44" height="44" style="display:block;border-radius:10px;object-fit:contain;" />
+      <div>
+        <p style="margin:0;color:#0f172a;font-size:14px;font-weight:800;letter-spacing:.04em;">VANT Business</p>
+        <p style="margin:3px 0 0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">IA · Automacao · Presenca digital</p>
+      </div>
+    </div>
+  `;
+}
+
 function escapeHtml(value = '') {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -140,7 +152,7 @@ function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, eboo
 
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
-      <p style="margin:0 0 8px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">VANT Business</p>
+      ${buildEmailBrandHeaderHtml()}
       <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">Ola, ${safeName}</h1>
       <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
         Seu cadastro foi confirmado e a curadoria da VANT Business já começou a trabalhar para voce.
@@ -175,7 +187,7 @@ function buildServiceConfirmationHtml(nome, { productTitle }) {
 
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:620px;margin:0 auto;padding:28px;background:#f8fafc;color:#0f172a;">
-      <p style="margin:0 0 8px;color:#0891b2;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">VANT Business</p>
+      ${buildEmailBrandHeaderHtml()}
       <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;">Ola, ${safeName}</h1>
       <p style="margin:0;color:#475569;font-size:14px;line-height:1.65;">
         Recebi seu briefing para <strong>${safeProductTitle}</strong>. Vou analisar o contexto do seu negocio e responder com o melhor proximo passo.
@@ -284,6 +296,10 @@ export default async function handler(req, res) {
                 <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.businessName || '-')}</td>
               </tr>
               <tr>
+                <td style="padding:8px 0;color:#64748b;">Instagram</td>
+                <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.instagramHandle || '-')}</td>
+              </tr>
+              <tr>
                 <td style="padding:8px 0;color:#64748b;">Solucao</td>
                 <td style="padding:8px 0;color:#475569;">${escapeHtml(metadata.solutionType || '-')}</td>
               </tr>
@@ -311,6 +327,7 @@ export default async function handler(req, res) {
         subject: `Novo lead VANT - ${cleanProductTitle}`,
         html: `
           <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+            ${buildEmailBrandHeaderHtml()}
             <h2 style="color:#0f172a;margin-bottom:16px;">Novo lead captado</h2>
             <table style="width:100%;border-collapse:collapse;font-size:14px;">
               <tr>

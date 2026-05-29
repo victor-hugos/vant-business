@@ -74,6 +74,7 @@ function AutomatizePage() {
     const formValues = {
       nome: data.get('nome'),
       empresa: data.get('empresa'),
+      instagram: data.get('instagram'),
       email: data.get('email'),
       whatsapp: data.get('whatsapp'),
       solucao: data.get('solucao'),
@@ -97,6 +98,7 @@ function AutomatizePage() {
       source: 'digital-solutions-page',
       metadata: {
         businessName: formValues.empresa,
+        instagramHandle: formValues.instagram,
         solutionType: formValues.solucao,
         mainGoal: formValues.objetivo,
         projectStage: formValues.momento,
@@ -254,7 +256,7 @@ function AutomatizePage() {
             </div>
 
             <form id="briefing-form" onSubmit={handleSubmit} className="brand-card flex flex-col gap-3.5 rounded-[1.8rem] p-4 sm:p-5">
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
                   <label className={labelClassName} htmlFor="nome">Seu nome</label>
                   <input
@@ -273,6 +275,16 @@ function AutomatizePage() {
                     name="empresa"
                     type="text"
                     placeholder="Nome da empresa, marca ou projeto"
+                    className={inputClassName}
+                  />
+                </div>
+                <div>
+                  <label className={labelClassName} htmlFor="instagram">Instagram / @</label>
+                  <input
+                    id="instagram"
+                    name="instagram"
+                    type="text"
+                    placeholder="@suaempresa"
                     className={inputClassName}
                   />
                 </div>

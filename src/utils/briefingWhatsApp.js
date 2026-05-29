@@ -12,6 +12,7 @@ export function buildBriefingWhatsAppMessage(data = {}) {
     '',
     `Nome: ${clean(data.nome) || '-'}`,
     `Empresa/projeto: ${clean(data.empresa) || '-'}`,
+    `Instagram: ${clean(data.instagram) || '-'}`,
     `Email: ${clean(data.email) || '-'}`,
     `WhatsApp: ${clean(data.whatsapp) || '-'}`,
     `Solucao: ${clean(data.solucao) || '-'}`,

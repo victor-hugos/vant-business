@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { normalizeSubscribePayload } from '../api/subscribe.js';
+import { buildEmailBrandHeaderHtml, normalizeSubscribePayload } from '../api/subscribe.js';
 
 test('normalizes service leads with digital solution metadata', () => {
   const payload = normalizeSubscribePayload(
@@ -16,6 +16,7 @@ test('normalizes service leads with digital solution metadata', () => {
       metadata: {
         businessName: 'Studio Exemplo',
         solutionType: 'Identidade digital',
+        instagramHandle: '@studioexemplo',
         budgetRange: 'R$ 1.500 a R$ 3.000',
         projectStage: 'Preciso começar do zero',
         message: 'Quero organizar minha presença digital.',
@@ -37,6 +38,7 @@ test('normalizes service leads with digital solution metadata', () => {
   assert.deepEqual(payload.metadata, {
     businessName: 'Studio Exemplo',
     solutionType: 'Identidade digital',
+    instagramHandle: '@studioexemplo',
     budgetRange: 'R$ 1.500 a R$ 3.000',
     projectStage: 'Preciso começar do zero',
     message: 'Quero organizar minha presença digital.',
@@ -112,6 +114,7 @@ test('builds a WhatsApp briefing message from the service form fields', () => {
     empresa: 'Studio Exemplo',
     email: 'cliente@example.com',
     whatsapp: '(11) 99999-9999',
+    instagram: '@studioexemplo',
     solucao: 'Site profissional',
     momento: 'Ja tenho algo, mas preciso melhorar',
     objetivo: 'Gerar mais contatos e oportunidades',
@@ -122,6 +125,7 @@ test('builds a WhatsApp briefing message from the service form fields', () => {
   assert.match(message, /VANT\.Business/);
   assert.match(message, /Nome: Cliente VANT/);
   assert.match(message, /Empresa\/projeto: Studio Exemplo/);
+  assert.match(message, /Instagram: @studioexemplo/);
   assert.match(message, /Solucao: Site profissional/);
   assert.match(message, /Briefing:\nPreciso organizar minha presenca digital\./);
 });
@@ -139,4 +143,11 @@ test('builds a WhatsApp URL with an optional target number and encoded briefing'
   assert.equal(normalizeWhatsAppNumber('+55 (11) 99999-0000'), '5511999990000');
   assert.ok(url.startsWith('https://wa.me/5511999990000?text='));
   assert.ok(decodeURIComponent(url).includes('Empresa/projeto: Studio Exemplo'));
+});
+
+test('email brand header includes the VANT logo asset', () => {
+  const html = buildEmailBrandHeaderHtml();
+
+  assert.match(html, /https:\/\/vant\.business\/assets\/vant-logo-black\.png/);
+  assert.match(html, /VANT Business/);
 });

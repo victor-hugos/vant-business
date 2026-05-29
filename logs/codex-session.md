@@ -253,3 +253,63 @@ Riscos:
 Proximo passo:
 - Escolher uma versao-base para TikTok, Instagram e hero da homepage e depois
   refletir isso na interface do site e nos perfis.
+
+## 2026-05-25 - Sugestao operacional para retomada segura do funil
+
+Pedido:
+- Registrar um lembrete operacional para retomar com seguranca a estrategia de
+  captura por canal depois do retorno ao commit `61a188c`.
+
+Arquivos alterados:
+- `logs/codex-session.md`
+
+Validacao:
+- Feita: contexto antigo revisado e migrado para o workspace oficial
+  `/home/victor-hugos/Documentos/vant-business-live`.
+
+Riscos:
+- Esta nota e apenas uma sugestao operacional e ainda nao representa decisao
+  final de produto, UX ou arquitetura.
+
+Proximo passo:
+- Retomar depois com este direcionamento base:
+  `email` como canal ativo da area de noticias/conteudo, com captacao para
+  `noticias de IA` e `ebooks gratuitos`;
+  `WhatsApp` pode continuar sendo armazenado no cadastro apenas para uso
+  futuro, mas sem entrar no fluxo atual da area de noticias.
+- Manter a area de `solucoes-digitais` com logica separada:
+  atendimento prioritario para o cliente via `WhatsApp` e confirmacao de
+  recebimento via `email`.
+- Na area de `solucoes-digitais`, o `email` nao e canal principal de nutricao:
+  ele serve apenas para confirmar o recebimento do formulario e resumir os
+  dados enviados pelo cliente.
+- Depois do envio, o sistema deve orientar o cliente a iniciar a conversa no
+  `WhatsApp`, idealmente abrindo uma mensagem personalizada com os dados do
+  formulario para o numero da VANT a partir do WhatsApp do proprio usuario.
+- Implementar em fase separada e segura, sem reaproveitar automaticamente o
+  fluxo dual anterior de `email + WhatsApp` no blog.
+
+## 2026-05-29 - Sugestao operacional para briefing comercial
+
+Pedido:
+- Incluir o @ do Instagram no briefing da area de solucoes para facilitar analise comercial.
+- Inserir a logo da VANT nos emails do fluxo de cadastro/briefing.
+
+Arquivos alterados:
+- `src/pages/AutomatizePage.jsx`
+- `src/utils/briefingWhatsApp.js`
+- `api/subscribe.js`
+- `tests/subscribe.test.js`
+- `logs/codex-session.md`
+
+Validacao:
+- Feita: `npm test` passou com 20 testes.
+- Feita: `npm run build` passou.
+- Feita: `git diff --check` sem problemas.
+
+Riscos:
+- O campo Instagram e opcional; leads sem perfil continuam validos.
+- A exibicao da logo no email depende do asset publico em `https://vant.business/assets/vant-logo-black.png` continuar acessivel.
+
+Proximo passo:
+- Se aprovado em producao, publicar apenas os arquivos relacionados a este ajuste e evitar incluir mudancas paralelas do workspace.
