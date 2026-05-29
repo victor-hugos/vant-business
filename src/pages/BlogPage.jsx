@@ -430,9 +430,6 @@ function BlogPage() {
                 O que entrou hoje no ar
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-relaxed text-[#a6a6a6]">
-              Cada card abaixo é uma notícia liberada no admin e pronta para leitura. Entre no canal para receber o resumo por email.
-            </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {news.map((item) => (
