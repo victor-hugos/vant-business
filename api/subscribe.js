@@ -213,7 +213,11 @@ export default async function handler(req, res) {
     referer: req.headers.referer || null,
   });
 
-  if (!cleanEmail || !cleanName || !cleanWhatsapp || !cleanEbook) {
+  if (!cleanEmail || !cleanName || !cleanEbook) {
+    return res.status(400).json({ error: 'Dados incompletos' });
+  }
+
+  if (cleanLeadType === 'service' && !cleanWhatsapp) {
     return res.status(400).json({ error: 'Dados incompletos' });
   }
 
@@ -228,7 +232,7 @@ export default async function handler(req, res) {
   const now = new Date().toISOString();
   const safeName = escapeHtml(cleanName);
   const safeEmail = escapeHtml(cleanEmail);
-  const safeWhatsapp = escapeHtml(cleanWhatsapp);
+  const safeWhatsapp = escapeHtml(cleanWhatsapp || '-');
   const safeProductTitle = escapeHtml(cleanProductTitle);
   const safeLeadType = escapeHtml(cleanLeadType);
   const safeSource = escapeHtml(source);
@@ -242,7 +246,7 @@ export default async function handler(req, res) {
         {
           nome: cleanName,
           email: cleanEmail,
-          whatsapp: cleanWhatsapp,
+          whatsapp: cleanWhatsapp || null,
           ebook: cleanEbook,
           product_title: cleanProductTitle,
           lead_type: cleanLeadType,

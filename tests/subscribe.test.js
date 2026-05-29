@@ -75,3 +75,27 @@ test('normalizes newsletter leads from blog signup into recurring newsletter rec
     referer: 'https://vant.business/blog',
   });
 });
+
+test('normalizes newsletter leads without requiring whatsapp for editorial capture', () => {
+  const payload = normalizeSubscribePayload(
+    {
+      nome: '  Leitora Email ',
+      email: 'EMAIL@EXEMPLO.COM ',
+      whatsapp: ' ',
+      ebook: 'daily-ai-news',
+      productTitle: 'Canal diario de noticias de IA',
+      leadType: 'newsletter',
+      newsletterOptIn: true,
+      source: 'blog-hero',
+    },
+    {
+      userAgent: 'node-test',
+      referer: 'https://vant.business/blog',
+    }
+  );
+
+  assert.equal(payload.cleanLeadType, 'newsletter');
+  assert.equal(payload.cleanEmail, 'email@exemplo.com');
+  assert.equal(payload.cleanWhatsapp, '');
+  assert.equal(payload.wantsNewsletter, true);
+});

@@ -13,8 +13,10 @@ const recursosPageSource = readFileSync(
 );
 
 test('blog page keeps an editorial curation tone in hero and card CTA copy', () => {
-  assert.match(blogPageSource, /Curadoria editorial de IA/);
-  assert.match(blogPageSource, /Receba a leitura essencial por email/);
+  assert.match(blogPageSource, /Curadoria · IA · Oportunidades/);
+  assert.match(blogPageSource, /Seu cadastro vira acesso a curadoria aplicada/);
+  assert.match(blogPageSource, /transformar novidades em ideias, automacoes e oportunidades praticas/);
+  assert.match(blogPageSource, /Usaremos o WhatsApp apenas para contato futuro/);
   assert.match(blogPageSource, /Abrir matéria →/);
 });
 

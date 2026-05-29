@@ -64,10 +64,9 @@ function NewsletterSignup() {
           />
           <input
             type="tel"
-            required
             value={form.whatsapp}
             onChange={(event) => updateField('whatsapp', event.target.value)}
-            placeholder="WhatsApp com DDD"
+            placeholder="WhatsApp opcional"
             className="brand-input px-4 py-3 text-sm"
           />
           <button
