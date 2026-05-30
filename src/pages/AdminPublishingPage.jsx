@@ -395,8 +395,18 @@ function NewsPanel({
   runningNewsAgent,
 }) {
   const sortedItems = useMemo(() => sortAdminNewsItems(items), [items]);
+  const usedInNewsletterIds = useMemo(() => {
+    const ids = new Set();
+    (newsletterIssues || []).forEach((issue) => {
+      (issue.items || []).forEach((item) => ids.add(item.itemId || item.item_id || item.id));
+    });
+    return ids;
+  }, [newsletterIssues]);
   const reviewItems = useMemo(() => sortedItems.filter((item) => !isPublished(item.status) && item.status !== 'reprovada'), [sortedItems]);
-  const approvedItems = useMemo(() => sortedItems.filter((item) => isPublished(item.status)), [sortedItems]);
+  const approvedItems = useMemo(
+    () => sortedItems.filter((item) => isPublished(item.status) && !usedInNewsletterIds.has(item.id)),
+    [sortedItems, usedInNewsletterIds]
+  );
   const selectedItems = approvedItems.filter((item) => selectedNewsIds.includes(item.id)).slice(0, 10);
 
   function update(field, value) {
@@ -569,14 +579,14 @@ function NewsPanel({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-widest text-emerald-300">Aprovadas</p>
-              <h2 className="mt-2 text-xl font-bold text-white">Publicadas e disponiveis para email</h2>
+              <h2 className="mt-2 text-xl font-bold text-white">Publicadas ainda nao usadas no email</h2>
             </div>
             <StatusPill tone="emerald">{approvedItems.length} itens</StatusPill>
           </div>
 
           <div className="mt-5 space-y-3">
             {approvedItems.length === 0 ? (
-              <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">Publique uma noticia para ela aparecer aqui.</p>
+              <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">Nao ha noticias aprovadas pendentes de email.</p>
             ) : (
               approvedItems.map((item) => renderNewsCard(item, { approved: true }))
             )}
