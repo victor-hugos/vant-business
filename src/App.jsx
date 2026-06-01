@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
+import ScrollToTop from './components/ScrollToTop.jsx';
 import HomePage from './pages/HomePage.jsx';
 import BlogPage from './pages/BlogPage.jsx';
 import BlogPostPage from './pages/BlogPostPage.jsx';
@@ -12,6 +13,7 @@ import AdminPublishingPage from './pages/AdminPublishingPage.jsx';
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div className="min-h-screen text-[#f0f0f0] antialiased">
         <Header />
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

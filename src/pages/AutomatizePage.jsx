@@ -5,12 +5,12 @@ import { buildBriefingWhatsAppUrl } from '../utils/briefingWhatsApp.js';
 const defaultVantWhatsAppNumber = '5561981663028';
 
 const serviceOptions = [
-  'Identidade digital',
+  'Presenca digital e identidade',
   'Site profissional',
-  'Organizacao de Instagram',
+  'Instagram profissional',
   'Google Meu Negocio',
-  'Funil de captacao',
-  'Sistema ou integracao',
+  'Captacao e funil',
+  'Automacao leve ou IA aplicada',
   'Ainda nao sei',
 ];
 
@@ -30,30 +30,57 @@ const budgetOptions = [
 ];
 
 const goalOptions = [
-  'Parecer mais profissional e confiavel',
-  'Gerar mais contatos e oportunidades',
-  'Organizar melhor a presenca digital',
-  'Criar base para automacao e escala',
+  'Transmitir mais confianca',
+  'Gerar mais oportunidades',
+  'Parecer uma empresa maior',
+  'Ser encontrado por novos clientes',
+  'Ganhar tempo com automacao',
   'Ainda estou definindo isso',
 ];
 
-const processSteps = [
+const trustPillars = [
   {
-    title: '1. Diagnostico',
-    text: 'Voce envia o briefing com contexto, objetivo e momento do projeto.',
+    label: 'Estrategia',
+    title: 'Posicionamento digital',
+    text: 'Presenca que transmite valor e diferencia sua empresa.',
   },
   {
-    title: '2. Direcao',
-    text: 'A VANT analisa a demanda e define o caminho mais coerente para sua presenca digital.',
+    label: 'Design',
+    title: 'Percepcao premium',
+    text: 'Identidade visual e experiencia que geram confianca.',
   },
   {
-    title: '3. Proximo passo',
-    text: 'Voce recebe retorno com recomendacao, escopo inicial e melhor formato de execucao.',
+    label: 'Resultados',
+    title: 'Mais oportunidades',
+    text: 'Estrutura pensada para captar, filtrar e converter melhor.',
   },
 ];
 
-const inputClassName = 'brand-input min-h-[44px] rounded-2xl border-white/12 bg-white/[0.04] px-3.5 py-2 text-sm text-white placeholder:text-[#707070]';
-const labelClassName = 'mb-1.5 block text-[0.8rem] font-medium text-[#d1d1d1]';
+const solutionCards = [
+  {
+    title: 'Pareca uma empresa maior',
+    text: 'Identidade, presenca e pagina profissional para elevar a percepcao antes da conversa comercial.',
+    meta: 'Site + identidade',
+  },
+  {
+    title: 'Seja encontrado por quem procura',
+    text: 'Google Meu Negocio e estrutura local para transformar buscas em contatos mais qualificados.',
+    meta: 'Google + presenca',
+  },
+  {
+    title: 'Construa autoridade diariamente',
+    text: 'Instagram organizado para comunicar valor, aumentar confianca e sustentar sua marca no dia a dia.',
+    meta: 'Instagram + conteudo',
+  },
+  {
+    title: 'Ganhe tempo e reduza perdas',
+    text: 'Automacoes leves e IA aplicada para organizar respostas, leads e processos repetitivos.',
+    meta: 'Automacao + IA',
+  },
+];
+
+const inputClassName = 'brand-input min-h-[38px] rounded-lg border-white/12 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-[#707070] lg:min-h-[34px] lg:px-3 lg:py-1.5 lg:text-[0.72rem]';
+const labelClassName = 'mb-1.5 block text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#a6a6a6] lg:mb-1 lg:text-[0.56rem] lg:tracking-[0.16em]';
 
 function AutomatizePage() {
   const [sent, setSent] = useState(false);
@@ -133,280 +160,144 @@ function AutomatizePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 sm:space-y-7">
-      <section className="brand-panel">
-        <div className="brand-mark-panel px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
-          <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
-            <div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-4">
-                  <span className="h-px w-10 bg-white/40" />
-                  <p className="brand-kicker">Identidade digital · Sites · Presenca</p>
-                </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
-                  <VantLogo size={24} />
-                  <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#d7d7d7]">
-                    VANT.BUSINESS
-                  </span>
-                </div>
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 lg:-mt-6 lg:max-w-[1180px]">
+      <section className="overflow-hidden rounded-none border-y border-white/10 bg-[#050505] sm:border lg:min-h-[520px]">
+        <div className="brand-mark-panel px-4 py-8 sm:px-8 lg:grid lg:min-h-[520px] lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)] lg:items-start lg:gap-8 lg:px-8 lg:py-4 xl:gap-10">
+          <div className="lg:pl-2">
+            <div className="flex w-full max-w-[330px] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:max-w-[360px]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05]">
+                <VantLogo size={24} />
               </div>
-
-              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-tight text-white sm:text-5xl">
-                Estruture uma presenca digital
-                <span className="brand-metal block">com percepcao premium</span>
-              </h1>
-              <p className="mt-4 max-w-2xl text-[0.98rem] leading-7 text-[#c9c9c9]">
-                A VANT responde com a direcao mais coerente para posicionamento, presenca digital ou estrutura operacional,
-                sem transformar seu primeiro contato em um formulario pesado.
-              </p>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {processSteps.map((step) => (
-                  <div
-                    key={step.title}
-                    className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4 backdrop-blur-sm"
-                  >
-                    <p className="text-[0.66rem] uppercase tracking-[0.18em] text-[#8f8f8f]">{step.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-[#c9c9c9]">{step.text}</p>
-                  </div>
-                ))}
+              <div>
+                <p className="brand-title text-xs font-bold text-white">VANT.BUSINESS</p>
+                <p className="mt-1 text-[0.5rem] uppercase tracking-[0.22em] text-[#7f7f7f]">Estrategia · Conexao · Resultados</p>
               </div>
             </div>
 
-            <div className="brand-card rounded-[1.7rem] p-5 sm:p-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-                  <VantLogo size={44} />
-                </div>
+            <h1 className="brand-title mt-7 max-w-3xl text-[2.2rem] font-bold leading-[0.98] text-white sm:text-5xl lg:mt-6 lg:max-w-[650px] lg:text-[3rem] xl:text-[3.25rem]">
+              Estruture uma presenca digital
+              <span className="brand-metal block">com percepcao premium</span>
+            </h1>
+            <p className="mt-5 max-w-[600px] text-sm leading-6 text-[#cfcfcf] sm:text-base lg:mt-4 lg:text-[0.82rem] lg:leading-5">
+              Sua empresa pode ate ser boa no que faz. Mas a forma como ela aparece define o quanto sera escolhida.
+            </p>
+            <p className="mt-2 max-w-[620px] text-sm leading-6 text-[#a6a6a6] lg:text-[0.78rem] lg:leading-5">
+              Criamos estruturas digitais que geram confianca, autoridade e oportunidades reais de crescimento.
+            </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:mt-6 lg:max-w-[660px] lg:gap-2.5">
+              {trustPillars.map((pillar) => (
+                <article key={pillar.label} className="rounded-lg border border-white/10 bg-white/[0.035] p-3 transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.055] lg:min-h-[86px]">
+                  <p className="brand-kicker text-[0.55rem] tracking-[0.18em] text-[#b8b8b8]">{pillar.label}</p>
+                  <h2 className="mt-2 text-[0.72rem] font-semibold text-white lg:text-[0.66rem]">{pillar.title}</h2>
+                  <p className="mt-1.5 text-[0.66rem] leading-4 text-[#8f8f8f] lg:text-[0.58rem] lg:leading-4">{pillar.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div id="briefing-form" className="mt-8 scroll-mt-24 rounded-lg border border-white/10 bg-black/55 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-5 lg:mt-0 lg:scroll-mt-[120px] lg:p-5">
+            {sent ? (
+              <div className="grid gap-3 py-4 text-center lg:text-left">
                 <div>
-                  <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#6f6f6f]">
-                    Estrategia · Conexao · Resultados
-                  </p>
+                  <p className="brand-title text-2xl font-bold text-white">Recebi seu briefing</p>
+                  <p className="mt-2 text-sm leading-6 text-[#a6a6a6]">Vou analisar sua necessidade e responder com a direcao mais coerente para aumentar confianca, autoridade e oportunidades.</p>
+                  {deliveryWarning ? <p className="mt-3 text-sm leading-6 text-amber-100">{deliveryWarning}</p> : null}
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                  {whatsAppUrl ? <a href={whatsAppUrl} target="_blank" rel="noreferrer" className="brand-button-primary px-6 py-3 text-xs">Continuar no WhatsApp</a> : null}
+                  <button type="button" onClick={() => { setSent(false); setDeliveryWarning(''); setWhatsAppUrl(''); }} className="brand-button-secondary px-6 py-3 text-xs">Enviar outro briefing</button>
                 </div>
               </div>
-              <p className="mt-5 text-sm leading-6 text-[#bdbdbd]">
-                Se o seu foco agora e parecer mais forte, comunicar melhor e estruturar sua presenca digital, esse briefing e o ponto de partida.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <a href="#briefing-form" className="brand-button-primary px-7 py-3 text-xs">
-                  Quero apresentar meu projeto
-                </a>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="brand-title text-[0.72rem] font-bold leading-4 text-white">Vamos conversar sobre seu projeto</p>
+                    <p className="mt-1 text-[0.64rem] leading-4 text-[#808080]">Briefing rapido para entender o melhor caminho.</p>
+                  </div>
+                  <span className="mt-0.5 text-sm text-white/70">+</span>
+                </div>
+                <form onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-2 lg:gap-x-2 lg:gap-y-1.5">
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="nome">Nome</label>
+                    <input id="nome" name="nome" type="text" required placeholder="Como posso te chamar?" className={inputClassName} />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="empresa">Empresa</label>
+                    <input id="empresa" name="empresa" type="text" placeholder="Nome da sua empresa" className={inputClassName} />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="email">E-mail</label>
+                    <input id="email" name="email" type="email" required placeholder="seu@email.com" className={inputClassName} />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="whatsapp">WhatsApp</label>
+                    <input id="whatsapp" name="whatsapp" type="tel" required placeholder="(11) 99999-9999" className={inputClassName} />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="instagram">Instagram</label>
+                    <input id="instagram" name="instagram" type="text" placeholder="@suaempresa" className={inputClassName} />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="solucao">Faturamento</label>
+                    <select id="solucao" name="solucao" required className={`${inputClassName} appearance-none`}>
+                      <option value="">Selecione</option>
+                      {serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="momento">Momento</label>
+                    <select id="momento" name="momento" required className={`${inputClassName} appearance-none`}>
+                      <option value="">Selecione</option>
+                      {stageOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className={labelClassName} htmlFor="objetivo">Objetivo principal</label>
+                    <select id="objetivo" name="objetivo" className={`${inputClassName} appearance-none`}>
+                      <option value="">Selecione</option>
+                      {goalOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelClassName} htmlFor="orcamento">Investimento previsto</label>
+                    <select id="orcamento" name="orcamento" className={`${inputClassName} appearance-none`}>
+                      {budgetOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelClassName} htmlFor="descricao">Conte-nos mais sobre seu projeto</label>
+                    <textarea id="descricao" name="descricao" required rows={3} placeholder="O que precisa parecer mais forte, confiavel ou pronto para crescer?" className={`${inputClassName} min-h-[86px] resize-none py-3 lg:min-h-[76px] lg:py-2`} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <button type="submit" disabled={isSubmitting} className="brand-button-primary h-[40px] w-full px-6 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60 lg:h-[38px] lg:py-2 lg:text-[0.62rem]">
+                      {isSubmitting ? 'Enviando...' : 'Solicitar analise'}
+                    </button>
+                  </div>
+                  {error ? <p className="sm:col-span-2 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">{error}</p> : null}
+                  <p className="sm:col-span-2 text-center text-[0.6rem] leading-4 text-[#777777]">Seus dados estao seguros. Nao compartilhamos suas informacoes.</p>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="brand-panel px-5 py-6 sm:px-8 lg:px-10">
-        {sent ? (
-          <div className="mx-auto max-w-3xl">
-            <div className="brand-card flex min-h-[300px] flex-col items-center justify-center rounded-[1.8rem] p-8 text-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-white/10 bg-white/[0.05] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-                <VantLogo size={56} />
-              </div>
-              <p className="brand-title mt-6 text-2xl font-bold text-white">Recebi seu briefing</p>
-              <p className="mt-3 max-w-md text-sm leading-6 text-[#a6a6a6]">
-                Vou analisar sua necessidade e responder com a direcao mais coerente para posicionamento,
-                presenca digital ou solucao operacional da sua empresa.
-              </p>
-              {deliveryWarning ? (
-                <p className="mt-5 max-w-md rounded-2xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
-                  {deliveryWarning}
-                </p>
-              ) : null}
-              {whatsAppUrl ? (
-                <a
-                  href={whatsAppUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="brand-button-primary mt-7 px-7 py-3 text-xs"
-                >
-                  Continuar no WhatsApp
-                </a>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => {
-                  setSent(false);
-                  setDeliveryWarning('');
-                  setWhatsAppUrl('');
-                }}
-                className="brand-button-secondary mt-3 px-6 py-3 text-xs"
-              >
-                Enviar outro briefing
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="mx-auto max-w-4xl space-y-4 sm:space-y-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="brand-kicker">Briefing comercial</p>
-                <h2 className="brand-title mt-2 text-[1.7rem] font-bold text-white sm:text-[1.95rem]">
-                  Apresente seu projeto com clareza
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#a6a6a6]">
-                  Responda o essencial para eu entender prioridade, momento e melhor proximo passo.
-                </p>
-              </div>
-              <p className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-[#9d9d9d]">
-                Diagnostico objetivo · sem excesso de friccao
-              </p>
-            </div>
-
-            <form id="briefing-form" onSubmit={handleSubmit} className="brand-card flex flex-col gap-3.5 rounded-[1.8rem] p-4 sm:p-5">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <label className={labelClassName} htmlFor="nome">Seu nome</label>
-                  <input
-                    id="nome"
-                    name="nome"
-                    type="text"
-                    required
-                    placeholder="Como posso te chamar?"
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className={labelClassName} htmlFor="empresa">Empresa ou projeto</label>
-                  <input
-                    id="empresa"
-                    name="empresa"
-                    type="text"
-                    placeholder="Nome da empresa, marca ou projeto"
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className={labelClassName} htmlFor="instagram">Instagram / @</label>
-                  <input
-                    id="instagram"
-                    name="instagram"
-                    type="text"
-                    placeholder="@suaempresa"
-                    className={inputClassName}
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className={labelClassName} htmlFor="email">E-mail</label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="seu@email.com"
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className={labelClassName} htmlFor="whatsapp">WhatsApp</label>
-                  <input
-                    id="whatsapp"
-                    name="whatsapp"
-                    type="tel"
-                    required
-                    placeholder="Numero para contato"
-                    className={inputClassName}
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className={labelClassName} htmlFor="solucao">Qual solucao parece mais proxima do que voce precisa?</label>
-                  <select id="solucao" name="solucao" required className={`${inputClassName} appearance-none`}>
-                    <option value="">Selecione uma opcao</option>
-                    {serviceOptions.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClassName} htmlFor="momento">Em que momento o projeto esta hoje?</label>
-                  <select id="momento" name="momento" required className={`${inputClassName} appearance-none`}>
-                    <option value="">Selecione uma opcao</option>
-                    {stageOptions.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className={labelClassName} htmlFor="objetivo">Qual e o principal objetivo agora?</label>
-                  <select id="objetivo" name="objetivo" className={`${inputClassName} appearance-none`}>
-                    <option value="">Selecione uma opcao</option>
-                    {goalOptions.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClassName} htmlFor="orcamento">Faixa de investimento</label>
-                  <select id="orcamento" name="orcamento" className={`${inputClassName} appearance-none`}>
-                    {budgetOptions.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className={labelClassName} htmlFor="descricao">
-                  Descreva o que voce quer construir ou melhorar
-                </label>
-                <textarea
-                  id="descricao"
-                  name="descricao"
-                  required
-                  rows={5}
-                  placeholder="Ex: hoje meu negocio depende de indicacao, meu Instagram esta desorganizado e eu preciso parecer mais profissional para gerar contatos pelo digital."
-                  className={`${inputClassName} min-h-[128px] resize-none py-3`}
-                />
-              </div>
-
-              {error ? (
-                <p className="rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">
-                  {error}
-                </p>
-              ) : null}
-
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="brand-button-primary px-7 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSubmitting ? 'Enviando...' : 'Enviar briefing'}
-                </button>
-                <p className="text-xs leading-5 text-[#7f7f7f]">
-                  Quanto mais objetivo, melhor a direcao inicial.
-                </p>
-              </div>
-            </form>
-          </div>
-        )}
-      </section>
-
-      <section className="brand-panel px-6 py-7 sm:px-8">
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <div>
-            <p className="brand-kicker">Como funciona</p>
-            <h2 className="brand-title mt-3 text-3xl font-bold text-white">Diagnostico curto, direcao clara.</h2>
-          </div>
-          <div className="grid gap-3">
-            {processSteps.map((step) => (
-              <div key={step.title} className="border-l border-white/15 pl-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-[#8f8f8f]">{step.title}</p>
-                <p className="mt-1 text-sm leading-6 text-[#c9c9c9]">{step.text}</p>
-              </div>
-            ))}
-          </div>
+      <section className="brand-panel px-4 py-5 sm:px-8 lg:px-10 lg:py-5">
+        <p className="brand-kicker">Resultado</p>
+        <h2 className="brand-title mt-3 text-2xl font-bold leading-tight text-white sm:text-4xl">O que muda depois da VANT?</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#c9c9c9]">
+          Criamos estruturas digitais que aumentam autoridade, percepcao de valor e geracao de oportunidades antes mesmo do primeiro contato.
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+          {solutionCards.map((solution) => (
+            <article key={solution.title} className="brand-card rounded-xl p-4 lg:p-5">
+              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[#7f7f7f]">{solution.meta}</p>
+              <h3 className="brand-title mt-3 text-lg font-bold leading-tight text-white">{solution.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#a6a6a6]">{solution.text}</p>
+            </article>
+          ))}
         </div>
       </section>
     </div>

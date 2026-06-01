@@ -30,3 +30,24 @@ test('light editorial pass removes overtly commercial copy from resources page',
   assert.doesNotMatch(recursosPageSource, /testar ou vender/);
   assert.doesNotMatch(recursosPageSource, /Acessar →/);
 });
+
+const solutionsPageSource = readFileSync(
+  new URL("../src/pages/AutomatizePage.jsx", import.meta.url),
+  "utf8"
+);
+
+test("solutions page keeps the desktop sales layout with accessible lead capture", () => {
+  assert.match(solutionsPageSource, /VANT\.BUSINESS/);
+  assert.match(solutionsPageSource, /Estrategia · Conexao · Resultados/);
+  assert.match(solutionsPageSource, /Estruture uma presenca digital/);
+  assert.match(solutionsPageSource, /com percepcao premium/);
+  assert.match(solutionsPageSource, /Posicionamento digital/);
+  assert.match(solutionsPageSource, /Percepcao premium/);
+  assert.doesNotMatch(solutionsPageSource, /Empresas que confiam na VANT/);
+  assert.match(solutionsPageSource, /Vamos conversar sobre seu projeto/);
+  assert.match(solutionsPageSource, /id="briefing-form"/);
+  assert.match(solutionsPageSource, /Solicitar analise/);
+  assert.match(solutionsPageSource, /O que muda depois da VANT/);
+  assert.doesNotMatch(solutionsPageSource, /A PRIMEIRA VENDA/);
+  assert.doesNotMatch(solutionsPageSource, /Sua empresa sofre com isso/);
+});
