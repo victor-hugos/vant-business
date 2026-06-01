@@ -33,8 +33,9 @@
 - [ ] Output directory: dist
 - [ ] Configurar `SUPABASE_URL`
 - [ ] Configurar `SUPABASE_SERVICE_KEY`
-- [ ] Configurar `EMAIL_USER=admin@vant.business`
-- [ ] Configurar `EMAIL_PASS`
+- [ ] Configurar `RESEND_API_KEY`
+- [ ] Configurar `EMAIL_FROM=VANT Business <noreply@vant.business>`
+- [ ] Configurar `LEAD_NOTIFY_EMAIL` com o email que recebe novos leads
 - [ ] Configurar `CRON_SECRET`
 - [ ] Configurar `ADMIN_EMAIL=admin@vant.business`
 - [ ] Configurar `ADMIN_PASSWORD`

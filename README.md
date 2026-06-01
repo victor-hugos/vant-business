@@ -99,7 +99,7 @@ Quem entra no site deve sair com pelo menos um destes próximos passos:
 - **Tailwind CSS**: base visual, responsividade e utilitários.
 - **Supabase**: armazenamento de leads, notícias, rascunhos e eventos.
 - **Vercel Functions**: APIs serverless em `api/`.
-- **Nodemailer**: envio de emails via SMTP.
+- **Resend**: envio de emails transacionais e newsletter.
 - **Marked + gray-matter**: leitura de posts em Markdown.
 
 ## Estrutura
@@ -185,8 +185,9 @@ As variáveis abaixo devem ficar na Vercel ou em um `.env` local não versionado
 | --- | --- |
 | `SUPABASE_URL` | URL do projeto Supabase |
 | `SUPABASE_SERVICE_KEY` | Chave server-side para APIs e admin |
-| `EMAIL_USER` | Email remetente, exemplo `admin@vant.business` |
-| `EMAIL_PASS` | Senha SMTP ou senha de app |
+| `RESEND_API_KEY` | Chave da API Resend para envio de emails |
+| `EMAIL_FROM` | Remetente verificado, exemplo `VANT Business <noreply@vant.business>` |
+| `LEAD_NOTIFY_EMAIL` | Email que recebe notificacoes internas de novos leads |
 | `ADMIN_EMAIL` | Email autorizado no painel admin |
 | `ADMIN_PASSWORD` | Senha do painel admin |
 | `ADMIN_ACCESS_CODE` | Alternativa para senha admin |

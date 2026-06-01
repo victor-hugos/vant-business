@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildEmailBrandHeaderHtml, normalizeSubscribePayload } from '../api/subscribe.js';
+import { buildEmailBrandHeaderHtml, buildWelcomeHtml, normalizeSubscribePayload } from '../api/subscribe.js';
 
 test('normalizes service leads with digital solution metadata', () => {
   const payload = normalizeSubscribePayload(
@@ -145,9 +145,25 @@ test('builds a WhatsApp URL with an optional target number and encoded briefing'
   assert.ok(decodeURIComponent(url).includes('Empresa/projeto: Studio Exemplo'));
 });
 
-test('email brand header includes the VANT logo asset', () => {
+test('email brand header uses the VANT logo as a remote image without attachment CID', () => {
   const html = buildEmailBrandHeaderHtml();
 
-  assert.match(html, /https:\/\/vant\.business\/assets\/vant-logo-black\.png/);
   assert.match(html, /VANT Business/);
+  assert.match(html, /<img/i);
+  assert.match(html, /https:\/\/vant-business-victor-hugos-projects-378ea6a7\.vercel\.app\/assets\/vant-logo-black\.png/);
+  assert.match(html, /gap:18px/);
+  assert.match(html, /padding-right:6px/);
+  assert.doesNotMatch(html, /cid:vant-logo/);
+});
+
+test('welcome confirmation email does not include a reopen ebook link', () => {
+  const html = buildWelcomeHtml('Victor', {
+    productTitle: 'Teste de envio Resend',
+    newsletterOptIn: true,
+    newsItems: [],
+    ebookUrl: 'https://vant.business/ebook/teste-resend',
+  });
+
+  assert.doesNotMatch(html, /Reabrir ebook/i);
+  assert.doesNotMatch(html, /https:\/\/vant\.business\/ebook\/teste-resend/);
 });

@@ -1,24 +1,13 @@
-import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import { approvedStatuses, getNewsItems } from './_newsStore.js';
 import { getNewsletterIssues, markNewsletterIssueSent, selectDigestIssue } from './_newsletterStore.js';
+import { hasEmailConfig, sendEmail } from './_mailer.js';
 
 const supabase =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
     ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
     : null;
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.hostinger.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-const VICTOR_EMAIL = process.env.EMAIL_USER;
 
 function escapeHtml(value = '') {
   return String(value)
@@ -104,7 +93,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  if (!supabase || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!supabase || !hasEmailConfig()) {
     return res.status(500).json({ error: 'Ambiente de email ou banco nao configurado' });
   }
 
@@ -136,8 +125,7 @@ export default async function handler(req, res) {
     if (!dryRun) {
       await Promise.all(
         recipients.map((subscriber) =>
-          transporter.sendMail({
-            from: `"VANT Business" <${VICTOR_EMAIL}>`,
+          sendEmail({
             to: subscriber.email,
             subject: digest.subject,
             html: buildDigestHtml(subscriber.nome, digest),

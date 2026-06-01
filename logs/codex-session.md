@@ -313,3 +313,55 @@ Riscos:
 
 Proximo passo:
 - Se aprovado em producao, publicar apenas os arquivos relacionados a este ajuste e evitar incluir mudancas paralelas do workspace.
+
+## 2026-05-30 - Sugestao operacional para envio de emails via Resend
+
+Pedido:
+- Substituir a dependencia de SMTP da Hostinger por Resend para os envios automaticos do VANT Business.
+
+Arquivos alterados:
+- `api/_mailer.js`
+- `api/subscribe.js`
+- `api/newsletter-digest.js`
+- `tests/mailer.test.js`
+- `README.md`
+- `docs/deploy-checklist.md`
+- `logs/codex-session.md`
+
+Decisao tecnica proposta:
+- Usar `RESEND_API_KEY` e `EMAIL_FROM` para envio transacional e newsletter.
+- Usar `LEAD_NOTIFY_EMAIL` ou, na ausencia dele, `ADMIN_EMAIL` como destino interno dos novos leads.
+- Manter Supabase como fonte dos leads; email continua apenas como notificacao/confirmacao.
+
+Validacao:
+- Feita: `npm test` passou com 23 testes.
+- Feita: `npm run build` passou.
+
+Riscos:
+- Antes de envio real, o dominio/remetente precisa estar verificado no Resend e as variaveis precisam estar configuradas na Vercel.
+- `nodemailer` ainda pode aparecer em `package.json` ate uma limpeza controlada de dependencias.
+
+Proximo passo:
+- Configurar `RESEND_API_KEY`, `EMAIL_FROM` e `LEAD_NOTIFY_EMAIL` na Vercel e testar um cadastro real em producao.
+
+## 2026-05-30 - Ajuste no email de confirmacao Resend
+
+Pedido:
+- Remover a logo em imagem do email porque nao estava renderizando bem.
+- Remover a linha "Reabrir ebook" do email de confirmacao.
+
+Arquivos alterados:
+- `api/subscribe.js`
+- `tests/subscribe.test.js`
+- `logs/codex-session.md`
+
+Decisao tecnica proposta:
+- Usar cabecalho textual da VANT no email, sem depender de imagem remota.
+- Manter o registro do material no email, mas sem expor link "Reabrir ebook" na confirmacao.
+
+Validacao:
+- Feita: `npm test` passou com 24 testes.
+- Feita: `npm run build` passou.
+
+Proximo passo:
+- Fazer novo deploy de producao e enviar um email de teste para validar o template renderizado.

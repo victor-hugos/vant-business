@@ -1,28 +1,18 @@
-import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import { approvedStatuses, getNewsItems } from './_newsStore.js';
+import { getLeadNotificationEmail, hasEmailConfig, sendEmail } from './_mailer.js';
 
 const supabase =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
     ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
     : null;
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.hostinger.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-const VICTOR_EMAIL = process.env.EMAIL_USER;
+const VICTOR_EMAIL = getLeadNotificationEmail();
 
 export function buildEmailBrandHeaderHtml() {
   return `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <img src="https://vant.business/assets/vant-logo-black.png" alt="VANT Business" width="44" height="44" style="display:block;border-radius:10px;object-fit:contain;" />
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
+      <img src="https://vant-business-victor-hugos-projects-378ea6a7.vercel.app/assets/vant-logo-black.png" alt="VANT Business" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;object-fit:contain;padding-right:6px;" />
       <div>
         <p style="margin:0;color:#0f172a;font-size:14px;font-weight:800;letter-spacing:.04em;">VANT Business</p>
         <p style="margin:3px 0 0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">IA · Automacao · Presenca digital</p>
@@ -144,7 +134,7 @@ function buildNewsPreviewHtml(items) {
   `;
 }
 
-function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, ebookUrl }) {
+export function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems }) {
   const previewItems = (newsItems || []).filter((item) => approvedStatuses.includes(item.status)).slice(0, 3);
   const safeName = escapeHtml(nome);
   const safeProductTitle = escapeHtml(productTitle);
@@ -165,7 +155,6 @@ function buildWelcomeHtml(nome, { productTitle, newsletterOptIn, newsItems, eboo
         <p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">
           Material registrado: <strong>${safeProductTitle}</strong>
         </p>
-        ${ebookUrl ? `<p style="margin:12px 0 0;color:#cbd5e1;font-size:14px;line-height:1.6;">Reabrir ebook: <a href="${ebookUrl}" style="color:#67e8f9;">${ebookUrl}</a></p>` : ''}
       </div>
       <div style="margin-top:22px;padding:18px;border:1px solid #e2e8f0;border-radius:18px;background:#ffffff;">
         <p style="margin:0 0 8px;color:#0f172a;font-size:16px;font-weight:700;">O que você vai receber</p>
@@ -237,7 +226,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Email invalido' });
   }
 
-  if (!supabase || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!supabase || !hasEmailConfig() || !VICTOR_EMAIL) {
     return res.status(500).json({ error: 'Ambiente de email ou banco nao configurado' });
   }
 
@@ -248,7 +237,6 @@ export default async function handler(req, res) {
   const safeProductTitle = escapeHtml(cleanProductTitle);
   const safeLeadType = escapeHtml(cleanLeadType);
   const safeSource = escapeHtml(source);
-  const ebookUrl = `https://vant.business/ebook/${encodeURIComponent(cleanEbook)}`;
 
   try {
     // 1. Salva no Supabase
@@ -286,7 +274,6 @@ export default async function handler(req, res) {
           productTitle: cleanProductTitle,
           newsletterOptIn: wantsNewsletter,
           newsItems: news.items || [],
-          ebookUrl,
         });
 
     const serviceDetailsHtml = cleanLeadType === 'service'
@@ -321,8 +308,7 @@ export default async function handler(req, res) {
     // 2. Emails em paralelo
     await Promise.all([
       // Notificação para Victor
-      transporter.sendMail({
-        from: `"Vant Business" <${VICTOR_EMAIL}>`,
+      sendEmail({
         to: VICTOR_EMAIL,
         subject: `Novo lead VANT - ${cleanProductTitle}`,
         html: `
@@ -369,8 +355,7 @@ export default async function handler(req, res) {
       }),
 
       // Confirmação para o inscrito
-      transporter.sendMail({
-        from: `"Vant Business" <${VICTOR_EMAIL}>`,
+      sendEmail({
         to: cleanEmail,
         subject: subscriberSubject,
         html: subscriberHtml,
