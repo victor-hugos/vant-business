@@ -106,6 +106,7 @@ function HomePage() {
       <section className="reference-hero">
         <div className="reference-hero-copy">
           <div className="reference-kicker">
+            <img className="reference-kicker-logo" src="/assets/vant-logo-white.png" alt="" aria-hidden="true" />
             <span />
             <p>Tecnologia · Estratégia · Resultados</p>
           </div>
@@ -129,11 +130,7 @@ function HomePage() {
           </div>
 
           <div className="reference-proof">
-            <div className="reference-avatars" aria-hidden="true">
-              {['BR', 'IA', 'WEB', 'CRM'].map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-            </div>
+            <img className="reference-proof-logo" src="/assets/vant-logo-white.png" alt="VANT.Business" />
             <p>Branding, presença digital, automação, conteúdo e inteligência comercial na mesma marca.</p>
           </div>
         </div>
