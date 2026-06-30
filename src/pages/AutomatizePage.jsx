@@ -32,7 +32,7 @@ const budgetOptions = [
 const goalOptions = [
   'Transmitir mais confianca',
   'Gerar mais oportunidades',
-  'Parecer uma empresa maior',
+  'Passar profissionalismo com atendimento padronizado',
   'Ser encontrado por novos clientes',
   'Ganhar tempo com automacao',
   'Ainda estou definindo isso',
@@ -58,9 +58,9 @@ const trustPillars = [
 
 const solutionCards = [
   {
-    title: 'Pareca uma empresa maior',
-    text: 'Identidade, presenca e pagina profissional para elevar a percepcao antes da conversa comercial.',
-    meta: 'Site + identidade',
+    title: 'Profissionalismo em cada etapa',
+    text: 'Atendimento padronizado com jornada clara e acompanhamento contínuo, liberando tempo para o que realmente importa.',
+    meta: 'Jornada de atendimento',
   },
   {
     title: 'Seja encontrado por quem procura',
@@ -73,8 +73,8 @@ const solutionCards = [
     meta: 'Instagram + conteudo',
   },
   {
-    title: 'Ganhe tempo e reduza perdas',
-    text: 'Automacoes leves e IA aplicada para organizar respostas, leads e processos repetitivos.',
+    title: 'Ganhe tempo para tarefas que importam',
+    text: 'Atendimento padronizado e automacoes inteligentes para reduzir retrabalho e liberar foco no crescimento do seu negócio.',
     meta: 'Automacao + IA',
   },
 ];
