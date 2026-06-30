@@ -29,5 +29,6 @@ test('homepage hero bridges solutions and editorial content', () => {
   assert.match(homePageSource, /<span>Crescimento\.<\/span>/);
   assert.match(homePageSource, /A VANT transforma presenca digital, tecnologia e IA em crescimento real\./);
   assert.match(homePageSource, /Conhecer soluções/);
-  assert.match(homePageSource, /Explorar conteúdo/);
+  assert.match(homePageSource, /Conhecer a VANT/);
+  assert.match(homePageSource, /to="\/sobre"/);
 });

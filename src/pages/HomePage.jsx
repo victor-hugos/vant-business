@@ -126,7 +126,7 @@ function HomePage() {
               Conhecer soluções
               <span>›</span>
             </Link>
-            <Link to="/blog" className="reference-button reference-button-secondary">Explorar conteúdo</Link>
+            <Link to="/sobre" className="reference-button reference-button-secondary">Conhecer a VANT</Link>
           </div>
 
           <div className="reference-proof">
@@ -202,7 +202,7 @@ function HomePage() {
               <p>Guias para aprofundar a prática</p>
               <h2>Ebooks e guias para aprofundar a prática</h2>
             </div>
-            <Link to="/blog">Ver biblioteca</Link>
+            <Link to="/sobre">Conhecer a VANT</Link>
           </div>
 
           <div className="reference-list">
@@ -234,12 +234,12 @@ function HomePage() {
               <p>Leituras e sinais de mercado</p>
               <h2>Notícias para acompanhar sem ruído</h2>
             </div>
-            <Link to="/blog">Ver curadoria</Link>
+            <Link to="/sobre">Ver posicionamento</Link>
           </div>
 
           <div className="reference-list">
             {newsHighlights.map((item) => (
-              <Link key={item.slug} to="/blog">
+              <Link key={item.slug} to="/sobre">
                 <span>{item.label}</span>
                 <strong>{item.title}</strong>
                 <em>{item.cta}</em>

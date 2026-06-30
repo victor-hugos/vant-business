@@ -6,7 +6,7 @@ const navItems = [
   { label: 'Início', to: '/' },
   { label: 'Ferramentas', to: '/recursos' },
   { label: 'Soluções', to: '/solucoes-digitais' },
-  { label: 'Notícias', to: '/blog' },
+  { label: 'Sobre', to: '/sobre' },
 ];
 
 function Header() {

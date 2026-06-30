@@ -261,10 +261,10 @@ function RecursosPage() {
           Cada ferramenta pode ser aprofundada no blog com passo a passo, contexto e guias práticos.
         </p>
         <a
-          href="/blog"
+          href="/sobre"
           className="brand-button-secondary mt-5 px-6 py-2.5 text-xs"
         >
-          Ler tutoriais →
+          Conhecer a VANT →
         </a>
       </div>
     </div>
