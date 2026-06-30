@@ -244,14 +244,14 @@ function BlogPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
       <section className="brand-panel px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-4 sm:gap-5 lg:gap-6 xl:gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:gap-5 lg:gap-6 xl:gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="brand-card relative overflow-hidden p-4 sm:p-7 lg:p-8 xl:p-9">
             <div className="pointer-events-none absolute inset-y-0 right-[-18%] w-[78%] rounded-full border border-white/10 opacity-80 blur-[0.2px]" />
             <div className="pointer-events-none absolute right-[6%] top-[9%] h-[82%] w-[66%] rounded-full border border-white/[0.08]" />
             <div className="pointer-events-none absolute left-[28%] top-[15%] h-[58%] w-[58%] rounded-full border border-white/[0.07]" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_32%,rgba(255,255,255,0.13),transparent_0,transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_46%)]" />
 
-            <div className="relative z-[1] flex h-full flex-col justify-between">
+            <div className="relative z-[1] flex h-full flex-col justify-between gap-6">
               <div>
                 <p className="brand-kicker">Curadoria · IA · Oportunidades</p>
                 <h1 className="font-display mt-4 max-w-xl text-[2.35rem] font-bold uppercase leading-[0.92] tracking-[0.03em] text-white sm:mt-5 sm:text-5xl sm:tracking-normal lg:text-6xl">
@@ -283,7 +283,7 @@ function BlogPage() {
                 </div>
               </div>
 
-              <div className="mt-8 grid gap-4 lg:mt-10 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <article className="rounded-[1.15rem] border border-white/10 bg-black/35 p-4 sm:p-[1.125rem] shadow-[0_20px_45px_rgba(0,0,0,0.22)] backdrop-blur-sm">
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] shadow-[0_10px_35px_rgba(0,0,0,0.32)]">
@@ -409,6 +409,47 @@ function BlogPage() {
                 Seus dados estao protegidos com seguranca.
               </p>
             </form>
+          </div>
+        </div>
+      </section>
+
+      <section className="brand-panel px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <div className="space-y-4">
+            <p className="brand-kicker">Quem somos</p>
+            <h2 className="brand-title text-3xl font-bold leading-tight text-white sm:text-4xl">
+              A VANT.Business estrutura negócios para vender, atender e crescer melhor no digital.
+            </h2>
+            <p className="text-sm leading-7 text-[#bdbdbd] sm:text-base">
+              Unimos presença digital, sites personalizados, automações e soluções inteligentes para transformar empresas que ainda dependem de processos manuais, atendimento desorganizado e presença online improvisada.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm font-semibold text-white">Estrutura de crescimento</p>
+                <p className="mt-2 text-sm leading-6 text-[#9a9a9a]">
+                  Sites que captam, atendimento que qualifica e automações para organizar o negócio com mais clareza.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm font-semibold text-white">Atendimento padronizado</p>
+                <p className="mt-2 text-sm leading-6 text-[#9a9a9a]">
+                  Fluxos claros de pré-atendimento, acompanhamento e operação para economizar tempo e reduzir retrabalho.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-sm sm:p-6 lg:p-7">
+            <p className="brand-kicker">Posicionamento</p>
+            <h3 className="mt-3 text-2xl font-semibold text-white">
+              Presença digital, automação e soluções para empresas que querem sair do improviso e crescer com mais estrutura.
+            </h3>
+            <ul className="mt-5 space-y-3 text-sm leading-7 text-[#bdbdbd]">
+              <li>• Sites profissionais e personalizados para transmitir confiança.</li>
+              <li>• Formulários e fluxos de pré-atendimento para organizar oportunidades.</li>
+              <li>• Automações de WhatsApp e e-mail para reduzir ruído e acelerar respostas.</li>
+              <li>• Estruturas pensadas para operação real, não apenas para aparência.</li>
+            </ul>
           </div>
         </div>
       </section>
