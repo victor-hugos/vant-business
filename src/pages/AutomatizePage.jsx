@@ -240,7 +240,7 @@ function AutomatizePage() {
                     <input id="instagram" name="instagram" type="text" placeholder="@suaempresa" className={inputClassName} />
                   </div>
                   <div className="sm:col-span-1">
-                    <label className={labelClassName} htmlFor="solucao">Faturamento</label>
+                    <label className={labelClassName} htmlFor="solucao">Solução desejada</label>
                     <select id="solucao" name="solucao" required className={`${inputClassName} appearance-none`}>
                       <option value="">Selecione</option>
                       {serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}
