@@ -242,18 +242,18 @@ function RecursosPage() {
             A VANT organiza a operacao antes de automatizar. Assim, tecnologia entra para sustentar processo, nao para criar mais bagunca.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="brand-card p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-[#7f7f7f]">Leitura rapida</p>
-              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">Se a entrada do lead esta confusa, a venda fica mais lenta e mais cara.</p>
+          <div className="conversion-diagnosis-list">
+            <div className="conversion-diagnosis-item">
+              <p>Leitura rapida</p>
+              <span>Se a entrada do lead esta confusa, a venda fica mais lenta e mais cara.</span>
             </div>
-            <div className="brand-card p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-[#7f7f7f]">Foco</p>
-              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">A pagina mostra a estrutura antes de pedir o briefing.</p>
+            <div className="conversion-diagnosis-item">
+              <p>Foco</p>
+              <span>A pagina mostra a estrutura antes de pedir o briefing.</span>
             </div>
-            <div className="brand-card p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-[#7f7f7f]">Resultado</p>
-              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">Menos improviso, mais contexto e proximo passo visivel.</p>
+            <div className="conversion-diagnosis-item">
+              <p>Resultado</p>
+              <span>Menos improviso, mais contexto e proximo passo visivel.</span>
             </div>
           </div>
         </div>

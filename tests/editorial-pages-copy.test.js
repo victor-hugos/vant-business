@@ -43,7 +43,8 @@ test('app keeps only the three primary public screens in navigation', () => {
   assert.doesNotMatch(footerSource, /to="\/sobre"/);
   assert.doesNotMatch(footerSource, /Ferramentas IA/);
   assert.match(headerSource, /label: 'Início'/);
-  assert.match(headerSource, /label: 'Conversão'/);
+  assert.doesNotMatch(headerSource, /label: 'Conversão'/);
+  assert.match(headerSource, /label: 'VANT'/);
   assert.match(headerSource, /to: '\/conversao'/);
   assert.match(headerSource, /label: 'Soluções'/);
   assert.match(appSource, /path="\/conversao"/);

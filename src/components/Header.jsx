@@ -4,7 +4,7 @@ import VantLogo from './VantLogo.jsx';
 
 const navItems = [
   { label: 'Início', to: '/' },
-  { label: 'Conversão', to: '/conversao' },
+  { label: 'VANT', to: '/conversao' },
   { label: 'Soluções', to: '/solucoes-digitais' },
 ];
 
