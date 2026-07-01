@@ -4,9 +4,8 @@ import VantLogo from './VantLogo.jsx';
 
 const navItems = [
   { label: 'Início', to: '/' },
-  { label: 'Ferramentas', to: '/recursos' },
+  { label: 'Conversão', to: '/conversao' },
   { label: 'Soluções', to: '/solucoes-digitais' },
-  { label: 'Sobre', to: '/sobre' },
 ];
 
 function Header() {
@@ -68,7 +67,7 @@ function Header() {
           </nav>
 
           <Link
-            to="/solucoes-digitais"
+            to="/solucoes-digitais#briefing-form"
             className="brand-button-secondary !hidden px-5 py-2 text-[11px] lg:!inline-flex"
           >
             Falar sobre seu projeto ›

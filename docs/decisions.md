@@ -60,3 +60,35 @@ Decisao operacional:
   medida.
 - Automacao e IA continuam existindo como oferta de escalada, nao como unica
   porta de entrada.
+
+### 2026-06-30 - Site voltado apenas para solucoes
+
+Status: aprovada pelo Victor como decisao final.
+
+O site VANT.Business passa a ser orientado apenas para solucoes digitais,
+automacao, IA aplicada, presenca digital e crescimento operacional de clientes.
+
+A VANT nao deve mais ser posicionada como catalogo de ferramentas, hub editorial
+ou biblioteca de IA como proposta principal. Ferramentas, conteudos, exemplos e
+estudos podem existir apenas como suporte comercial para demonstrar repertorio,
+prova de capacidade, possibilidades de implementacao e caminhos de escala.
+
+Direcao central:
+
+```txt
+A VANT vende solucoes digitais que estruturam, automatizam e escalam a presenca,
+o atendimento, a captacao e a operacao do cliente no digital.
+```
+
+Decisao operacional:
+
+- O site deve priorizar paginas, secoes e CTAs de conversao para solucoes.
+- A navegacao publica deve evitar dispersao institucional ou editorial.
+- A aba `Ferramentas`, se mantida, deve vender a VANT e nao as ferramentas.
+- Estudos, exemplos e ferramentas devem mostrar o valor da implementacao feita
+  pela VANT.
+- O cliente precisa entender que paga por diagnostico, estrategia, execucao,
+  automacao, padronizacao e estrutura escalavel, nao por acesso a uma ferramenta
+  isolada.
+- O proximo passo principal do usuario deve ser pedir uma solucao, diagnostico
+  ou briefing comercial.

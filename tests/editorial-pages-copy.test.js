@@ -12,6 +12,21 @@ const recursosPageSource = readFileSync(
   'utf8'
 );
 
+const appSource = readFileSync(
+  new URL('../src/App.jsx', import.meta.url),
+  'utf8'
+);
+
+const headerSource = readFileSync(
+  new URL('../src/components/Header.jsx', import.meta.url),
+  'utf8'
+);
+
+const footerSource = readFileSync(
+  new URL('../src/components/Footer.jsx', import.meta.url),
+  'utf8'
+);
+
 test('blog page keeps an editorial curation tone in hero and card CTA copy', () => {
   assert.match(blogPageSource, /Curadoria · IA · Oportunidades/);
   assert.match(blogPageSource, /Seu cadastro vira acesso a curadoria aplicada/);
@@ -20,10 +35,40 @@ test('blog page keeps an editorial curation tone in hero and card CTA copy', () 
   assert.match(blogPageSource, /Abrir matéria →/);
 });
 
-test('resources page frames the catalog as research and practical reference', () => {
-  assert.match(recursosPageSource, /Curadoria para pesquisa e operação/);
-  assert.match(recursosPageSource, /Use os filtros para encontrar referências, comparar categorias e abrir a ferramenta certa no momento certo\./);
-  assert.match(recursosPageSource, /Abrir referência →/);
+test('app keeps only the three primary public screens in navigation', () => {
+  assert.doesNotMatch(appSource, /path="\/sobre"/);
+  assert.doesNotMatch(appSource, /SobrePage/);
+  assert.doesNotMatch(headerSource, /label: 'Sobre'/);
+  assert.doesNotMatch(headerSource, /label: 'Ferramentas'/);
+  assert.doesNotMatch(footerSource, /to="\/sobre"/);
+  assert.doesNotMatch(footerSource, /Ferramentas IA/);
+  assert.match(headerSource, /label: 'Início'/);
+  assert.match(headerSource, /label: 'Conversão'/);
+  assert.match(headerSource, /to: '\/conversao'/);
+  assert.match(headerSource, /label: 'Soluções'/);
+  assert.match(appSource, /path="\/conversao"/);
+});
+
+test('resources page is fully focused on VANT solution conversion', () => {
+  assert.match(recursosPageSource, /Soluções digitais que transformam operação em crescimento/);
+  assert.match(recursosPageSource, /A VANT estrutura captação, atendimento, automação e escala digital/);
+  assert.match(recursosPageSource, /Lead sem contexto/);
+  assert.match(recursosPageSource, /Entrada/);
+  assert.match(recursosPageSource, /Qualificação/);
+  assert.match(recursosPageSource, /Atendimento/);
+  assert.match(recursosPageSource, /Conversão/);
+  assert.match(recursosPageSource, /Antes da VANT/);
+  assert.match(recursosPageSource, /Depois da VANT/);
+  assert.match(recursosPageSource, /Roteiro de atendimento padronizado/);
+  assert.match(recursosPageSource, /Diagnóstico e implementação/);
+  assert.match(recursosPageSource, /Solicitar diagnóstico da entrada de leads/);
+  assert.match(recursosPageSource, /Criar uma solucao para minha empresa/);
+  assert.doesNotMatch(recursosPageSource, /ferramentas/i);
+  assert.doesNotMatch(recursosPageSource, /ferramenta/i);
+  assert.doesNotMatch(recursosPageSource, /trackedToolHref/);
+  assert.doesNotMatch(recursosPageSource, /ToolCard/);
+  assert.doesNotMatch(recursosPageSource, /Abrir referência →/);
+  assert.doesNotMatch(recursosPageSource, /Escolha o filtro certo/);
 });
 
 test('light editorial pass removes overtly commercial copy from resources page', () => {

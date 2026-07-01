@@ -16,15 +16,14 @@ function Footer() {
             </div>
           </div>
           <p className="mt-4 text-sm text-[#a6a6a6] leading-relaxed">
-            Agência e hub de IA para presença digital, ferramentas, conteúdo e soluções para negócios.
+            Soluções digitais para presença, captação, atendimento, automação e crescimento.
           </p>
         </div>
         <div>
           <p className="brand-kicker mb-3">Navegação</p>
           <ul className="space-y-2 text-sm text-[#a6a6a6]">
-            <li><Link to="/sobre" className="transition hover:text-white">Sobre</Link></li>
-            <li><Link to="/recursos" className="transition hover:text-white">Ferramentas IA</Link></li>
-            <li><Link to="/solucoes-digitais" className="transition hover:text-white">Identidade digital</Link></li>
+            <li><Link to="/conversao" className="transition hover:text-white">Conversão de leads</Link></li>
+            <li><Link to="/solucoes-digitais#briefing-form" className="transition hover:text-white">Soluções digitais</Link></li>
           </ul>
         </div>
         <div>
@@ -33,7 +32,7 @@ function Footer() {
             Por Victor Hugo — desenvolvedor de automação e IA.
           </p>
           <p className="mt-2 text-xs text-[#6f6f6f]">
-            Alguns links são de afiliados — sem custo extra pra você.
+            Diagnóstico, estruturação e implementação para empresas que querem crescer no digital.
           </p>
           <Link
             to="/admin-vant?view=login"

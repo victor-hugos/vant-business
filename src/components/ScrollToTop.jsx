@@ -3,13 +3,13 @@ import { useLocation } from 'react-router-dom';
 import { scrollToTopOnRouteChange } from '../utils/scrollRestoration.js';
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const previousPathname = useRef(pathname);
 
   useEffect(() => {
-    scrollToTopOnRouteChange(previousPathname.current, pathname);
+    scrollToTopOnRouteChange(previousPathname.current, pathname, hash);
     previousPathname.current = pathname;
-  }, [pathname]);
+  }, [pathname, hash]);
 
   return null;
 }

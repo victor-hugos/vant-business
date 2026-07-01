@@ -1,50 +1,25 @@
 import { Link } from 'react-router-dom';
-import ToolLogo from '../components/ToolLogo.jsx';
-import { getAllPosts } from '../utils/posts.js';
-import { recursos } from '../data/recursos.js';
-import { trackEvent, trackedToolHref } from '../utils/tracking.js';
 
 const pillars = [
   {
-    title: 'Posicionamento Premium',
-    text: 'Marca, presença digital e autoridade para empresas que precisam parecer fortes.',
+    title: 'Presença Digital Premium',
+    text: 'Sites, identidade e posicionamento para sua empresa transmitir autoridade e confiança.',
     icon: 'brain',
   },
   {
-    title: 'IA Aplicada',
-    text: 'Automação, agentes e sistemas para ganhar velocidade com método.',
-    icon: 'box',
-  },
-  {
-    title: 'Soluções Digitais',
-    text: 'Sites, identidade digital, funis e estrutura para crescer com clareza.',
+    title: 'Atendimento Inteligente',
+    text: 'Pré-briefings, WhatsApp, formulários e fluxos para organizar a entrada dos clientes.',
     icon: 'nodes',
   },
   {
-    title: 'Conteúdo de Entrada',
-    text: 'Ferramentas, notícias e guias que atraem audiência e geram oportunidades.',
+    title: 'IA e Automações',
+    text: 'Agentes, notificações e processos automáticos para ganhar velocidade e reduzir tarefas manuais.',
+    icon: 'box',
+  },
+  {
+    title: 'Estrutura de Crescimento',
+    text: 'Funis, áreas do cliente, agendamentos e soluções digitais para transformar leads em clientes.',
     icon: 'doc',
-  },
-];
-
-const newsHighlights = [
-  {
-    slug: 'curadoria-diaria',
-    label: 'Radar diário',
-    title: 'Leituras para acompanhar lançamentos, movimentos de mercado e sinais de produto.',
-    cta: 'Ler curadoria ›',
-  },
-  {
-    slug: 'traducao-pratica',
-    label: 'Tradução prática',
-    title: 'Resumo em português do que merece atenção antes de virar pauta, teste ou automação.',
-    cta: 'Ver leitura ›',
-  },
-  {
-    slug: 'menos-ruido',
-    label: 'Sem ruído',
-    title: 'A seleção da VANT filtra hype e destaca o que tem impacto real para operação e conteúdo.',
-    cta: 'Abrir notícias ›',
   },
 ];
 
@@ -98,9 +73,6 @@ function PillarIcon({ type }) {
 }
 
 function HomePage() {
-  const ebookPosts = getAllPosts().filter((post) => post.ebook !== undefined).slice(0, 3);
-  const featuredTools = recursos.filter((r) => r.badge === 'Que uso').slice(0, 6);
-
   return (
     <div className="reference-home">
       <section className="reference-hero">
@@ -118,7 +90,7 @@ function HomePage() {
           </h1>
 
           <p className="reference-hero-text">
-            A VANT transforma presenca digital, tecnologia e IA em crescimento real. Explore ferramentas, noticias e guias práticos ou avance para a página de soluções se o seu foco for posicionamento, estrutura e conversão.
+            A VANT transforma presença digital, tecnologia e IA em estrutura de captação, atendimento e conversão para empresas que querem crescer com mais organização.
           </p>
 
           <div className="reference-actions">
@@ -126,7 +98,7 @@ function HomePage() {
               Conhecer soluções
               <span>›</span>
             </Link>
-            <Link to="/sobre" className="reference-button reference-button-secondary">Conhecer a VANT</Link>
+            <Link to="/solucoes-digitais" className="reference-button reference-button-secondary">Ver soluções digitais</Link>
           </div>
 
           <div className="reference-proof">
@@ -148,7 +120,13 @@ function HomePage() {
       </section>
 
       <section className="reference-pillars" aria-labelledby="vant-definition">
-        <h2 id="vant-definition">A VANT conecta percepção, tecnologia e conversão</h2>
+        <div className="reference-pillars-head">
+          <p>A VANT conecta percepção, tecnologia e conversão</p>
+          <h2 id="vant-definition">A VANT conecta presença digital, automação e crescimento</h2>
+          <span>
+            Criamos estruturas digitais para empresas que querem ser mais profissionais, captar melhor, atender com mais organização e transformar oportunidades em clientes.
+          </span>
+        </div>
         <div className="reference-pillar-grid">
           {pillars.map((item) => (
             <article key={item.title} className="reference-pillar-card">
@@ -163,90 +141,13 @@ function HomePage() {
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="reference-library">
-        <div className="reference-section-head">
-          <div>
-            <p>Ferramentas para pesquisa aplicada</p>
-            <h2>Curadoria para entender o que vale teste, estudo e integração.</h2>
-          </div>
-          <Link to="/recursos">Explorar acervo</Link>
-        </div>
-
-        <div className="reference-tool-grid">
-          {featuredTools.map((tool) => (
-            <a
-              key={tool.id}
-              href={trackedToolHref(tool.id, 'home-reference-tool')}
-              target="_blank"
-              rel="noreferrer"
-              className="reference-tool-card"
-            >
-              <ToolLogo tool={tool} className="reference-tool-logo" />
-              <h3>{tool.name}</h3>
-              <p>{tool.description}</p>
-              <div>
-                <span>{tool.categoria}</span>
-                <strong>Abrir análise</strong>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="reference-split" id="conteudos">
-        <div>
-          <div className="reference-section-head compact">
-            <div>
-              <p>Guias para aprofundar a prática</p>
-              <h2>Ebooks e guias para aprofundar a prática</h2>
-            </div>
-            <Link to="/sobre">Conhecer a VANT</Link>
-          </div>
-
-          <div className="reference-list">
-            {ebookPosts.map((post) => (
-              <Link
-                key={post.slug}
-                to={`/ebook/${post.slug}`}
-                onClick={() =>
-                  trackEvent({
-                    eventType: 'click',
-                    itemType: 'ebook',
-                    itemId: post.slug,
-                    itemTitle: post.title,
-                    source: 'home-reference-ebook-card',
-                  })
-                }
-              >
-                <span>{post.date}</span>
-                <strong>{post.title}</strong>
-                <em>Ler guia ›</em>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div id="cases">
-          <div className="reference-section-head compact">
-            <div>
-              <p>Leituras e sinais de mercado</p>
-              <h2>Notícias para acompanhar sem ruído</h2>
-            </div>
-            <Link to="/sobre">Ver posicionamento</Link>
-          </div>
-
-          <div className="reference-list">
-            {newsHighlights.map((item) => (
-              <Link key={item.slug} to="/sobre">
-                <span>{item.label}</span>
-                <strong>{item.title}</strong>
-                <em>{item.cta}</em>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <p className="reference-pillars-note">
+          A VANT.Business não entrega apenas sites. Entregamos estruturas digitais para empresas que querem atender melhor, vender com mais clareza e crescer com mais organização.
+        </p>
+        <Link to="/solucoes-digitais" className="reference-pillars-link">
+          Conhecer soluções
+          <span>›</span>
+        </Link>
       </section>
     </div>
   );

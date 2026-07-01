@@ -1,272 +1,356 @@
-import { useEffect, useMemo, useState } from 'react';
-import ToolLogo from '../components/ToolLogo.jsx';
+import { Link } from 'react-router-dom';
 import VantLogo from '../components/VantLogo.jsx';
-import { recursos as staticTools, categorias as staticCategories } from '../data/recursos.js';
-import { trackedToolHref } from '../utils/tracking.js';
 
-const badgeStyles = {
-  'Que uso': 'bg-white/[0.06] text-white border border-white/25',
-  'Afiliado': 'bg-white/[0.035] text-[#c9c9c9] border border-white/15',
-};
+const painPoints = [
+  {
+    title: 'Lead sem contexto',
+    text: 'Leads chegam por WhatsApp, Instagram, site e indicacoes sem roteiro padrao.',
+  },
+  {
+    title: 'Atendimento repetitivo',
+    text: 'A equipe repete perguntas, perde contexto e depende de memoria para dar continuidade.',
+  },
+  {
+    title: 'Follow-up perdido',
+    text: 'O cliente interessado esfria porque nao existe retorno, status ou proximo passo claro.',
+  },
+  {
+    title: 'Operacao espalhada',
+    text: 'Informacoes ficam espalhadas em conversas, planilhas, emails e processos soltos.',
+  },
+];
 
-const categoriaColors = {
-  IA: 'bg-white/[0.045] text-[#f0f0f0] border-white/20',
-  Produtividade: 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
-  Automação: 'bg-white/[0.045] text-[#f0f0f0] border-white/20',
-  Marketing: 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
-  Vídeo: 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
-  'E-commerce': 'bg-white/[0.045] text-[#c9c9c9] border-white/20',
-};
+const solutionBlocks = [
+  {
+    title: 'Roteiro de atendimento padronizado',
+    text: 'Perguntas certas, etapas de qualificacao e criterios para cada lead entrar com informacao util.',
+  },
+  {
+    title: 'Pre-briefing comercial',
+    text: 'Formulario ou WhatsApp guiado para capturar objetivo, urgencia, orcamento, servico desejado e contexto.',
+  },
+  {
+    title: 'Triagem e prioridade',
+    text: 'Separacao entre curiosos, oportunidades reais e demandas urgentes para a equipe agir com foco.',
+  },
+  {
+    title: 'Follow-up estruturado',
+    text: 'Lembretes, mensagens e proximos passos visiveis para oportunidades nao sumirem depois do primeiro contato.',
+  },
+  {
+    title: 'Base de oportunidades',
+    text: 'Historico, origem, status e etapa do lead organizados em um fluxo simples de acompanhamento.',
+  },
+  {
+    title: 'Integracoes com IA',
+    text: 'Conexao entre formulario, WhatsApp, email, planilha, CRM e automacoes para reduzir tarefas manuais.',
+  },
+];
 
-function AiIcon() {
-  return (
-    <svg viewBox="0 0 240 240" className="h-24 w-24 text-[#f0f0f0] sm:h-28 sm:w-28" aria-hidden="true">
-      <defs>
-        <linearGradient id="aiNodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.92" />
-          <stop offset="100%" stopColor="#a6a6a6" stopOpacity="0.58" />
-        </linearGradient>
-      </defs>
-      <rect x="44" y="44" width="152" height="152" rx="34" fill="url(#aiNodeGradient)" fillOpacity="0.09" stroke="currentColor" strokeOpacity="0.4" strokeWidth="3" />
-      <rect x="64" y="64" width="112" height="112" rx="26" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" strokeDasharray="8 10" />
-      <path d="M84 120h72M120 84v72M92 92l56 56M148 92l-56 56" stroke="currentColor" strokeOpacity="0.82" strokeWidth="4.5" strokeLinecap="round" />
-      <circle cx="84" cy="120" r="8" fill="currentColor" fillOpacity="0.98" />
-      <circle cx="120" cy="84" r="8" fill="currentColor" fillOpacity="0.98" />
-      <circle cx="156" cy="120" r="8" fill="currentColor" fillOpacity="0.98" />
-      <circle cx="120" cy="156" r="8" fill="currentColor" fillOpacity="0.98" />
-      <circle cx="120" cy="120" r="16" fill="none" stroke="currentColor" strokeOpacity="0.95" strokeWidth="4" />
-      <circle cx="120" cy="120" r="3.5" fill="currentColor" />
-    </svg>
-  );
-}
+const processSteps = [
+  {
+    label: '01',
+    title: 'Diagnóstico e implementação',
+    text: 'Entendemos como o cliente chega hoje, quais etapas travam e quais informacoes precisam virar fluxo.',
+  },
+  {
+    label: '02',
+    title: 'Padronização operacional',
+    text: 'Transformamos perguntas, mensagens, status e responsabilidades em um roteiro claro para atendimento.',
+  },
+  {
+    label: '03',
+    title: 'Automação aplicada',
+    text: 'Conectamos canais, formularios, notificacoes e bases para economizar tempo sem perder controle.',
+  },
+  {
+    label: '04',
+    title: 'Escala digital',
+    text: 'A operacao passa a captar melhor, responder com mais clareza e acompanhar oportunidades com consistencia.',
+  },
+];
 
-function ToolCard({ tool }) {
-  return (
-    <a
-      href={trackedToolHref(tool.id, 'recursos-tool-card')}
-      target="_blank"
-      rel="noreferrer"
-      className="brand-card group flex flex-col p-6"
-    >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <ToolLogo tool={tool} className="h-12 w-12 shrink-0" />
-        <div className="flex flex-wrap gap-1.5">
-          {tool.badge && (
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeStyles[tool.badge]}`}>
-              {tool.badge}
-            </span>
-          )}
-          {tool.gratis && (
-            <span className="rounded-full border border-white/15 bg-white/[0.035] px-2.5 py-0.5 text-xs text-[#a6a6a6]">
-              Grátis
-            </span>
-          )}
-        </div>
-      </div>
+const outcomes = [
+  'menos tarefas manuais',
+  'mais velocidade no atendimento',
+  'lead chegando com contexto',
+  'proximo passo visivel',
+  'equipe com roteiro claro',
+  'operacao pronta para crescer',
+];
 
-      <h3 className="font-display text-2xl font-bold leading-tight text-white">
-        {tool.name}
-      </h3>
+const brandSignals = ['Estratégia', 'Conexão', 'Resultados', 'Valor'];
 
-      <p className="mt-3 flex-1 text-sm leading-relaxed text-[#a6a6a6]">
-        {tool.description}
-      </p>
+const leadFlow = [
+  {
+    title: 'Entrada',
+    text: 'O lead chega por um canal claro, com origem e interesse identificados.',
+  },
+  {
+    title: 'Qualificação',
+    text: 'Perguntas certas filtram urgencia, perfil, objetivo e potencial de compra.',
+  },
+  {
+    title: 'Atendimento',
+    text: 'A equipe recebe contexto, roteiro e proximo passo para responder melhor.',
+  },
+  {
+    title: 'Conversão',
+    text: 'Oportunidades seguem com status, follow-up e caminho comercial visivel.',
+  },
+];
 
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <span className={`rounded-full border px-2.5 py-0.5 text-xs ${categoriaColors[tool.categoria] || 'bg-white/[0.035] text-[#a6a6a6] border-white/10'}`}>
-          {tool.categoria}
-        </span>
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white">
-          Abrir referência →
-        </span>
-      </div>
-    </a>
-  );
-}
+const comparisonColumns = [
+  {
+    title: 'Antes da VANT',
+    items: [
+      'Lead chega sem contexto',
+      'Equipe repete perguntas',
+      'Retorno depende de memoria',
+      'Oportunidade some no WhatsApp',
+    ],
+  },
+  {
+    title: 'Depois da VANT',
+    items: [
+      'Entrada com dados essenciais',
+      'Roteiro padronizado de atendimento',
+      'Follow-up e status visiveis',
+      'Processo pronto para escalar',
+    ],
+  },
+];
+
+const fitCards = [
+  {
+    title: 'Recebe leads por varios canais',
+    text: 'Empresas que precisam organizar WhatsApp, Instagram, site e indicacoes sem perder contexto.',
+  },
+  {
+    title: 'Vende servico, projeto ou diagnostico',
+    text: 'Operacoes que dependem de conversa clara, proposta coerente e proximo passo visivel.',
+  },
+  {
+    title: 'Sofre com improviso no atendimento',
+    text: 'Equipes que repetem perguntas, demoram a responder ou deixam oportunidades esfriar.',
+  },
+  {
+    title: 'Precisa escalar sem baguncar',
+    text: 'Negocios que querem crescer com processo, automacao e acompanhamento simples.',
+  },
+];
 
 function RecursosPage() {
-  const [categoriaAtiva, setCategoriaAtiva] = useState('Todas');
-  const [tools, setTools] = useState(staticTools);
-  const [categories, setCategories] = useState(staticCategories);
-
-  useEffect(() => {
-    let active = true;
-
-    fetch('/api/news?kind=tools')
-      .then((response) => {
-        const contentType = response.headers.get('content-type') || '';
-        if (!response.ok || !contentType.includes('application/json')) {
-          throw new Error('tools-api-unavailable');
-        }
-        return response.json();
-      })
-      .then((payload) => {
-        if (!active) return;
-        setTools(payload.items?.length ? payload.items : staticTools);
-        setCategories(payload.categorias?.length ? payload.categorias : staticCategories);
-      })
-      .catch(() => {
-        if (!active) return;
-        setTools(staticTools);
-        setCategories(staticCategories);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!categories.includes(categoriaAtiva)) {
-      setCategoriaAtiva('Todas');
-    }
-  }, [categories, categoriaAtiva]);
-
-  const filtrados = categoriaAtiva === 'Todas'
-    ? tools
-    : tools.filter((r) => r.categoria === categoriaAtiva);
-
-  const categoryCounts = useMemo(() => {
-    return tools.reduce((acc, tool) => {
-      acc[tool.categoria] = (acc[tool.categoria] || 0) + 1;
-      return acc;
-    }, {});
-  }, [tools]);
-
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <section className="brand-panel">
-        <div className="brand-mark-panel grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[1.25fr_0.75fr] lg:px-10 lg:py-8">
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
-                  Ferramentas de IA
-                </span>
-                <span className="brand-pill px-3 py-1 text-[11px] font-medium">
-                  Curadoria para pesquisa e operação
-                </span>
-              </div>
-
-              <h1 className="brand-title mt-5 max-w-3xl text-4xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
-                Ferramentas
-                <span className="brand-metal block">de IA</span>
-              </h1>
-
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#c9c9c9] sm:text-lg">
-                Um acervo prático das ferramentas que entram no radar da VANT. Filtre por categoria, compare opções e siga para os tutoriais quando precisar de contexto aplicado.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <span className="brand-pill px-4 py-2 text-sm">
-                Curadoria ativa
+    <div className="conversion-page mx-auto max-w-7xl lg:-mt-6">
+      <section className="conversion-hero">
+        <div className="conversion-hero-copy">
+          <div>
+            <div className="conversion-pills flex flex-wrap items-center gap-2">
+              <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
+                Solucoes digitais
               </span>
-              <span className="brand-pill px-4 py-2 text-sm">
-                Foco em uso real
-              </span>
-              <span className="brand-pill px-4 py-2 text-sm">
-                Tutoriais e ebooks
+              <span className="brand-pill px-3 py-1 text-[11px] font-medium">
+                Automacao · Atendimento · Escala
               </span>
             </div>
-          </div>
 
-          <div className="flex items-center justify-center lg:justify-end">
-            <div className="relative flex h-full min-h-[240px] w-full items-center justify-center border border-white/10 bg-black/45 px-5 py-6">
-              <div className="absolute inset-x-10 top-6 h-px bg-white/25" />
-              <div className="absolute inset-x-10 bottom-6 h-px bg-white/15" />
-
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex h-36 w-36 items-center justify-center border border-white/15 bg-white/[0.03] sm:h-40 sm:w-40">
-                  <VantLogo size={118} />
-                </div>
-                <div className="text-center">
-                  <p className="brand-kicker">IA em destaque</p>
-                  <p className="mt-1 max-w-xs text-sm leading-relaxed text-[#a6a6a6]">
-                    O espaço visual aqui reforça que o catálogo é focado em inteligência artificial e uso prático.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="brand-panel px-4 py-3 sm:px-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.03] sm:h-11 sm:w-11">
-            <img
-              src="/assets/vant-logo-white.png"
-              alt=""
-              className="h-14 w-14 max-w-none object-contain"
-            />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <p className="brand-kicker text-[0.62rem]">Navegação rápida</p>
-            <h2 className="brand-title mt-0.5 text-lg font-bold leading-tight text-white sm:text-xl">
-              Escolha o filtro certo
-            </h2>
-            <p className="mt-0.5 max-w-2xl text-xs leading-relaxed text-[#a6a6a6] sm:text-sm">
-              Use os filtros para encontrar referências, comparar categorias e abrir a ferramenta certa no momento certo.
+            <h1 className="conversion-title brand-title">
+              Soluções digitais que transformam operação em crescimento
+            </h1>
+            <p className="conversion-lead">
+              A VANT estrutura captação, atendimento, automação e escala digital para empresas que querem parar de improvisar e começar a operar com clareza.
             </p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {['entrada clara', 'processo visivel', 'proximo passo definido'].map((item) => (
+                <span key={item} className="brand-pill px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em]">
+                  {item}
+                </span>
+              ))}
+            </div>
+
+            <div className="conversion-actions flex flex-col gap-3 sm:flex-row">
+              <Link to="/solucoes-digitais#briefing-form" className="brand-button-primary px-6 py-3 text-xs">
+                Solicitar diagnóstico da entrada de leads
+              </Link>
+              <a href="#solucoes" className="brand-button-secondary px-6 py-3 text-xs">
+                Ver exemplos
+              </a>
+            </div>
+          </div>
+
+          <div className="conversion-signature">
+            <VantLogo size={42} />
+            <span />
+            <p>Estratégia · Conexão · Resultados</p>
           </div>
         </div>
 
-        <div className="mt-3 overflow-x-auto pb-1">
-          <div className="flex min-w-max flex-wrap gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategoriaAtiva(cat)}
-                className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
-                  categoriaAtiva === cat
-                    ? 'border-white/45 bg-white/[0.08] text-white'
-                    : 'border-white/15 bg-white/[0.03] text-[#a6a6a6] hover:border-white/30 hover:text-white'
-                }`}
-              >
-                {cat}
-                {cat !== 'Todas' && (
-                  <span className="ml-1.5 text-xs opacity-60">
-                    {categoryCounts[cat] || 0}
-                  </span>
-                )}
-              </button>
-            ))}
+        <aside className="conversion-visual">
+          <div className="conversion-brand-board" aria-hidden="true">
+            <div className="conversion-brand-emblem">
+              <VantLogo size={138} />
+            </div>
+            <p className="conversion-brand-name">VANT.BUSINESS</p>
+            <span className="conversion-brand-rule" />
+            <p className="conversion-brand-line">Impulsionamos negócios. Geramos valor.</p>
+
+            <div className="conversion-brand-signals">
+              {brandSignals.map((signal) => (
+                <span key={signal}>{signal}</span>
+              ))}
+            </div>
           </div>
+
+          <div className="conversion-pipeline">
+            <div className="conversion-pipeline-head">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/10 bg-white/[0.04]">
+                <VantLogo size={30} />
+              </div>
+              <div>
+                <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
+                <p className="mt-1 text-[0.62rem] uppercase tracking-[0.18em] text-[#7f7f7f]">
+                  Lead claro. Processo visivel.
+                </p>
+              </div>
+            </div>
+
+            <div className="conversion-outcomes">
+              {leadFlow.map((item, index) => (
+                <div key={item.title} className="conversion-outcome-row">
+                  <small>{String(index + 1).padStart(2, '0')}</small>
+                  <span>
+                    <strong>{item.title}</strong>
+                    <em>{item.text}</em>
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section className="conversion-problem">
+        <div className="conversion-section-intro">
+          <p className="brand-kicker">O problema</p>
+          <h2 className="brand-title mt-3 text-3xl font-bold leading-tight text-white">
+            Crescer no digital fica caro quando o atendimento depende de improviso.
+          </h2>
+          <p className="mt-4 text-sm leading-6 text-[#a6a6a6]">
+            A VANT organiza a operacao antes de automatizar. Assim, tecnologia entra para sustentar processo, nao para criar mais bagunca.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="brand-card p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#7f7f7f]">Leitura rapida</p>
+              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">Se a entrada do lead esta confusa, a venda fica mais lenta e mais cara.</p>
+            </div>
+            <div className="brand-card p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#7f7f7f]">Foco</p>
+              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">A pagina mostra a estrutura antes de pedir o briefing.</p>
+            </div>
+            <div className="brand-card p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#7f7f7f]">Resultado</p>
+              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">Menos improviso, mais contexto e proximo passo visivel.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="conversion-problem-grid">
+          {painPoints.map((item, index) => (
+            <article key={item.title} className="conversion-problem-card">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <h3 className="text-lg font-semibold leading-tight text-white">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">{item.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
-      <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="brand-kicker">Curadoria em destaque</p>
-          <h2 className="brand-title mt-2 text-3xl font-bold text-white">
-            Ferramentas em destaque
-          </h2>
+      <section id="solucoes" className="conversion-solutions">
+        <div className="conversion-solutions-head">
+          <div>
+            <p className="brand-kicker">Solucoes que a VANT implementa</p>
+            <h2 className="brand-title mt-2 max-w-3xl text-3xl font-bold leading-tight text-white sm:text-4xl">
+              Exemplos reais de estrutura para captar, atender e escalar
+            </h2>
+          </div>
+          <p className="max-w-xl text-sm leading-relaxed text-[#a6a6a6]">
+            A tecnologia muda conforme o caso. O que permanece e a estrutura: entrada clara, processo padronizado e acompanhamento consistente.
+          </p>
         </div>
-        <p className="max-w-xl text-sm leading-relaxed text-[#a6a6a6]">
-          Cada card leva direto para a ferramenta rastreada. A seleção foi organizada para pesquisa, operação e produção de conteúdo, conforme o caso.
-        </p>
-      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {filtrados.map((tool) => (
-          <ToolCard key={tool.id} tool={tool} />
+        <div className="conversion-solution-grid">
+          {solutionBlocks.map((solution, index) => (
+            <article key={solution.title} className="conversion-solution-card">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <h3 className="text-lg font-semibold leading-tight text-white">{solution.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#a6a6a6]">{solution.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="conversion-before-after">
+        {comparisonColumns.map((column) => (
+          <article key={column.title} className="conversion-compare-column">
+            <p className="brand-kicker">{column.title}</p>
+            <div className="mt-5 grid gap-3">
+              {column.items.map((item, index) => (
+                <div key={item} className="conversion-compare-row">
+                  <small>{String(index + 1).padStart(2, '0')}</small>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </article>
         ))}
-      </div>
+      </section>
 
-      <div className="brand-panel px-6 py-7 text-center sm:px-8">
-        <p className="brand-title text-2xl font-bold text-white">Quer saber como usar cada ferramenta?</p>
-        <p className="mt-2 text-sm text-[#a6a6a6]">
-          Cada ferramenta pode ser aprofundada no blog com passo a passo, contexto e guias práticos.
+      <section className="conversion-fit brand-panel p-6 sm:p-8">
+        <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="brand-kicker">Para quem faz sentido</p>
+            <h2 className="brand-title mt-3 text-3xl font-bold leading-tight text-white sm:text-4xl">A pagina funciona melhor para empresas que precisam de ordem comercial</h2>
+          </div>
+          <p className="max-w-xl text-sm leading-6 text-[#a6a6a6]">
+            O objetivo nao e impressionar por volume. E qualificar a pessoa certa, rapido o suficiente para virar conversa comercial.
+          </p>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {fitCards.map((card) => (
+            <article key={card.title} className="brand-card p-4">
+              <h3 className="text-base font-semibold leading-tight text-white">{card.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#a6a6a6]">{card.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="conversion-process">
+        {processSteps.map((step) => (
+          <article key={step.label} className="conversion-process-card">
+            <span className="text-xs font-semibold text-[#a6a6a6]">{step.label}</span>
+            <h2 className="mt-4 text-xl font-semibold leading-tight text-white">{step.title}</h2>
+            <p className="mt-3 text-sm leading-6 text-[#a6a6a6]">{step.text}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="conversion-final-cta">
+        <p className="brand-kicker">Proximo passo</p>
+        <h2 className="brand-title mx-auto mt-3 max-w-3xl text-3xl font-bold leading-tight text-white sm:text-4xl">
+          Voce nao precisa de mais improviso. Precisa de uma entrada de leads que vire processo comercial.
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#a6a6a6]">
+          A VANT desenha o fluxo, define a tecnologia, implementa automacoes e deixa sua operacao mais preparada para captar, atender e crescer.
         </p>
-        <a
-          href="/sobre"
-          className="brand-button-secondary mt-5 px-6 py-2.5 text-xs"
-        >
-          Conhecer a VANT →
-        </a>
-      </div>
+        <Link to="/solucoes-digitais#briefing-form" className="brand-button-primary mt-6 px-7 py-3 text-xs">
+          Criar uma solucao para minha empresa
+        </Link>
+      </section>
     </div>
   );
 }
