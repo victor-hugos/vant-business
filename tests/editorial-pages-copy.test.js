@@ -27,6 +27,11 @@ const footerSource = readFileSync(
   'utf8'
 );
 
+const cssSource = readFileSync(
+  new URL('../src/index.css', import.meta.url),
+  'utf8'
+);
+
 test('blog page keeps an editorial curation tone in hero and card CTA copy', () => {
   assert.match(blogPageSource, /Curadoria · IA · Oportunidades/);
   assert.match(blogPageSource, /Seu cadastro vira acesso a curadoria aplicada/);
@@ -75,6 +80,14 @@ test('resources page is fully focused on VANT solution conversion', () => {
 test('light editorial pass removes overtly commercial copy from resources page', () => {
   assert.doesNotMatch(recursosPageSource, /testar ou vender/);
   assert.doesNotMatch(recursosPageSource, /Acessar →/);
+});
+
+test('conversion page has a mobile-first compact layout pass', () => {
+  assert.match(cssSource, /@media \(max-width: 640px\)/);
+  assert.match(cssSource, /\.conversion-brand-board\s*{[^}]*display:\s*none/s);
+  assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*padding:\s*1\.35rem 0\.95rem/s);
+  assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(1\.95rem, 10\.5vw, 2\.85rem\)/s);
+  assert.match(cssSource, /\.conversion-outcome-row\s*{[^}]*grid-template-columns:\s*28px 1fr/s);
 });
 
 const solutionsPageSource = readFileSync(
