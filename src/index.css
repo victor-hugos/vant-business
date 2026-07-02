@@ -502,6 +502,27 @@ html {
   padding: clamp(1.3rem, 2.2vw, 1.8rem);
 }
 
+.conversion-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.55rem;
+}
+
+.conversion-icon-frame {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(240, 240, 240, 0.17);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent 50%),
+    rgba(255, 255, 255, 0.032);
+  color: #f0f0f0;
+}
+
 .conversion-diagnosis-list {
   display: grid;
   gap: 0;
@@ -539,7 +560,6 @@ html {
 .conversion-problem-card span,
 .conversion-solution-card span {
   display: block;
-  margin-bottom: 1.8rem;
   color: #6f6f6f;
   font-size: 0.7rem;
   font-weight: 700;
@@ -1349,6 +1369,15 @@ html {
     min-height: auto;
     border-left: 0;
     padding: 1rem;
+  }
+
+  .conversion-card-head {
+    margin-bottom: 1rem;
+  }
+
+  .conversion-icon-frame {
+    width: 44px;
+    height: 44px;
   }
 
   .conversion-section-intro {

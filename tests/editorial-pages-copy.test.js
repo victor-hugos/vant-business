@@ -58,6 +58,10 @@ test('app keeps only the three primary public screens in navigation', () => {
 test('resources page is fully focused on VANT solution conversion', () => {
   assert.match(recursosPageSource, /Soluções digitais que transformam operação em crescimento/);
   assert.match(recursosPageSource, /A VANT estrutura captação, atendimento, automação e escala digital/);
+  assert.match(recursosPageSource, /function ConversionIcon/);
+  assert.match(recursosPageSource, /conversion-icon-frame/);
+  assert.match(recursosPageSource, /icon: 'nodes'/);
+  assert.match(recursosPageSource, /icon: 'doc'/);
   assert.match(recursosPageSource, /Lead sem contexto/);
   assert.match(recursosPageSource, /Entrada/);
   assert.match(recursosPageSource, /Qualificação/);

@@ -5,18 +5,22 @@ const painPoints = [
   {
     title: 'Lead sem contexto',
     text: 'Leads chegam por WhatsApp, Instagram, site e indicacoes sem roteiro padrao.',
+    icon: 'nodes',
   },
   {
     title: 'Atendimento repetitivo',
     text: 'A equipe repete perguntas, perde contexto e depende de memoria para dar continuidade.',
+    icon: 'doc',
   },
   {
     title: 'Follow-up perdido',
     text: 'O cliente interessado esfria porque nao existe retorno, status ou proximo passo claro.',
+    icon: 'clock',
   },
   {
     title: 'Operacao espalhada',
     text: 'Informacoes ficam espalhadas em conversas, planilhas, emails e processos soltos.',
+    icon: 'box',
   },
 ];
 
@@ -24,26 +28,32 @@ const solutionBlocks = [
   {
     title: 'Roteiro de atendimento padronizado',
     text: 'Perguntas certas, etapas de qualificacao e criterios para cada lead entrar com informacao util.',
+    icon: 'doc',
   },
   {
     title: 'Pre-briefing comercial',
     text: 'Formulario ou WhatsApp guiado para capturar objetivo, urgencia, orcamento, servico desejado e contexto.',
+    icon: 'nodes',
   },
   {
     title: 'Triagem e prioridade',
     text: 'Separacao entre curiosos, oportunidades reais e demandas urgentes para a equipe agir com foco.',
+    icon: 'target',
   },
   {
     title: 'Follow-up estruturado',
     text: 'Lembretes, mensagens e proximos passos visiveis para oportunidades nao sumirem depois do primeiro contato.',
+    icon: 'clock',
   },
   {
     title: 'Base de oportunidades',
     text: 'Historico, origem, status e etapa do lead organizados em um fluxo simples de acompanhamento.',
+    icon: 'box',
   },
   {
     title: 'Integracoes com IA',
     text: 'Conexao entre formulario, WhatsApp, email, planilha, CRM e automacoes para reduzir tarefas manuais.',
+    icon: 'brain',
   },
 ];
 
@@ -139,6 +149,74 @@ const fitCards = [
     text: 'Negocios que querem crescer com processo, automacao e acompanhamento simples.',
   },
 ];
+
+function ConversionIcon({ type }) {
+  const common = {
+    className: 'h-7 w-7',
+    viewBox: '0 0 32 32',
+    fill: 'none',
+    xmlns: 'http://www.w3.org/2000/svg',
+    'aria-hidden': 'true',
+  };
+
+  if (type === 'nodes') {
+    return (
+      <svg {...common}>
+        <circle cx="9" cy="10" r="3.2" stroke="currentColor" strokeWidth="1.35" />
+        <circle cx="23" cy="10" r="3.2" stroke="currentColor" strokeWidth="1.35" />
+        <circle cx="16" cy="23" r="3.2" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M12 11.5h8M10.6 12.8l3.8 7M21.4 12.8l-3.8 7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.35" />
+      </svg>
+    );
+  }
+
+  if (type === 'doc') {
+    return (
+      <svg {...common}>
+        <path d="M9 5.5h10l4 4v17H9v-21Z" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M19 5.5v4h4M12 14h8M12 18h8M12 22h5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.35" />
+      </svg>
+    );
+  }
+
+  if (type === 'clock') {
+    return (
+      <svg {...common}>
+        <circle cx="16" cy="16" r="10.5" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M16 9.5V16l4.8 3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.35" />
+        <path d="M7.5 6.8 5.4 9M24.5 6.8 26.6 9" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" opacity="0.55" />
+      </svg>
+    );
+  }
+
+  if (type === 'target') {
+    return (
+      <svg {...common}>
+        <circle cx="16" cy="16" r="10.5" stroke="currentColor" strokeWidth="1.35" />
+        <circle cx="16" cy="16" r="5.8" stroke="currentColor" strokeWidth="1.35" />
+        <circle cx="16" cy="16" r="1.8" fill="currentColor" />
+        <path d="M16 4.5v4M16 23.5v4M4.5 16h4M23.5 16h4" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" opacity="0.6" />
+      </svg>
+    );
+  }
+
+  if (type === 'brain') {
+    return (
+      <svg {...common}>
+        <path d="M12 6.5c-2.6 0-4.8 2-4.8 4.5v10c0 2.5 2.2 4.5 4.8 4.5M20 6.5c2.6 0 4.8 2 4.8 4.5v10c0 2.5-2.2 4.5-4.8 4.5M12 6.5v19M20 6.5v19" stroke="currentColor" strokeWidth="1.35" />
+        <path d="M9.2 12.2h4.2M9.2 18.8h4.2M18.6 12.2h4.2M18.6 18.8h4.2M13.4 15.5H20" stroke="currentColor" strokeLinecap="round" strokeWidth="1.35" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <path d="M16 4.5 26 10v12L16 27.5 6 22V10L16 4.5Z" stroke="currentColor" strokeWidth="1.35" />
+      <path d="M6.5 10.2 16 15.7l9.5-5.5M16 15.7v11" stroke="currentColor" strokeWidth="1.35" />
+      <path d="m11 7.4 10 5.7M21 7.4l-10 5.7" stroke="currentColor" strokeWidth="1" opacity="0.55" />
+    </svg>
+  );
+}
 
 function RecursosPage() {
   return (
@@ -261,7 +339,12 @@ function RecursosPage() {
         <div className="conversion-problem-grid">
           {painPoints.map((item, index) => (
             <article key={item.title} className="conversion-problem-card">
-              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div className="conversion-card-head">
+                <div className="conversion-icon-frame">
+                  <ConversionIcon type={item.icon} />
+                </div>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+              </div>
               <h3 className="text-lg font-semibold leading-tight text-white">{item.title}</h3>
               <p className="mt-3 text-sm leading-6 text-[#d8d8d8]">{item.text}</p>
             </article>
@@ -285,7 +368,12 @@ function RecursosPage() {
         <div className="conversion-solution-grid">
           {solutionBlocks.map((solution, index) => (
             <article key={solution.title} className="conversion-solution-card">
-              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div className="conversion-card-head">
+                <div className="conversion-icon-frame">
+                  <ConversionIcon type={solution.icon} />
+                </div>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+              </div>
               <h3 className="text-lg font-semibold leading-tight text-white">{solution.title}</h3>
               <p className="mt-3 text-sm leading-6 text-[#a6a6a6]">{solution.text}</p>
             </article>
