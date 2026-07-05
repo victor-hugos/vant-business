@@ -56,25 +56,47 @@ test('app keeps only the three primary public screens in navigation', () => {
 });
 
 test('resources page is fully focused on VANT solution conversion', () => {
-  assert.match(recursosPageSource, /Soluções digitais que transformam operação em crescimento/);
-  assert.match(recursosPageSource, /A VANT estrutura captação, atendimento, automação e escala digital/);
-  assert.match(recursosPageSource, /function ConversionIcon/);
-  assert.match(recursosPageSource, /conversion-icon-frame/);
-  assert.match(recursosPageSource, /icon: 'nodes'/);
-  assert.match(recursosPageSource, /icon: 'doc'/);
-  assert.match(recursosPageSource, /Lead sem contexto/);
-  assert.match(recursosPageSource, /Entrada/);
+  assert.match(recursosPageSource, /Sua empresa não precisa de mais ferramentas/);
+  assert.match(recursosPageSource, /Precisa de uma estrutura que faça tudo trabalhar junto/);
+  assert.match(recursosPageSource, /Muitas empresas não têm um problema de vendas/);
+  assert.match(recursosPageSource, /entre o interesse e a venda/);
+  assert.match(recursosPageSource, /Nós organizamos a jornada inteira/);
+  assert.match(recursosPageSource, /Captar/);
+  assert.match(recursosPageSource, /Atender/);
+  assert.match(recursosPageSource, /Converter/);
+  assert.match(recursosPageSource, /O que muda na prática/);
+  assert.match(recursosPageSource, /Antes/);
+  assert.match(recursosPageSource, /Com a VANT/);
+  assert.match(recursosPageSource, /Solicitar análise da operação/);
+  assert.match(recursosPageSource, /Solicitar uma análise da minha operação/);
+  assert.match(recursosPageSource, /Sem pacote genérico/);
+  assert.match(recursosPageSource, /className="conversion-system"/);
+  assert.match(recursosPageSource, /className="conversion-path-grid"/);
+  assert.match(recursosPageSource, /className="conversion-path-card"/);
+  assert.match(recursosPageSource, /A VANT organiza/);
+  assert.match(recursosPageSource, /id="como-resolvemos"/);
+  assert.doesNotMatch(recursosPageSource, /className="conversion-problem"/);
+  assert.doesNotMatch(recursosPageSource, /className="conversion-solutions"/);
+  assert.doesNotMatch(recursosPageSource, /className="conversion-system-head"/);
+  assert.doesNotMatch(recursosPageSource, /className="conversion-pillar-grid"/);
+  assert.doesNotMatch(recursosPageSource, /conversion-hero-proof/);
+  assert.doesNotMatch(recursosPageSource, /Diagnóstico antes da ferramenta/);
+  assert.doesNotMatch(recursosPageSource, /Captação, atendimento e follow-up conectados/);
+  assert.doesNotMatch(recursosPageSource, /Solução criada a partir do gargalo real/);
+  assert.doesNotMatch(recursosPageSource, /A solução depende do gargalo/);
+  assert.doesNotMatch(recursosPageSource, /Não começamos pela ferramenta/);
+  assert.doesNotMatch(recursosPageSource, /Veja como uma operação pode funcionar/);
+  assert.doesNotMatch(recursosPageSource, /function ConversionIcon/);
+  assert.doesNotMatch(recursosPageSource, /conversion-icon-frame/);
+  assert.doesNotMatch(recursosPageSource, /icon: 'nodes'/);
+  assert.doesNotMatch(recursosPageSource, /icon: 'doc'/);
+  assert.doesNotMatch(recursosPageSource, /Lead sem contexto/);
   assert.match(recursosPageSource, /Qualificação/);
   assert.match(recursosPageSource, /Atendimento/);
-  assert.match(recursosPageSource, /Conversão/);
-  assert.match(recursosPageSource, /Antes da VANT/);
-  assert.match(recursosPageSource, /Depois da VANT/);
-  assert.match(recursosPageSource, /Roteiro de atendimento padronizado/);
-  assert.match(recursosPageSource, /Diagnóstico e implementação/);
-  assert.match(recursosPageSource, /Solicitar diagnóstico da entrada de leads/);
-  assert.match(recursosPageSource, /Criar uma solucao para minha empresa/);
-  assert.doesNotMatch(recursosPageSource, /ferramentas/i);
-  assert.doesNotMatch(recursosPageSource, /ferramenta/i);
+  assert.doesNotMatch(recursosPageSource, /Roteiro de atendimento padronizado/);
+  assert.doesNotMatch(recursosPageSource, /Diagnóstico e implementação/);
+  assert.doesNotMatch(recursosPageSource, /Solicitar diagnóstico da entrada de leads/);
+  assert.doesNotMatch(recursosPageSource, /Criar uma solucao para minha empresa/);
   assert.doesNotMatch(recursosPageSource, /trackedToolHref/);
   assert.doesNotMatch(recursosPageSource, /ToolCard/);
   assert.doesNotMatch(recursosPageSource, /Abrir referência →/);
@@ -88,10 +110,18 @@ test('light editorial pass removes overtly commercial copy from resources page',
 
 test('conversion page has a mobile-first compact layout pass', () => {
   assert.match(cssSource, /@media \(max-width: 640px\)/);
-  assert.match(cssSource, /\.conversion-brand-board\s*{[^}]*display:\s*none/s);
+  assert.match(cssSource, /\.conversion-hero\s*{[^}]*flex-direction:\s*column/s);
+  assert.match(cssSource, /\.conversion-visual\s*{[^}]*order:\s*1/s);
+  assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*order:\s*2/s);
+  assert.match(cssSource, /\.conversion-brand-board\s*{[^}]*display:\s*grid/s);
   assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*padding:\s*1\.35rem 0\.95rem/s);
-  assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(1\.95rem, 10\.5vw, 2\.85rem\)/s);
+  assert.match(cssSource, /\.conversion-title\s*{[^}]*max-width:\s*680px/s);
+  assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(2\.05rem, 3\.45vw, 3\.65rem\)/s);
+  assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(1\.95rem, 9\.25vw, 2\.45rem\)/s);
+  assert.match(cssSource, /\.conversion-system\s*{[^}]*display:\s*grid/s);
+  assert.doesNotMatch(cssSource, /\.conversion-hero-proof/);
   assert.match(cssSource, /\.conversion-outcome-row\s*{[^}]*grid-template-columns:\s*28px 1fr/s);
+  assert.match(cssSource, /\.conversion-compare-row\s*{[^}]*grid-template-columns:\s*1fr/s);
 });
 
 const solutionsPageSource = readFileSync(

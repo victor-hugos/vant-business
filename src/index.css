@@ -194,17 +194,26 @@ html {
   gap: 1rem;
 }
 
-.conversion-hero {
+.conversion-hero,
+.conversion-system,
+.conversion-before-after,
+.conversion-build,
+.conversion-process,
+.conversion-demo,
+.conversion-final-cta {
   position: relative;
-  display: grid;
-  min-height: clamp(560px, calc(100vh - 118px), 690px);
-  grid-template-columns: minmax(0, 0.95fr) minmax(390px, 0.62fr);
   overflow: hidden;
   border: 1px solid rgba(240, 240, 240, 0.12);
+}
+
+.conversion-hero {
+  display: grid;
+  min-height: clamp(570px, calc(100vh - 148px), 690px);
+  grid-template-columns: minmax(0, 1fr) minmax(370px, 0.56fr);
   background:
     linear-gradient(rgba(240, 240, 240, 0.018) 1px, transparent 1px),
     linear-gradient(90deg, rgba(240, 240, 240, 0.018) 1px, transparent 1px),
-    linear-gradient(112deg, #020202 0%, #060606 50%, #101010 100%);
+    linear-gradient(112deg, #020202 0%, #060606 52%, #101010 100%);
   background-size: 72px 72px, 72px 72px, auto;
 }
 
@@ -213,12 +222,13 @@ html {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.055), transparent 20%),
-    linear-gradient(180deg, transparent 64%, rgba(0, 0, 0, 0.76));
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055), transparent 22%),
+    linear-gradient(180deg, transparent 66%, rgba(0, 0, 0, 0.78));
   pointer-events: none;
 }
 
-.conversion-hero::after {
+.conversion-hero::after,
+.conversion-demo::after {
   content: "";
   position: absolute;
   inset: auto 0 0;
@@ -234,19 +244,19 @@ html {
   min-height: 100%;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(2rem, 5vw, 4.6rem);
+  padding: clamp(2rem, 4.4vw, 4rem);
 }
 
 .conversion-title {
-  max-width: 760px;
+  max-width: 680px;
   margin-top: 1.4rem;
-  font-size: clamp(2.65rem, 5.4vw, 5.7rem);
+  font-size: clamp(2.05rem, 3.45vw, 3.65rem);
   font-weight: 700;
-  line-height: 0.92;
+  line-height: 1.02;
 }
 
 .conversion-lead {
-  max-width: 640px;
+  max-width: 680px;
   margin-top: 1.35rem;
   color: #d6d6d6;
   font-size: clamp(1rem, 1.35vw, 1.18rem);
@@ -255,6 +265,23 @@ html {
 
 .conversion-actions {
   margin-top: 1.75rem;
+}
+
+.conversion-hero-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.conversion-hero-line span {
+  border-left: 1px solid rgba(240, 240, 240, 0.32);
+  padding-left: 0.65rem;
+  color: #9f9f9f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .conversion-signature {
@@ -302,8 +329,7 @@ html {
   position: absolute;
   inset: 12% 18% auto;
   height: 1px;
-  background:
-    linear-gradient(90deg, transparent, rgba(240, 240, 240, 0.76), transparent);
+  background: linear-gradient(90deg, transparent, rgba(240, 240, 240, 0.76), transparent);
   box-shadow: 0 0 28px rgba(240, 240, 240, 0.3);
   pointer-events: none;
 }
@@ -365,27 +391,6 @@ html {
   text-transform: uppercase;
 }
 
-.conversion-brand-signals {
-  display: grid;
-  width: 100%;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  margin-top: 2rem;
-  background: rgba(240, 240, 240, 0.1);
-}
-
-.conversion-brand-signals span {
-  display: grid;
-  min-height: 48px;
-  place-items: center;
-  background: rgba(5, 5, 5, 0.78);
-  color: #a6a6a6;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.17em;
-  text-transform: uppercase;
-}
-
 .conversion-pipeline {
   position: relative;
   z-index: 2;
@@ -412,7 +417,7 @@ html {
 
 .conversion-outcome-row {
   display: grid;
-  min-height: 76px;
+  min-height: 86px;
   grid-template-columns: 42px 1fr auto;
   align-items: center;
   gap: 1rem;
@@ -424,7 +429,11 @@ html {
   border-top: 0;
 }
 
-.conversion-outcome-row small {
+.conversion-outcome-row small,
+.conversion-journey-card small,
+.conversion-pillar-card small,
+.conversion-compare-row small,
+.conversion-demo-step small {
   color: #6f6f6f;
   font-size: 0.68rem;
   font-weight: 700;
@@ -437,12 +446,13 @@ html {
 
 .conversion-outcome-row strong {
   color: #ffffff;
-  font-size: 0.86rem;
+  font-size: 0.9rem;
   font-weight: 700;
+  text-transform: uppercase;
 }
 
 .conversion-outcome-row em {
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
   color: #8f8f8f;
   font-size: 0.72rem;
   font-style: normal;
@@ -453,27 +463,38 @@ html {
   color: #a6a6a6;
 }
 
-.conversion-problem,
-.conversion-solutions,
+.conversion-system,
+.conversion-build,
+.conversion-process,
 .conversion-final-cta {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(240, 240, 240, 0.12);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 42%),
     rgba(5, 5, 5, 0.92);
 }
 
-.conversion-problem {
+.conversion-build {
   display: grid;
-  grid-template-columns: minmax(360px, 0.38fr) minmax(0, 0.62fr);
+  grid-template-columns: minmax(360px, 0.4fr) minmax(0, 0.6fr);
   align-items: stretch;
 }
 
-.conversion-section-intro {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.conversion-system {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.36fr) minmax(0, 0.64fr);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 42%),
+    rgba(5, 5, 5, 0.92);
+}
+
+.conversion-system-diagnosis {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.42fr) minmax(0, 0.58fr);
+  border-bottom: 1px solid rgba(240, 240, 240, 0.12);
+}
+
+.conversion-system-intro {
+  display: grid;
+  align-content: space-between;
   border-right: 1px solid rgba(240, 240, 240, 0.12);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.052), transparent 34%),
@@ -481,95 +502,156 @@ html {
   padding: clamp(1.5rem, 2.7vw, 2.4rem);
 }
 
-.conversion-section-intro h2 {
-  max-width: 460px;
+.conversion-system-intro h2 {
+  max-width: 540px;
   font-size: clamp(1.75rem, 2.25vw, 2.55rem);
   line-height: 1.16;
 }
 
-.conversion-problem-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.conversion-problem-card {
-  display: flex;
-  min-height: 236px;
-  flex-direction: column;
-  justify-content: flex-start;
-  border-left: 1px solid rgba(240, 240, 240, 0.09);
-  border-top: 1px solid rgba(240, 240, 240, 0.09);
-  padding: clamp(1.3rem, 2.2vw, 1.8rem);
-}
-
-.conversion-card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.55rem;
-}
-
-.conversion-icon-frame {
-  display: grid;
-  width: 52px;
-  height: 52px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid rgba(240, 240, 240, 0.17);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent 50%),
-    rgba(255, 255, 255, 0.032);
-  color: #f0f0f0;
-}
-
-.conversion-diagnosis-list {
-  display: grid;
-  gap: 0;
+.conversion-highlight {
   margin-top: 2rem;
-  border-block: 1px solid rgba(240, 240, 240, 0.12);
+  border-left: 1px solid rgba(240, 240, 240, 0.35);
+  padding-left: 1rem;
+  color: #f0f0f0;
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+  font-weight: 600;
+  line-height: 1.6;
 }
 
-.conversion-diagnosis-item {
+.conversion-path-grid {
   display: grid;
-  grid-template-columns: 104px 1fr;
-  gap: 1.1rem;
-  border-top: 1px solid rgba(240, 240, 240, 0.1);
-  padding: 0.82rem 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
 }
 
-.conversion-diagnosis-item:first-child {
-  border-top: 0;
+.conversion-journey-break,
+.conversion-build-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.conversion-diagnosis-item p {
-  color: #7f7f7f;
-  font-size: 0.68rem;
+.conversion-path-card,
+.conversion-journey-card,
+.conversion-build-card,
+.conversion-pillar-card,
+.conversion-process-card,
+.conversion-demo-step {
+  position: relative;
+  border-left: 1px solid rgba(240, 240, 240, 0.1);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 36%),
+    rgba(10, 10, 10, 0.58);
+}
+
+.conversion-path-card {
+  display: grid;
+  min-height: 390px;
+  align-content: space-between;
+  gap: 1.2rem;
+  padding: clamp(1.15rem, 2vw, 1.55rem);
+}
+
+.conversion-journey-card {
+  display: grid;
+  min-height: 330px;
+  align-content: start;
+  padding: clamp(1.25rem, 2.2vw, 1.75rem);
+}
+
+.conversion-path-card h3,
+.conversion-journey-card h3,
+.conversion-pillar-card h3,
+.conversion-build-card h3,
+.conversion-process-card h3 {
+  margin-top: 1.1rem;
+  color: #ffffff;
+  font-size: 1.08rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  line-height: 1.45;
+  line-height: 1.25;
   text-transform: uppercase;
 }
 
-.conversion-diagnosis-item span {
-  color: #d8d8d8;
-  font-size: 0.82rem;
-  line-height: 1.55;
+.conversion-path-card p,
+.conversion-journey-card p,
+.conversion-pillar-card p,
+.conversion-build-card p,
+.conversion-process-card p {
+  margin-top: 0.75rem;
+  color: #a6a6a6;
+  font-size: 0.88rem;
+  line-height: 1.65;
 }
 
-.conversion-problem-card span,
-.conversion-solution-card span {
-  display: block;
+.conversion-path-card small {
   color: #6f6f6f;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
 }
 
-.conversion-solutions {
+.conversion-path-bridge {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #d8d8d8;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.conversion-path-bridge::before,
+.conversion-path-bridge::after {
+  content: "";
+  height: 1px;
+  min-width: 18px;
+  flex: 1;
+  background: rgba(240, 240, 240, 0.14);
+}
+
+.conversion-path-card strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.conversion-path-card em {
+  display: block;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(240, 240, 240, 0.12);
+  padding-top: 0.9rem;
+  color: #d8d8d8;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.55;
+  text-transform: uppercase;
+}
+
+.conversion-journey-card > span {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.5rem;
+  color: #f0f0f0;
+  font-size: 1.6rem;
+}
+
+.conversion-system,
+.conversion-before-after,
+.conversion-process,
+.conversion-demo {
   padding: clamp(1.5rem, 3vw, 2.2rem);
 }
 
-.conversion-solutions-head {
+.conversion-system {
+  padding: 0;
+}
+
+.conversion-system-head,
+.conversion-process-head,
+.conversion-demo {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -578,75 +660,60 @@ html {
   padding-bottom: 1.4rem;
 }
 
-.conversion-solution-grid {
+.conversion-system-head {
+  padding: clamp(1.35rem, 2.6vw, 2rem) clamp(1.35rem, 2.6vw, 2rem) 1.35rem;
+}
+
+.conversion-pillar-grid,
+.conversion-process-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 1.5rem;
   border-top: 1px solid rgba(240, 240, 240, 0.1);
   border-left: 1px solid rgba(240, 240, 240, 0.1);
 }
 
-.conversion-solution-card {
-  min-height: 230px;
-  border-right: 1px solid rgba(240, 240, 240, 0.1);
+.conversion-pillar-card {
+  min-height: 275px;
   border-bottom: 1px solid rgba(240, 240, 240, 0.1);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 36%),
-    rgba(10, 10, 10, 0.62);
-  padding: 1.25rem;
-  transition: background 180ms ease, transform 180ms ease;
-}
-
-.conversion-solution-card:hover {
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.075), transparent 38%),
-    rgba(16, 16, 16, 0.8);
-  transform: translateY(-2px);
-}
-
-.conversion-process {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border: 1px solid rgba(240, 240, 240, 0.12);
-  background: rgba(0, 0, 0, 0.84);
-}
-
-.conversion-process-card {
-  min-height: 260px;
-  border-left: 1px solid rgba(240, 240, 240, 0.1);
   padding: 1.35rem;
 }
 
-.conversion-process-card:first-child {
-  border-left: 0;
+.conversion-pillar-card span {
+  display: block;
+  margin-top: 1.15rem;
+  border-top: 1px solid rgba(240, 240, 240, 0.12);
+  padding-top: 1rem;
+  color: #d8d8d8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.55;
+  text-transform: uppercase;
 }
 
 .conversion-before-after {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  border: 1px solid rgba(240, 240, 240, 0.12);
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 28%, rgba(255, 255, 255, 0.035)),
     rgba(3, 3, 3, 0.94);
 }
 
-.conversion-compare-column {
-  min-height: 320px;
-  padding: clamp(1.4rem, 3vw, 2rem);
+.conversion-compare-head {
+  max-width: 820px;
 }
 
-.conversion-compare-column + .conversion-compare-column {
-  border-left: 1px solid rgba(240, 240, 240, 0.12);
-  background: rgba(255, 255, 255, 0.025);
+.conversion-compare-list {
+  display: grid;
+  gap: 0;
+  margin-top: 1.6rem;
+  border: 1px solid rgba(240, 240, 240, 0.1);
 }
 
 .conversion-compare-row {
   display: grid;
-  min-height: 54px;
-  grid-template-columns: 42px 1fr;
-  align-items: center;
+  grid-template-columns: 46px minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 1rem;
-  border-top: 1px solid rgba(240, 240, 240, 0.09);
+  align-items: stretch;
+  border-top: 1px solid rgba(240, 240, 240, 0.1);
+  background: rgba(255, 255, 255, 0.018);
 }
 
 .conversion-compare-row:first-child {
@@ -654,20 +721,114 @@ html {
 }
 
 .conversion-compare-row small {
-  color: #6f6f6f;
-  font-size: 0.68rem;
-  font-weight: 700;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid rgba(240, 240, 240, 0.1);
 }
 
-.conversion-compare-row span {
+.conversion-compare-row p {
+  min-height: 76px;
+  padding: 1rem 0;
   color: #d8d8d8;
   font-size: 0.92rem;
   line-height: 1.45;
 }
 
+.conversion-compare-row p:last-child {
+  border-left: 1px solid rgba(240, 240, 240, 0.1);
+  padding-left: 1rem;
+  color: #ffffff;
+}
+
+.conversion-compare-row span {
+  display: block;
+  margin-bottom: 0.32rem;
+  color: #777777;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.conversion-build-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.conversion-build-card {
+  min-height: 210px;
+  border-top: 1px solid rgba(240, 240, 240, 0.1);
+  padding: clamp(1.25rem, 2.2vw, 1.75rem);
+}
+
+.conversion-process {
+  display: block;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 38%),
+    rgba(0, 0, 0, 0.84);
+}
+
+.conversion-process-head p {
+  max-width: 520px;
+  color: #a6a6a6;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.conversion-process-card {
+  min-height: 245px;
+  padding: 1.35rem;
+}
+
+.conversion-demo {
+  align-items: stretch;
+  border-bottom: 0;
+  background:
+    linear-gradient(rgba(240, 240, 240, 0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240, 240, 240, 0.024) 1px, transparent 1px),
+    linear-gradient(112deg, #030303 0%, #0a0a0a 100%);
+  background-size: 54px 54px, 54px 54px, auto;
+}
+
+.conversion-demo-copy {
+  max-width: 470px;
+}
+
+.conversion-demo-flow {
+  display: grid;
+  width: min(100%, 620px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.conversion-demo-step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 0.8rem;
+  align-items: center;
+  min-height: 68px;
+  border: 1px solid rgba(240, 240, 240, 0.11);
+  padding: 0.8rem;
+}
+
+.conversion-demo-step span {
+  color: #e7e7e7;
+  font-size: 0.82rem;
+  line-height: 1.42;
+}
+
 .conversion-final-cta {
   padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 5rem);
   text-align: center;
+}
+
+.conversion-final-cta > span {
+  display: block;
+  margin-top: 1rem;
+  color: #8f8f8f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .reference-home {
@@ -1190,37 +1351,56 @@ html {
     border-top: 1px solid rgba(240, 240, 240, 0.12);
   }
 
-  .conversion-problem {
+  .conversion-system,
+  .conversion-system-diagnosis,
+  .conversion-build {
     grid-template-columns: 1fr;
   }
 
-  .conversion-section-intro {
+  .conversion-system-intro {
     border-right: 0;
     border-bottom: 1px solid rgba(240, 240, 240, 0.12);
   }
 
-  .conversion-solution-grid {
+  .conversion-path-grid,
+  .conversion-journey-break,
+  .conversion-pillar-grid,
+  .conversion-build-grid,
+  .conversion-process-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .conversion-process {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .conversion-demo {
+    flex-direction: column;
   }
 
-  .conversion-before-after {
+  .conversion-demo-copy {
+    max-width: 760px;
+  }
+
+  .conversion-demo-flow {
+    width: 100%;
+  }
+
+  .conversion-compare-row {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 
-  .conversion-compare-column + .conversion-compare-column {
+  .conversion-compare-row small {
+    display: block;
+    border-right: 0;
+    padding: 0.9rem 1rem 0;
+  }
+
+  .conversion-compare-row p,
+  .conversion-compare-row p:last-child {
+    min-height: auto;
     border-left: 0;
-    border-top: 1px solid rgba(240, 240, 240, 0.12);
+    padding: 0.65rem 1rem 1rem;
   }
 
-  .conversion-process-card:nth-child(odd) {
-    border-left: 0;
-  }
-
-  .conversion-process-card:nth-child(n + 3) {
+  .conversion-compare-row p:last-child {
     border-top: 1px solid rgba(240, 240, 240, 0.1);
   }
 
@@ -1253,10 +1433,13 @@ html {
   }
 
   .conversion-hero {
+    display: flex;
+    flex-direction: column;
     min-height: auto;
   }
 
   .conversion-hero-copy {
+    order: 2;
     padding: 1.35rem 0.95rem;
   }
 
@@ -1266,7 +1449,7 @@ html {
 
   .conversion-title {
     margin-top: 1rem;
-    font-size: clamp(1.95rem, 10.5vw, 2.85rem);
+    font-size: clamp(1.95rem, 9.25vw, 2.45rem);
     line-height: 1.04;
   }
 
@@ -1292,7 +1475,7 @@ html {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.7rem;
-    margin-top: 1.5rem;
+    margin-top: 1.2rem;
   }
 
   .conversion-signature span {
@@ -1300,6 +1483,7 @@ html {
   }
 
   .conversion-visual {
+    order: 1;
     display: block;
     min-height: auto;
     background:
@@ -1315,31 +1499,43 @@ html {
   }
 
   .conversion-pipeline {
-    padding: 0.95rem;
+    padding: 0 0.95rem 0.95rem;
   }
 
   .conversion-brand-board {
-    display: none;
+    display: grid;
+    min-height: 430px;
+    align-content: center;
+    padding: 1.25rem 0.9rem 1rem;
   }
 
   .conversion-brand-emblem {
-    width: 150px;
-    height: 150px;
+    width: 112px;
+    height: 112px;
+  }
+
+  .conversion-brand-emblem img {
+    width: 78px !important;
+    height: 78px !important;
   }
 
   .conversion-brand-name {
-    font-size: 1rem;
-    letter-spacing: 0.18em;
+    margin-top: 1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.28em;
+  }
+
+  .conversion-brand-rule {
+    width: 54px;
+    margin-top: 0.9rem;
   }
 
   .conversion-brand-line {
-    max-width: 260px;
-    font-size: 0.62rem;
-    line-height: 1.8;
-  }
-
-  .conversion-brand-signals {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 240px;
+    margin-top: 0.85rem;
+    font-size: 0.48rem;
+    line-height: 1.7;
+    letter-spacing: 0.18em;
   }
 
   .conversion-outcome-row {
@@ -1357,52 +1553,58 @@ html {
     font-size: 0.7rem;
   }
 
-  .conversion-problem-grid,
-  .conversion-solution-grid,
-  .conversion-process {
+  .conversion-path-grid,
+  .conversion-journey-break,
+  .conversion-pillar-grid,
+  .conversion-build-grid,
+  .conversion-process-grid,
+  .conversion-demo-flow {
     grid-template-columns: 1fr;
   }
 
-  .conversion-problem-card,
-  .conversion-solution-card,
+  .conversion-path-card,
+  .conversion-journey-card,
+  .conversion-pillar-card,
+  .conversion-build-card,
   .conversion-process-card {
     min-height: auto;
     border-left: 0;
     padding: 1rem;
   }
 
-  .conversion-card-head {
-    margin-bottom: 1rem;
+  .conversion-journey-card > span {
+    position: static;
+    margin-top: 1rem;
+    font-size: 1.2rem;
   }
 
-  .conversion-icon-frame {
-    width: 44px;
-    height: 44px;
-  }
-
-  .conversion-section-intro {
+  .conversion-system-intro {
     padding: 1.15rem 1rem;
   }
 
-  .conversion-section-intro h2 {
+  .conversion-system-intro h2 {
     font-size: clamp(1.45rem, 7vw, 2rem);
     line-height: 1.16;
   }
 
-  .conversion-diagnosis-item {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-    padding: 0.72rem 0;
-  }
-
-  .conversion-solutions {
+  .conversion-system-head,
+  .conversion-before-after,
+  .conversion-process,
+  .conversion-demo {
     padding: 1.1rem 0.95rem;
   }
 
-  .conversion-solutions-head {
+  .conversion-system-head,
+  .conversion-process-head,
+  .conversion-demo {
     align-items: start;
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .conversion-pillar-grid,
+  .conversion-process-grid {
+    border-left: 0;
   }
 
   .conversion-process-card {
