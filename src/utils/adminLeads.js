@@ -73,12 +73,11 @@ export const clientJourneyLanes = [
   },
 ];
 
-export const clientJourneyProgressPoints = [
-  { id: 'new', label: 'Entrada', progress: 0 },
-  { id: 'triage', label: 'Triagem', progress: 33 },
-  { id: 'proposal', label: 'Proposta', progress: 66 },
-  { id: 'presentation', label: 'Apresentacao', progress: 100 },
-];
+export const clientJourneyStatusLevels = clientJourneyLanes.map((lane) => ({
+  id: lane.id,
+  label: lane.label,
+  description: lane.description,
+}));
 
 export const adminJourneyStatusOptions = clientJourneyLanes.map((lane) => ({
   value: lane.id,
@@ -99,27 +98,22 @@ export function getPreviousJourneyStatus(currentStatus = '') {
 
 const manualJourneyConfig = {
   new: {
-    progress: 0,
     tone: 'cyan',
     nextAction: 'Revisar briefing recebido e confirmar proximo passo.',
   },
   triage: {
-    progress: 33,
     tone: 'amber',
     nextAction: 'Validar dados pendentes antes de proposta.',
   },
   proposal: {
-    progress: 66,
     tone: 'emerald',
     nextAction: 'Preparar proposta e agendar apresentacao.',
   },
   remarketing: {
-    progress: 33,
     tone: 'slate',
     nextAction: 'Nutrir com diagnostico, prova de valor ou conversa curta antes de proposta.',
   },
   presentation: {
-    progress: 100,
     tone: 'cyan',
     nextAction: 'Registrar retorno da apresentacao e definir fechamento ou follow-up.',
   },
@@ -140,7 +134,6 @@ export function getClientJourney(client = {}) {
       nextAction: normalizeText(metadata.adminNextAction) || config.nextAction,
       note: normalizeText(metadata.adminNote),
       missing: [],
-      progress: config.progress,
       manual: true,
     };
   }
@@ -161,7 +154,6 @@ export function getClientJourney(client = {}) {
       tone: 'amber',
       nextAction: `Pedir ${missing.slice(0, 2).join(' e ')} antes de proposta.`,
       missing,
-      progress: 33,
     };
   }
 
@@ -172,7 +164,6 @@ export function getClientJourney(client = {}) {
       tone: 'slate',
       nextAction: 'Nutrir com diagnostico, prova de valor ou conversa curta antes de proposta.',
       missing: [],
-      progress: 33,
     };
   }
 
@@ -183,7 +174,6 @@ export function getClientJourney(client = {}) {
       tone: 'emerald',
       nextAction: 'Preparar proposta e agendar apresentacao.',
       missing: [],
-      progress: 66,
     };
   }
 
@@ -193,7 +183,6 @@ export function getClientJourney(client = {}) {
     tone: 'cyan',
     nextAction: 'Revisar briefing recebido e confirmar proximo passo.',
     missing: [],
-    progress: 0,
   };
 }
 
@@ -253,18 +242,4 @@ export function buildClientProjectPipeline(clients = []) {
         projectName: getProjectName(client),
       })),
   }));
-}
-
-export function getPipelineProgressSummary(clients = []) {
-  const totalProgress = clients.reduce((sum, client) => sum + (client.journey?.progress || 0), 0);
-  const totalProjects = clients.length;
-
-  return {
-    totalProjects,
-    averageProgress: totalProjects ? Math.round(totalProgress / totalProjects) : 0,
-    steps: clientJourneyLanes.map((lane) => ({
-      ...lane,
-      count: clients.filter((client) => client.journey?.lane === lane.id).length,
-    })),
-  };
 }

@@ -5,9 +5,7 @@ import { categorias as staticCategories, recursos as staticTools } from '../data
 import {
   adminJourneyStatusOptions,
   buildClientProjectPipeline,
-  clientJourneyProgressPoints,
-  getNextJourneyStatus,
-  getPreviousJourneyStatus,
+  clientJourneyStatusLevels,
   groupBriefingResponsesByClient,
 } from '../utils/adminLeads.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
@@ -336,11 +334,14 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
     }
   }
 
-  function moveSelectedClient(direction) {
+  function changeSelectedClientStatus(nextStatus) {
     const currentStatus = selectedClient?.journey?.lane || 'new';
-    const nextStatus = direction === 'forward'
-      ? getNextJourneyStatus(currentStatus)
-      : getPreviousJourneyStatus(currentStatus);
+    if (!nextStatus || nextStatus === currentStatus) return;
+
+    const currentLevel = clientJourneyStatusLevels.find((level) => level.id === currentStatus);
+    const nextLevel = clientJourneyStatusLevels.find((level) => level.id === nextStatus);
+    const confirmed = window.confirm(`Alterar status de "${currentLevel?.label || currentStatus}" para "${nextLevel?.label || nextStatus}"?`);
+    if (!confirmed) return;
 
     setLeadForm((current) => ({ ...current, adminJourneyStatus: nextStatus }));
     saveLeadPatch({ adminJourneyStatus: nextStatus });
@@ -449,85 +450,37 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                   </div>
 
                   <div className="mt-5 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-4">
-                    <div className="flex items-end justify-between gap-3">
+                    <div className="flex flex-col gap-1">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Progresso</p>
-                        <p className="mt-1 text-sm text-slate-300">Caminho ate apresentacao da proposta</p>
-                      </div>
-                      <p className="text-3xl font-bold text-white">{selectedClient.journey?.progress || 0}%</p>
-                    </div>
-                    <div className="mt-4">
-                      <div className="relative h-5">
-                        <div className="absolute inset-x-0 top-2 h-1 rounded-full bg-slate-900 ring-1 ring-white/10" />
-                        <div
-                          className="absolute left-0 top-2 h-1 rounded-full bg-cyan-300"
-                          style={{ width: `${selectedClient.journey?.progress || 0}%` }}
-                        />
-                        {clientJourneyProgressPoints.map((point) => {
-                          const active = (selectedClient.journey?.progress || 0) >= point.progress;
-                          const edgeClass = point.progress === 0
-                            ? 'left-0'
-                            : point.progress === 100
-                              ? 'right-0'
-                              : '-translate-x-1/2';
-                          const edgeStyle = point.progress === 0 || point.progress === 100
-                            ? {}
-                            : { left: `${point.progress}%` };
-
-                          return (
-                            <span
-                              key={point.id}
-                              aria-label={point.label}
-                              title={point.label}
-                              className={`absolute top-0 h-5 w-5 rounded-full border p-1 ${edgeClass} ${
-                                active ? 'border-cyan-200 bg-cyan-300/20' : 'border-white/15 bg-slate-950'
-                              }`}
-                              style={edgeStyle}
-                            >
-                              <span className={`block h-full w-full rounded-full ${active ? 'bg-cyan-200' : 'bg-slate-700'}`} />
-                            </span>
-                          );
-                        })}
-                      </div>
-                      <div className="relative mt-2 h-4 text-[10px] uppercase tracking-widest text-slate-600">
-                        {clientJourneyProgressPoints.map((point) => {
-                          const edgeClass = point.progress === 0
-                            ? 'left-0 text-left'
-                            : point.progress === 100
-                              ? 'right-0 text-right'
-                              : '-translate-x-1/2 text-center';
-                          const edgeStyle = point.progress === 0 || point.progress === 100
-                            ? {}
-                            : { left: `${point.progress}%` };
-
-                          return (
-                            <span key={point.id} className={`absolute whitespace-nowrap ${edgeClass}`} style={edgeStyle}>
-                              {point.label}
-                            </span>
-                          );
-                        })}
+                        <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Etapa do lead</p>
+                        <p className="mt-1 text-sm text-slate-300">{selectedClient.journey?.label || 'Entrada'}</p>
                       </div>
                     </div>
-                    <div className="mt-4 grid gap-2 sm:grid-cols-[auto_1fr_auto] sm:items-center">
-                      <button
-                        type="button"
-                        onClick={() => moveSelectedClient('back')}
-                        disabled={savingLead || selectedClient.journey?.lane === 'new'}
-                        className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        ← Voltar
-                      </button>
-                      <p className="text-center text-xs text-slate-500">
-                        Use as setas para mover o lead na régua do funil.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => moveSelectedClient('forward')}
-                        disabled={savingLead || selectedClient.journey?.lane === 'presentation'}
-                        className="rounded-lg border border-cyan-300/25 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        Avançar →
-                      </button>
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                      {clientJourneyStatusLevels.map((level) => {
+                        const active = selectedClient.journey?.lane === level.id;
+
+                        return (
+                          <button
+                            key={level.id}
+                            type="button"
+                            onClick={() => changeSelectedClientStatus(level.id)}
+                            disabled={savingLead || active}
+                            aria-pressed={active}
+                            className={`rounded-lg border px-3 py-3 text-left transition ${
+                              active
+                                ? 'border-cyan-300/50 bg-cyan-300/15 text-white'
+                                : 'border-white/10 bg-slate-950/55 text-slate-400 hover:border-cyan-300/30 hover:text-white'
+                            } disabled:cursor-default disabled:opacity-100`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <span className={`h-2 w-2 rounded-full ${active ? 'bg-cyan-200' : 'bg-slate-600'}`} />
+                              <span className="text-xs font-semibold uppercase tracking-widest">{level.label}</span>
+                            </span>
+                            {active ? <span className="mt-2 block text-[10px] uppercase tracking-widest text-cyan-200">Atual</span> : null}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 

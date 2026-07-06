@@ -3,24 +3,19 @@ import test from 'node:test';
 
 import {
   buildClientProjectPipeline,
-  clientJourneyProgressPoints,
+  clientJourneyStatusLevels,
   getClientJourney,
   getNextJourneyStatus,
   getPreviousJourneyStatus,
-  getPipelineProgressSummary,
   groupBriefingResponsesByClient,
 } from '../src/utils/adminLeads.js';
 
-test('defines the visible progress points for the client journey ruler', () => {
+test('defines visible status levels for the client journey without exposing percentages', () => {
   assert.deepEqual(
-    clientJourneyProgressPoints.map((point) => [point.id, point.progress]),
-    [
-      ['new', 0],
-      ['triage', 33],
-      ['proposal', 66],
-      ['presentation', 100],
-    ]
+    clientJourneyStatusLevels.map((level) => level.id),
+    ['new', 'triage', 'proposal', 'remarketing', 'presentation']
   );
+  assert.equal(clientJourneyStatusLevels.some((level) => 'progress' in level), false);
 });
 
 test('groups service briefing responses by client without dropping repeated answers', () => {
@@ -152,43 +147,6 @@ test('builds a project pipeline with clients grouped under journey lanes', () =>
   );
 });
 
-test('summarizes project journey progress for the admin progress bar', () => {
-  const clients = groupBriefingResponsesByClient([
-    {
-      id: 'proposal',
-      nome: 'Cliente Proposta',
-      email: 'proposta@exemplo.com',
-      whatsapp: '11999999999',
-      lead_type: 'service',
-      metadata: {
-        solutionType: 'Site profissional',
-        projectStage: 'Tenho uma demanda urgente',
-        budgetRange: 'R$ 3.000 a R$ 6.000',
-        message: 'Preciso apresentar melhor minha empresa.',
-      },
-      created_at: '2026-05-04T10:00:00.000Z',
-    },
-    {
-      id: 'triage',
-      nome: 'Cliente Triagem',
-      email: 'triagem@exemplo.com',
-      lead_type: 'service',
-      metadata: {
-        solutionType: 'Presenca digital e identidade',
-        budgetRange: 'R$ 1.500 a R$ 3.000',
-      },
-      created_at: '2026-05-02T10:00:00.000Z',
-    },
-  ]);
-
-  const summary = getPipelineProgressSummary(clients);
-
-  assert.equal(summary.averageProgress, 50);
-  assert.equal(summary.totalProjects, 2);
-  assert.equal(summary.steps.find((step) => step.id === 'proposal').count, 1);
-  assert.equal(summary.steps.find((step) => step.id === 'triage').count, 1);
-});
-
 test('uses a manual admin status before automatic journey classification', () => {
   const [client] = groupBriefingResponsesByClient([
     {
@@ -210,7 +168,6 @@ test('uses a manual admin status before automatic journey classification', () =>
   ]);
 
   assert.equal(client.journey.lane, 'presentation');
-  assert.equal(client.journey.progress, 100);
   assert.equal(client.journey.note, 'Proposta ja foi apresentada por WhatsApp.');
 });
 
