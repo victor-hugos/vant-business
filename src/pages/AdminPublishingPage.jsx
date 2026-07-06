@@ -266,6 +266,13 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
   const selectedClient = clients.find((client) => client.key === selectedKey) || clients[0] || null;
   const selectedLead = selectedClient?.responses?.[0] || null;
   const selectedMetadata = selectedLead?.metadata || {};
+  const visualJourneyLane = ['remarketing', 'client'].includes(selectedClient?.journey?.lane)
+    ? 'proposal'
+    : selectedClient?.journey?.lane;
+  const visualJourneyIndex = clientJourneyStatusLevels.findIndex((level) => level.id === visualJourneyLane);
+  const visualJourneyWidth = visualJourneyIndex >= 0
+    ? `${(visualJourneyIndex / (clientJourneyStatusLevels.length - 1)) * 100}%`
+    : '0%';
 
   useEffect(() => {
     setLeadForm({
@@ -457,31 +464,52 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                         <p className="mt-1 text-sm text-slate-300">{selectedClient.journey?.label || 'Entrada'}</p>
                       </div>
                     </div>
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                      {clientJourneyStatusLevels.map((level) => {
-                        const active = selectedClient.journey?.lane === level.id;
+                    <div className="mt-5">
+                      <div className="relative px-2 pb-10 pt-2">
+                        <div className="absolute left-4 right-4 top-5 h-px bg-white/10" />
+                        <div className="absolute left-4 top-5 h-px bg-cyan-300/70" style={{ width: visualJourneyWidth }} />
+                        {clientJourneyStatusLevels.map((level) => {
+                          const active = visualJourneyLane === level.id;
+                          const levelIndex = clientJourneyStatusLevels.findIndex((item) => item.id === level.id);
+                          const reached = visualJourneyIndex >= 0 && levelIndex <= visualJourneyIndex;
+                          const edgeClass = levelIndex === 0
+                            ? 'left-0 items-start text-left'
+                            : levelIndex === clientJourneyStatusLevels.length - 1
+                              ? 'right-0 items-end text-right'
+                              : '-translate-x-1/2 items-center text-center';
+                          const edgeStyle = levelIndex === 0 || levelIndex === clientJourneyStatusLevels.length - 1
+                            ? {}
+                            : { left: `${(levelIndex / (clientJourneyStatusLevels.length - 1)) * 100}%` };
 
-                        return (
-                          <button
-                            key={level.id}
-                            type="button"
-                            onClick={() => changeSelectedClientStatus(level.id)}
-                            disabled={savingLead || active}
-                            aria-pressed={active}
-                            className={`rounded-lg border px-3 py-3 text-left transition ${
-                              active
-                                ? 'border-cyan-300/50 bg-cyan-300/15 text-white'
-                                : 'border-white/10 bg-slate-950/55 text-slate-400 hover:border-cyan-300/30 hover:text-white'
-                            } disabled:cursor-default disabled:opacity-100`}
-                          >
-                            <span className="flex items-center gap-2">
-                              <span className={`h-2 w-2 rounded-full ${active ? 'bg-cyan-200' : 'bg-slate-600'}`} />
-                              <span className="text-xs font-semibold uppercase tracking-widest">{level.label}</span>
-                            </span>
-                            {active ? <span className="mt-2 block text-[10px] uppercase tracking-widest text-cyan-200">Atual</span> : null}
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button
+                              key={level.id}
+                              type="button"
+                              onClick={() => changeSelectedClientStatus(level.id)}
+                              disabled={savingLead || active}
+                              aria-pressed={active}
+                              className={`absolute top-0 flex w-24 flex-col gap-2 transition ${edgeClass} ${
+                                active ? 'text-white' : 'text-slate-500 hover:text-white'
+                              } disabled:cursor-default disabled:opacity-100`}
+                              style={edgeStyle}
+                            >
+                              <span className={`flex h-6 w-6 items-center justify-center rounded-full border transition ${
+                                active
+                                  ? 'border-cyan-200 bg-cyan-300/20'
+                                  : reached
+                                    ? 'border-cyan-300/40 bg-cyan-300/10'
+                                    : 'border-white/15 bg-slate-950'
+                              }`}
+                              >
+                                <span className={`h-2.5 w-2.5 rounded-full ${reached ? 'bg-cyan-200' : 'bg-slate-700'}`} />
+                              </span>
+                              <span className={`text-[10px] font-semibold uppercase tracking-widest ${active ? 'text-cyan-100' : ''}`}>
+                                {level.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                     {selectedClient.journey?.lane === 'proposal' ? (
                       <div className="mt-4 border-t border-white/10 pt-4">
