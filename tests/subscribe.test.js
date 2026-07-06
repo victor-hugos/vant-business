@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildEmailBrandHeaderHtml, buildWelcomeHtml, normalizeSubscribePayload } from '../api/subscribe.js';
+import { buildEmailBrandHeaderHtml, buildWelcomeHtml, getSubscriberWriteMode, normalizeSubscribePayload } from '../api/subscribe.js';
 
 test('normalizes service leads with digital solution metadata', () => {
   const payload = normalizeSubscribePayload(
@@ -100,6 +100,12 @@ test('normalizes newsletter leads without requiring whatsapp for editorial captu
   assert.equal(payload.cleanEmail, 'email@exemplo.com');
   assert.equal(payload.cleanWhatsapp, '');
   assert.equal(payload.wantsNewsletter, true);
+});
+
+test('stores service briefings as history while keeping editorial captures idempotent', () => {
+  assert.equal(getSubscriberWriteMode('service'), 'insert');
+  assert.equal(getSubscriberWriteMode('newsletter'), 'upsert');
+  assert.equal(getSubscriberWriteMode('ebook'), 'upsert');
 });
 
 import {

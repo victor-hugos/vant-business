@@ -24,7 +24,8 @@ alter table subscribers add column if not exists updated_at timestamptz default 
 
 alter table subscribers drop constraint if exists subscribers_email_key;
 drop index if exists subscribers_email_key;
-create unique index if not exists subscribers_email_ebook_key on subscribers (email, ebook);
+drop index if exists subscribers_email_ebook_key;
+create index if not exists subscribers_email_ebook_idx on subscribers (email, ebook);
 
 -- Indices para remarketing segmentado
 create index if not exists subscribers_ebook_idx on subscribers (ebook);

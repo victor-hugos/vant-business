@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import { categorias as staticCategories, recursos as staticTools } from '../data/recursos.js';
+import { buildClientProjectPipeline, getPipelineProgressSummary, groupBriefingResponsesByClient } from '../utils/adminLeads.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
 
 const localAuthKey = 'vant_admin_local_auth';
@@ -245,48 +246,215 @@ function AdminTabs({ active, onChange }) {
 }
 
 function LeadsPanel({ leads }) {
-  return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-cyan-400">Leads</p>
-          <h2 className="mt-2 text-xl font-bold text-white">Briefings comerciais</h2>
-        </div>
-        <StatusPill tone="emerald">{leads.length} contatos</StatusPill>
-      </div>
+  const clients = useMemo(() => groupBriefingResponsesByClient(leads), [leads]);
+  const pipeline = useMemo(() => buildClientProjectPipeline(clients), [clients]);
+  const progressSummary = useMemo(() => getPipelineProgressSummary(clients), [clients]);
+  const [selectedKey, setSelectedKey] = useState('');
+  const totalResponses = clients.reduce((total, client) => total + client.responses.length, 0);
+  const selectedClient = clients.find((client) => client.key === selectedKey) || clients[0] || null;
+  const selectedLead = selectedClient?.responses?.[0] || null;
+  const selectedMetadata = selectedLead?.metadata || {};
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-2">
-        {leads.length === 0 ? (
-          <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
-            Ainda nao ha leads comerciais registrados.
-          </p>
-        ) : (
-          leads.slice(0, 20).map((lead) => (
-            <article key={lead.id || lead.email} className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-white">{lead.nome || 'Lead sem nome'}</p>
-                  <p className="mt-1 text-sm text-cyan-300">{lead.email}</p>
-                  {lead.whatsapp ? <p className="mt-1 text-xs text-slate-400">{lead.whatsapp}</p> : null}
-                  <p className="mt-1 text-xs text-slate-500">
-                    {lead.product_title || lead.ebook || 'sem produto'} · {lead.lead_type || 'lead'} · {lead.source || 'sem origem'}
-                  </p>
+  return (
+    <section className="space-y-5">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-400">Jornada comercial</p>
+            <h2 className="mt-2 text-xl font-bold text-white">Do pre-briefing ate a apresentacao</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              Cada cliente aparece uma vez, com a rota atual calculada a partir do briefing: triagem, proposta, remarketing ou apresentacao.
+            </p>
+          </div>
+          <StatusPill tone="emerald">{totalResponses} respostas</StatusPill>
+        </div>
+
+        <div className="mt-5 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Barra de progresso</p>
+              <h3 className="mt-1 text-lg font-bold text-white">Avanco geral dos projetos</h3>
+            </div>
+            <div className="text-left sm:text-right">
+              <p className="text-3xl font-bold text-white">{progressSummary.averageProgress}%</p>
+              <p className="text-xs text-slate-500">{progressSummary.totalProjects} projeto{progressSummary.totalProjects === 1 ? '' : 's'} no funil</p>
+            </div>
+          </div>
+
+          <div className="mt-4 h-4 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
+            <div
+              className="h-full rounded-full bg-cyan-300 transition-all"
+              style={{ width: `${progressSummary.averageProgress}%` }}
+            />
+          </div>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-5">
+            {progressSummary.steps.map((step) => (
+              <div key={step.id} className="rounded-lg border border-white/10 bg-slate-950/55 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-white">{step.label}</p>
+                  <span className="text-xs text-cyan-300">{step.count}</span>
                 </div>
-                <p className="text-xs text-slate-500">{formatDate(lead.created_at)}</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5">
+          {clients.length === 0 ? (
+            <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
+              Ainda nao ha pre-briefings comerciais registrados.
+            </p>
+          ) : (
+            <div className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                {pipeline.map((lane) => (
+                  <div key={lane.id} className="min-h-56 rounded-xl border border-white/10 bg-slate-950/45 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{lane.label}</p>
+                        <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{lane.description}</p>
+                      </div>
+                      <StatusPill tone={lane.id === 'proposal' ? 'emerald' : lane.id === 'triage' ? 'amber' : lane.id === 'remarketing' ? 'slate' : 'cyan'}>
+                        {lane.clients.length}
+                      </StatusPill>
+                    </div>
+
+                    <div className="mt-4 space-y-2">
+                      {lane.clients.length === 0 ? (
+                        <p className="rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-slate-600">Sem projetos</p>
+                      ) : (
+                        lane.clients.map((client) => {
+                          const lead = client.responses[0] || {};
+                          const metadata = lead.metadata || {};
+                          const selected = selectedClient?.key === client.key;
+                          return (
+                            <button
+                              key={client.key}
+                              type="button"
+                              onClick={() => setSelectedKey(client.key)}
+                              className={`w-full rounded-lg border p-3 text-left transition ${
+                                selected
+                                  ? 'border-cyan-300/40 bg-cyan-300/10'
+                                  : 'border-white/10 bg-black/20 hover:border-white/25'
+                              }`}
+                            >
+                              <p className="truncate text-sm font-semibold text-white">{client.projectName}</p>
+                              <p className="mt-1 truncate text-xs text-cyan-300">{client.name}</p>
+                              <p className="mt-2 line-clamp-2 text-[11px] leading-relaxed text-slate-500">
+                                {metadata.solutionType || lead.product_title || 'Solucao nao informada'}
+                              </p>
+                              <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                                <span>{formatDate(client.latestAt)}</span>
+                                <span>{client.responses.length} resp.</span>
+                              </div>
+                              <div className="mt-3">
+                                <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                                  <span>Progresso</span>
+                                  <span>{client.journey?.progress || 0}%</span>
+                                </div>
+                                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-800">
+                                  <div
+                                    className="h-full rounded-full bg-cyan-300"
+                                    style={{ width: `${client.journey?.progress || 0}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {lead.lead_type === 'service' && lead.metadata ? (
-                <div className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-xs leading-relaxed text-slate-400">
-                  <p className="font-semibold text-slate-200">{lead.metadata.solutionType || 'Solucao digital'}</p>
-                  {lead.metadata.businessName ? <p className="mt-1">Empresa: {lead.metadata.businessName}</p> : null}
-                  {lead.metadata.projectStage ? <p className="mt-1">Momento: {lead.metadata.projectStage}</p> : null}
-                  {lead.metadata.budgetRange ? <p className="mt-1">Investimento: {lead.metadata.budgetRange}</p> : null}
-                  {lead.metadata.message ? <p className="mt-2 text-slate-300">{lead.metadata.message}</p> : null}
+              <aside className="rounded-xl border border-white/10 bg-slate-950/55 p-4">
+                {selectedClient ? (
+                  <div>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="text-xs uppercase tracking-widest text-cyan-400">Detalhe do projeto</p>
+                        <h3 className="mt-2 text-xl font-bold text-white">{selectedMetadata.businessName || selectedClient.name}</h3>
+                        <p className="mt-1 break-all text-sm text-cyan-300">{selectedClient.email || 'email nao informado'}</p>
+                        {selectedClient.whatsapp ? <p className="mt-1 text-xs text-slate-400">{selectedClient.whatsapp}</p> : null}
+                      </div>
+                      <StatusPill tone={selectedClient.journey?.tone || 'cyan'}>{selectedClient.journey?.label || 'Entrada'}</StatusPill>
+                    </div>
+
+                    <div className="mt-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Progresso</p>
+                        <p className="text-xs text-slate-500">{selectedClient.journey?.progress || 0}% ate apresentacao</p>
+                      </div>
+                      <div className="mt-2 h-4 overflow-hidden rounded-full bg-slate-800 ring-1 ring-white/10">
+                        <div className="h-full rounded-full bg-cyan-300" style={{ width: `${selectedClient.journey?.progress || 0}%` }} />
+                      </div>
+                      <div className="mt-2 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-slate-600">
+                        <span>Entrada</span>
+                        <span>Triagem</span>
+                        <span>Proposta</span>
+                        <span>Apresentacao</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 space-y-4 text-sm">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</p>
+                        <p className="mt-1 leading-relaxed text-slate-200">{selectedClient.journey?.nextAction}</p>
+                      </div>
+                      {selectedClient.journey?.missing?.length ? (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Pendencias</p>
+                          <p className="mt-1 text-amber-100">{selectedClient.journey.missing.join(', ')}</p>
+                        </div>
+                      ) : null}
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Solucao</p>
+                          <p className="mt-1 text-slate-300">{selectedMetadata.solutionType || selectedLead?.product_title || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Momento</p>
+                          <p className="mt-1 text-slate-300">{selectedMetadata.projectStage || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Investimento</p>
+                          <p className="mt-1 text-slate-300">{selectedMetadata.budgetRange || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Instagram</p>
+                          <p className="mt-1 text-slate-300">{selectedMetadata.instagramHandle || '-'}</p>
+                        </div>
+                      </div>
+                      {selectedMetadata.message ? (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Briefing</p>
+                          <p className="mt-1 leading-relaxed text-slate-300">{selectedMetadata.message}</p>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-5 border-t border-white/10 pt-4">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Historico</p>
+                      <div className="mt-3 space-y-2">
+                        {selectedClient.responses.map((lead, index) => (
+                          <div key={lead.id || `${selectedClient.key}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-slate-400">
+                            <div className="flex items-start justify-between gap-3">
+                              <span>{lead.metadata?.solutionType || lead.product_title || 'Resposta recebida'}</span>
+                              <span className="shrink-0 text-slate-500">{formatDate(lead.created_at)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </aside>
+            </div>
+          )}
                 </div>
-              ) : null}
-            </article>
-          ))
-        )}
       </div>
     </section>
   );
@@ -716,7 +884,6 @@ function AdminPublishingPage() {
     if (isLocalPreview()) return hasLocalAuth() ? 'ok' : 'login';
     return 'login';
   });
-  const [activeTab, setActiveTab] = useState('clicks');
   const [data, setData] = useState(null);
   const [newsForm, setNewsForm] = useState(emptyNewsForm);
   const [toolForm, setToolForm] = useState(emptyToolForm);
@@ -999,9 +1166,16 @@ function AdminPublishingPage() {
   const metrics = useMemo(() => {
     const news = data?.newsItems || [];
     const tools = data?.tools || [];
+    const clients = groupBriefingResponsesByClient(data?.subscribers || []);
+    const laneCount = (lane) => clients.filter((client) => client.journey?.lane === lane).length;
     return {
       clicks: data?.clicks?.length || 0,
       leads: data?.subscribers?.length || 0,
+      clients: clients.length,
+      briefingResponses: clients.reduce((total, client) => total + client.responses.length, 0),
+      proposal: laneCount('proposal'),
+      remarketing: laneCount('remarketing'),
+      triage: laneCount('triage'),
       publishedNews: news.filter((item) => isPublished(item.status)).length,
       draftNews: news.filter((item) => !isPublished(item.status)).length,
       publishedTools: tools.filter((item) => isPublished(item.status)).length,
@@ -1023,9 +1197,9 @@ function AdminPublishingPage() {
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest text-cyan-400">Admin VANT</p>
-            <h1 className="mt-2 text-3xl font-bold text-white">Publicacao e cliques</h1>
+            <h1 className="mt-2 text-3xl font-bold text-white">Jornada do cliente</h1>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
-              Use esta tela para ver cliques, leads comerciais, cadastrar noticias e publicar ferramentas no site.
+              Acompanhe cada lead desde o pre-briefing ate proposta, remarketing e apresentacao comercial.
             </p>
           </div>
           <button
@@ -1037,13 +1211,11 @@ function AdminPublishingPage() {
           </button>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <StatCard label="Cliques" value={metrics.clicks} hint="eventos rastreados" />
-          <StatCard label="Leads" value={metrics.leads} hint="briefings e contatos" />
-          <StatCard label="Noticias publicadas" value={metrics.publishedNews} hint={`${metrics.draftNews} em rascunho/revisao`} />
-          <StatCard label="Ferramentas publicadas" value={metrics.publishedTools} hint={`${metrics.draftTools} em rascunho/revisao`} />
-          <StatCard label="Emails" value={data.newsletterIssues?.length || 0} hint="edicoes armazenadas" />
-          <StatCard label="Publicacao" value="Site" hint="blog, recursos e newsletter" />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="Clientes" value={metrics.clients} hint="agrupados por email ou WhatsApp" />
+          <StatCard label="Proposta" value={metrics.proposal} hint="prontos para preparar proposta" />
+          <StatCard label="Remarketing" value={metrics.remarketing} hint="nutrir antes da venda" />
+          <StatCard label="Triagem" value={metrics.triage} hint="faltam dados ou validacao" />
         </div>
       </header>
 
@@ -1053,38 +1225,7 @@ function AdminPublishingPage() {
         </div>
       )}
 
-      <AdminTabs active={activeTab} onChange={setActiveTab} />
-
-      {activeTab === 'clicks' && <ClicksPanel clicks={data.clicks || []} />}
-      {activeTab === 'leads' && <LeadsPanel leads={data.subscribers || []} />}
-      {activeTab === 'news' && (
-        <NewsPanel
-          items={data.newsItems || []}
-          form={newsForm}
-          setForm={setNewsForm}
-          onSave={saveNews}
-          onEdit={(item) => setNewsForm(normalizeNewsForm(item, item.status))}
-          saving={saving}
-          selectedNewsIds={selectedNewsIds}
-          onToggleEmailItem={toggleEmailItem}
-          newsletterForm={newsletterForm}
-          setNewsletterForm={setNewsletterForm}
-          newsletterIssues={data.newsletterIssues || []}
-          onSaveNewsletter={saveNewsletterIssue}
-          onRunNewsAgent={runNewsAgent}
-          runningNewsAgent={runningNewsAgent}
-        />
-      )}
-      {activeTab === 'tools' && (
-        <ToolsPanel
-          items={data.tools || []}
-          form={toolForm}
-          setForm={setToolForm}
-          onSave={saveTool}
-          onEdit={(item) => setToolForm(normalizeToolForm(item, item.status))}
-          saving={saving}
-        />
-      )}
+      <LeadsPanel leads={data.subscribers || []} />
     </div>
   );
 }

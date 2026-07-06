@@ -98,6 +98,10 @@ export function normalizeSubscribePayload(input = {}, context = {}) {
   };
 }
 
+export function getSubscriberWriteMode(leadType = '') {
+  return normalize(leadType).toLowerCase() === 'service' ? 'insert' : 'upsert';
+}
+
 function buildNewsPreviewHtml(items) {
   if (!items.length) {
     return `
@@ -240,24 +244,26 @@ export default async function handler(req, res) {
 
   try {
     // 1. Salva no Supabase
-    const { error } = await supabase
-      .from('subscribers')
-      .upsert(
-        {
-          nome: cleanName,
-          email: cleanEmail,
-          whatsapp: cleanWhatsapp || null,
-          ebook: cleanEbook,
-          product_title: cleanProductTitle,
-          lead_type: cleanLeadType,
-          newsletter_opt_in: wantsNewsletter,
-          source,
-          metadata,
-          created_at: now,
-          updated_at: now,
-        },
-        { onConflict: 'email,ebook', ignoreDuplicates: false }
-      );
+    const subscriberRow = {
+      nome: cleanName,
+      email: cleanEmail,
+      whatsapp: cleanWhatsapp || null,
+      ebook: cleanEbook,
+      product_title: cleanProductTitle,
+      lead_type: cleanLeadType,
+      newsletter_opt_in: wantsNewsletter,
+      source,
+      metadata,
+      created_at: now,
+      updated_at: now,
+    };
+
+    const writeMode = getSubscriberWriteMode(cleanLeadType);
+    const { error } = writeMode === 'insert'
+      ? await supabase.from('subscribers').insert(subscriberRow)
+      : await supabase
+          .from('subscribers')
+          .upsert(subscriberRow, { onConflict: 'email,ebook', ignoreDuplicates: false });
 
     if (error) throw error;
 
