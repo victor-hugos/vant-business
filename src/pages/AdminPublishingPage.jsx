@@ -5,6 +5,7 @@ import { categorias as staticCategories, recursos as staticTools } from '../data
 import {
   adminJourneyStatusOptions,
   buildClientProjectPipeline,
+  clientJourneyProgressPoints,
   getNextJourneyStatus,
   getPreviousJourneyStatus,
   groupBriefingResponsesByClient,
@@ -455,14 +456,57 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                       </div>
                       <p className="text-3xl font-bold text-white">{selectedClient.journey?.progress || 0}%</p>
                     </div>
-                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
-                      <div className="h-full rounded-full bg-cyan-300" style={{ width: `${selectedClient.journey?.progress || 0}%` }} />
-                    </div>
-                    <div className="mt-2 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-slate-600">
-                      <span>Entrada</span>
-                      <span>Triagem</span>
-                      <span>Proposta</span>
-                      <span>Apresentacao</span>
+                    <div className="mt-4">
+                      <div className="relative h-5">
+                        <div className="absolute inset-x-0 top-2 h-1 rounded-full bg-slate-900 ring-1 ring-white/10" />
+                        <div
+                          className="absolute left-0 top-2 h-1 rounded-full bg-cyan-300"
+                          style={{ width: `${selectedClient.journey?.progress || 0}%` }}
+                        />
+                        {clientJourneyProgressPoints.map((point) => {
+                          const active = (selectedClient.journey?.progress || 0) >= point.progress;
+                          const edgeClass = point.progress === 0
+                            ? 'left-0'
+                            : point.progress === 100
+                              ? 'right-0'
+                              : '-translate-x-1/2';
+                          const edgeStyle = point.progress === 0 || point.progress === 100
+                            ? {}
+                            : { left: `${point.progress}%` };
+
+                          return (
+                            <span
+                              key={point.id}
+                              aria-label={point.label}
+                              title={point.label}
+                              className={`absolute top-0 h-5 w-5 rounded-full border p-1 ${edgeClass} ${
+                                active ? 'border-cyan-200 bg-cyan-300/20' : 'border-white/15 bg-slate-950'
+                              }`}
+                              style={edgeStyle}
+                            >
+                              <span className={`block h-full w-full rounded-full ${active ? 'bg-cyan-200' : 'bg-slate-700'}`} />
+                            </span>
+                          );
+                        })}
+                      </div>
+                      <div className="relative mt-2 h-4 text-[10px] uppercase tracking-widest text-slate-600">
+                        {clientJourneyProgressPoints.map((point) => {
+                          const edgeClass = point.progress === 0
+                            ? 'left-0 text-left'
+                            : point.progress === 100
+                              ? 'right-0 text-right'
+                              : '-translate-x-1/2 text-center';
+                          const edgeStyle = point.progress === 0 || point.progress === 100
+                            ? {}
+                            : { left: `${point.progress}%` };
+
+                          return (
+                            <span key={point.id} className={`absolute whitespace-nowrap ${edgeClass}`} style={edgeStyle}>
+                              {point.label}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                     <div className="mt-4 grid gap-2 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                       <button

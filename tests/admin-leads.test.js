@@ -3,12 +3,25 @@ import test from 'node:test';
 
 import {
   buildClientProjectPipeline,
+  clientJourneyProgressPoints,
   getClientJourney,
   getNextJourneyStatus,
   getPreviousJourneyStatus,
   getPipelineProgressSummary,
   groupBriefingResponsesByClient,
 } from '../src/utils/adminLeads.js';
+
+test('defines the visible progress points for the client journey ruler', () => {
+  assert.deepEqual(
+    clientJourneyProgressPoints.map((point) => [point.id, point.progress]),
+    [
+      ['new', 0],
+      ['triage', 33],
+      ['proposal', 66],
+      ['presentation', 100],
+    ]
+  );
+});
 
 test('groups service briefing responses by client without dropping repeated answers', () => {
   const grouped = groupBriefingResponsesByClient([
@@ -170,7 +183,7 @@ test('summarizes project journey progress for the admin progress bar', () => {
 
   const summary = getPipelineProgressSummary(clients);
 
-  assert.equal(summary.averageProgress, 53);
+  assert.equal(summary.averageProgress, 50);
   assert.equal(summary.totalProjects, 2);
   assert.equal(summary.steps.find((step) => step.id === 'proposal').count, 1);
   assert.equal(summary.steps.find((step) => step.id === 'triage').count, 1);
@@ -197,7 +210,7 @@ test('uses a manual admin status before automatic journey classification', () =>
   ]);
 
   assert.equal(client.journey.lane, 'presentation');
-  assert.equal(client.journey.progress, 90);
+  assert.equal(client.journey.progress, 100);
   assert.equal(client.journey.note, 'Proposta ja foi apresentada por WhatsApp.');
 });
 
