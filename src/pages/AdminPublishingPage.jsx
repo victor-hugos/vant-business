@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import { categorias as staticCategories, recursos as staticTools } from '../data/recursos.js';
-import { buildClientProjectPipeline, getPipelineProgressSummary, groupBriefingResponsesByClient } from '../utils/adminLeads.js';
+import { buildClientProjectPipeline, groupBriefingResponsesByClient } from '../utils/adminLeads.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
 
 const localAuthKey = 'vant_admin_local_auth';
@@ -248,213 +248,176 @@ function AdminTabs({ active, onChange }) {
 function LeadsPanel({ leads }) {
   const clients = useMemo(() => groupBriefingResponsesByClient(leads), [leads]);
   const pipeline = useMemo(() => buildClientProjectPipeline(clients), [clients]);
-  const progressSummary = useMemo(() => getPipelineProgressSummary(clients), [clients]);
   const [selectedKey, setSelectedKey] = useState('');
+  const [activeLane, setActiveLane] = useState('all');
   const totalResponses = clients.reduce((total, client) => total + client.responses.length, 0);
+  const visibleClients = activeLane === 'all'
+    ? clients
+    : clients.filter((client) => client.journey?.lane === activeLane);
   const selectedClient = clients.find((client) => client.key === selectedKey) || clients[0] || null;
   const selectedLead = selectedClient?.responses?.[0] || null;
   const selectedMetadata = selectedLead?.metadata || {};
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-cyan-400">Jornada comercial</p>
-            <h2 className="mt-2 text-xl font-bold text-white">Do pre-briefing ate a apresentacao</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              Cada cliente aparece uma vez, com a rota atual calculada a partir do briefing: triagem, proposta, remarketing ou apresentacao.
-            </p>
-          </div>
-          <StatusPill tone="emerald">{totalResponses} respostas</StatusPill>
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-cyan-400">Jornada comercial</p>
+          <h2 className="mt-2 text-xl font-bold text-white">Projetos recebidos pelo site</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
+            Visao ampla dos clientes que preencheram o pre-briefing, com etapa, pendencias e proxima acao.
+          </p>
         </div>
+        <StatusPill tone="emerald">{totalResponses} respostas</StatusPill>
+      </div>
 
-        <div className="mt-5 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Barra de progresso</p>
-              <h3 className="mt-1 text-lg font-bold text-white">Avanco geral dos projetos</h3>
-            </div>
-            <div className="text-left sm:text-right">
-              <p className="text-3xl font-bold text-white">{progressSummary.averageProgress}%</p>
-              <p className="text-xs text-slate-500">{progressSummary.totalProjects} projeto{progressSummary.totalProjects === 1 ? '' : 's'} no funil</p>
-            </div>
-          </div>
+      <div className="mt-5 grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
+        <button
+          type="button"
+          onClick={() => setActiveLane('all')}
+          className={`rounded-xl border p-3 text-left transition ${
+            activeLane === 'all' ? 'border-cyan-300/40 bg-cyan-300/10' : 'border-white/10 bg-slate-950/45 hover:border-white/25'
+          }`}
+        >
+          <span className="text-xs font-semibold text-white">Todos</span>
+          <span className="mt-1 block text-xl font-bold text-white">{clients.length}</span>
+        </button>
+        {pipeline.map((lane) => (
+          <button
+            key={lane.id}
+            type="button"
+            onClick={() => setActiveLane(lane.id)}
+            className={`rounded-xl border p-3 text-left transition ${
+              activeLane === lane.id ? 'border-cyan-300/40 bg-cyan-300/10' : 'border-white/10 bg-slate-950/45 hover:border-white/25'
+            }`}
+          >
+            <span className="text-xs font-semibold text-white">{lane.label}</span>
+            <span className="mt-1 block text-xl font-bold text-white">{lane.clients.length}</span>
+          </button>
+        ))}
+      </div>
 
-          <div className="mt-4 h-4 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
-            <div
-              className="h-full rounded-full bg-cyan-300 transition-all"
-              style={{ width: `${progressSummary.averageProgress}%` }}
-            />
-          </div>
-
-          <div className="mt-4 grid gap-2 sm:grid-cols-5">
-            {progressSummary.steps.map((step) => (
-              <div key={step.id} className="rounded-lg border border-white/10 bg-slate-950/55 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold text-white">{step.label}</p>
-                  <span className="text-xs text-cyan-300">{step.count}</span>
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{step.description}</p>
+      <div className="mt-5">
+        {clients.length === 0 ? (
+          <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
+            Ainda nao ha pre-briefings comerciais registrados.
+          </p>
+        ) : (
+          <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950/45">
+              <div className="grid grid-cols-[1.2fr_0.9fr_0.7fr] gap-3 border-b border-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                <span>Projeto</span>
+                <span>Etapa</span>
+                <span className="text-right">Entrada</span>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="divide-y divide-white/10">
+                {visibleClients.length === 0 ? (
+                  <p className="p-4 text-sm text-slate-500">Nenhum projeto nesta etapa.</p>
+                ) : (
+                  visibleClients.map((client) => {
+                    const lead = client.responses[0] || {};
+                    const metadata = lead.metadata || {};
+                    const selected = selectedClient?.key === client.key;
 
-        <div className="mt-5">
-          {clients.length === 0 ? (
-            <p className="rounded-xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-500">
-              Ainda nao ha pre-briefings comerciais registrados.
-            </p>
-          ) : (
-            <div className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                {pipeline.map((lane) => (
-                  <div key={lane.id} className="min-h-56 rounded-xl border border-white/10 bg-slate-950/45 p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-semibold text-white">{lane.label}</p>
-                        <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{lane.description}</p>
-                      </div>
-                      <StatusPill tone={lane.id === 'proposal' ? 'emerald' : lane.id === 'triage' ? 'amber' : lane.id === 'remarketing' ? 'slate' : 'cyan'}>
-                        {lane.clients.length}
-                      </StatusPill>
+                    return (
+                      <button
+                        key={client.key}
+                        type="button"
+                        onClick={() => setSelectedKey(client.key)}
+                        className={`grid w-full grid-cols-[1.2fr_0.9fr_0.7fr] gap-3 px-4 py-3 text-left transition ${
+                          selected ? 'bg-cyan-300/10' : 'hover:bg-white/[0.03]'
+                        }`}
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-white">
+                            {metadata.businessName || client.name}
+                          </span>
+                          <span className="mt-1 block truncate text-xs text-slate-500">
+                            {metadata.solutionType || lead.product_title || 'Solucao nao informada'}
+                          </span>
+                        </span>
+                        <span className="self-center">
+                          <StatusPill tone={client.journey?.tone || 'cyan'}>{client.journey?.label || 'Entrada'}</StatusPill>
+                        </span>
+                        <span className="self-center text-right text-xs text-slate-500">{formatDate(client.latestAt)}</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <aside className="rounded-xl border border-white/10 bg-slate-950/55 p-5">
+              {selectedClient ? (
+                <div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="text-xs uppercase tracking-widest text-cyan-400">Detalhe do projeto</p>
+                      <h3 className="mt-2 text-2xl font-bold text-white">{selectedMetadata.businessName || selectedClient.name}</h3>
+                      <p className="mt-1 break-all text-sm text-cyan-300">{selectedClient.email || 'email nao informado'}</p>
+                      {selectedClient.whatsapp ? <p className="mt-1 text-xs text-slate-400">{selectedClient.whatsapp}</p> : null}
                     </div>
+                    <StatusPill tone={selectedClient.journey?.tone || 'cyan'}>{selectedClient.journey?.label || 'Entrada'}</StatusPill>
+                  </div>
 
-                    <div className="mt-4 space-y-2">
-                      {lane.clients.length === 0 ? (
-                        <p className="rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-slate-600">Sem projetos</p>
-                      ) : (
-                        lane.clients.map((client) => {
-                          const lead = client.responses[0] || {};
-                          const metadata = lead.metadata || {};
-                          const selected = selectedClient?.key === client.key;
-                          return (
-                            <button
-                              key={client.key}
-                              type="button"
-                              onClick={() => setSelectedKey(client.key)}
-                              className={`w-full rounded-lg border p-3 text-left transition ${
-                                selected
-                                  ? 'border-cyan-300/40 bg-cyan-300/10'
-                                  : 'border-white/10 bg-black/20 hover:border-white/25'
-                              }`}
-                            >
-                              <p className="truncate text-sm font-semibold text-white">{client.projectName}</p>
-                              <p className="mt-1 truncate text-xs text-cyan-300">{client.name}</p>
-                              <p className="mt-2 line-clamp-2 text-[11px] leading-relaxed text-slate-500">
-                                {metadata.solutionType || lead.product_title || 'Solucao nao informada'}
-                              </p>
-                              <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-slate-500">
-                                <span>{formatDate(client.latestAt)}</span>
-                                <span>{client.responses.length} resp.</span>
-                              </div>
-                              <div className="mt-3">
-                                <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
-                                  <span>Progresso</span>
-                                  <span>{client.journey?.progress || 0}%</span>
-                                </div>
-                                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-800">
-                                  <div
-                                    className="h-full rounded-full bg-cyan-300"
-                                    style={{ width: `${client.journey?.progress || 0}%` }}
-                                  />
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })
-                      )}
+                  <div className="mt-5 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-4">
+                    <div className="flex items-end justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Progresso</p>
+                        <p className="mt-1 text-sm text-slate-300">Caminho ate apresentacao da proposta</p>
+                      </div>
+                      <p className="text-3xl font-bold text-white">{selectedClient.journey?.progress || 0}%</p>
+                    </div>
+                    <div className="mt-4 h-5 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
+                      <div className="h-full rounded-full bg-cyan-300" style={{ width: `${selectedClient.journey?.progress || 0}%` }} />
+                    </div>
+                    <div className="mt-2 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-slate-600">
+                      <span>Entrada</span>
+                      <span>Triagem</span>
+                      <span>Proposta</span>
+                      <span>Apresentacao</span>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              <aside className="rounded-xl border border-white/10 bg-slate-950/55 p-4">
-                {selectedClient ? (
-                  <div>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="text-xs uppercase tracking-widest text-cyan-400">Detalhe do projeto</p>
-                        <h3 className="mt-2 text-xl font-bold text-white">{selectedMetadata.businessName || selectedClient.name}</h3>
-                        <p className="mt-1 break-all text-sm text-cyan-300">{selectedClient.email || 'email nao informado'}</p>
-                        {selectedClient.whatsapp ? <p className="mt-1 text-xs text-slate-400">{selectedClient.whatsapp}</p> : null}
-                      </div>
-                      <StatusPill tone={selectedClient.journey?.tone || 'cyan'}>{selectedClient.journey?.label || 'Entrada'}</StatusPill>
+                  <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
+                    <div className="md:col-span-2">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</p>
+                      <p className="mt-1 leading-relaxed text-slate-200">{selectedClient.journey?.nextAction}</p>
                     </div>
-
-                    <div className="mt-5">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Progresso</p>
-                        <p className="text-xs text-slate-500">{selectedClient.journey?.progress || 0}% ate apresentacao</p>
+                    {selectedClient.journey?.missing?.length ? (
+                      <div className="md:col-span-2">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Pendencias</p>
+                        <p className="mt-1 text-amber-100">{selectedClient.journey.missing.join(', ')}</p>
                       </div>
-                      <div className="mt-2 h-4 overflow-hidden rounded-full bg-slate-800 ring-1 ring-white/10">
-                        <div className="h-full rounded-full bg-cyan-300" style={{ width: `${selectedClient.journey?.progress || 0}%` }} />
-                      </div>
-                      <div className="mt-2 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-slate-600">
-                        <span>Entrada</span>
-                        <span>Triagem</span>
-                        <span>Proposta</span>
-                        <span>Apresentacao</span>
-                      </div>
+                    ) : null}
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Solucao</p>
+                      <p className="mt-1 text-slate-300">{selectedMetadata.solutionType || selectedLead?.product_title || '-'}</p>
                     </div>
-
-                    <div className="mt-5 space-y-4 text-sm">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</p>
-                        <p className="mt-1 leading-relaxed text-slate-200">{selectedClient.journey?.nextAction}</p>
-                      </div>
-                      {selectedClient.journey?.missing?.length ? (
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Pendencias</p>
-                          <p className="mt-1 text-amber-100">{selectedClient.journey.missing.join(', ')}</p>
-                        </div>
-                      ) : null}
-                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Solucao</p>
-                          <p className="mt-1 text-slate-300">{selectedMetadata.solutionType || selectedLead?.product_title || '-'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Momento</p>
-                          <p className="mt-1 text-slate-300">{selectedMetadata.projectStage || '-'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Investimento</p>
-                          <p className="mt-1 text-slate-300">{selectedMetadata.budgetRange || '-'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Instagram</p>
-                          <p className="mt-1 text-slate-300">{selectedMetadata.instagramHandle || '-'}</p>
-                        </div>
-                      </div>
-                      {selectedMetadata.message ? (
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Briefing</p>
-                          <p className="mt-1 leading-relaxed text-slate-300">{selectedMetadata.message}</p>
-                        </div>
-                      ) : null}
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Momento</p>
+                      <p className="mt-1 text-slate-300">{selectedMetadata.projectStage || '-'}</p>
                     </div>
-
-                    <div className="mt-5 border-t border-white/10 pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Historico</p>
-                      <div className="mt-3 space-y-2">
-                        {selectedClient.responses.map((lead, index) => (
-                          <div key={lead.id || `${selectedClient.key}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-slate-400">
-                            <div className="flex items-start justify-between gap-3">
-                              <span>{lead.metadata?.solutionType || lead.product_title || 'Resposta recebida'}</span>
-                              <span className="shrink-0 text-slate-500">{formatDate(lead.created_at)}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Investimento</p>
+                      <p className="mt-1 text-slate-300">{selectedMetadata.budgetRange || '-'}</p>
                     </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Instagram</p>
+                      <p className="mt-1 text-slate-300">{selectedMetadata.instagramHandle || '-'}</p>
+                    </div>
+                    {selectedMetadata.message ? (
+                      <div className="md:col-span-2">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Briefing</p>
+                        <p className="mt-1 leading-relaxed text-slate-300">{selectedMetadata.message}</p>
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </aside>
-            </div>
-          )}
                 </div>
+              ) : null}
+            </aside>
+          </div>
+        )}
       </div>
     </section>
   );
