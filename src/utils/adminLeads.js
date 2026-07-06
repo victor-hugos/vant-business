@@ -62,18 +62,29 @@ export const clientJourneyLanes = [
     description: 'Demanda com fit para preparar proposta.',
   },
   {
+    id: 'presentation',
+    label: 'Apresentacao',
+    description: 'Etapa seguinte apos proposta pronta.',
+  },
+  {
     id: 'remarketing',
     label: 'Remarketing',
     description: 'Lead frio, indefinido ou sem prioridade comercial agora.',
   },
   {
-    id: 'presentation',
-    label: 'Apresentacao',
-    description: 'Etapa seguinte apos proposta pronta.',
+    id: 'client',
+    label: 'Cliente',
+    description: 'Proposta aceita ou cliente convertido.',
   },
 ];
 
-export const clientJourneyStatusLevels = clientJourneyLanes.map((lane) => ({
+export const clientJourneyStatusLevels = clientJourneyLanes.slice(0, 4).map((lane) => ({
+  id: lane.id,
+  label: lane.label,
+  description: lane.description,
+}));
+
+export const clientJourneyDecisionOptions = clientJourneyLanes.slice(4).map((lane) => ({
   id: lane.id,
   label: lane.label,
   description: lane.description,
@@ -85,15 +96,15 @@ export const adminJourneyStatusOptions = clientJourneyLanes.map((lane) => ({
 }));
 
 export function getNextJourneyStatus(currentStatus = '') {
-  const currentIndex = clientJourneyLanes.findIndex((lane) => lane.id === currentStatus);
-  if (currentIndex === -1) return clientJourneyLanes[0].id;
-  return clientJourneyLanes[Math.min(currentIndex + 1, clientJourneyLanes.length - 1)].id;
+  const currentIndex = clientJourneyStatusLevels.findIndex((lane) => lane.id === currentStatus);
+  if (currentIndex === -1) return clientJourneyStatusLevels[0].id;
+  return clientJourneyStatusLevels[Math.min(currentIndex + 1, clientJourneyStatusLevels.length - 1)].id;
 }
 
 export function getPreviousJourneyStatus(currentStatus = '') {
-  const currentIndex = clientJourneyLanes.findIndex((lane) => lane.id === currentStatus);
-  if (currentIndex <= 0) return clientJourneyLanes[0].id;
-  return clientJourneyLanes[currentIndex - 1].id;
+  const currentIndex = clientJourneyStatusLevels.findIndex((lane) => lane.id === currentStatus);
+  if (currentIndex <= 0) return clientJourneyStatusLevels[0].id;
+  return clientJourneyStatusLevels[currentIndex - 1].id;
 }
 
 const manualJourneyConfig = {
@@ -116,6 +127,10 @@ const manualJourneyConfig = {
   presentation: {
     tone: 'cyan',
     nextAction: 'Registrar retorno da apresentacao e definir fechamento ou follow-up.',
+  },
+  client: {
+    tone: 'emerald',
+    nextAction: 'Iniciar onboarding e registrar proximos combinados do projeto.',
   },
 };
 

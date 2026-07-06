@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   buildClientProjectPipeline,
+  clientJourneyDecisionOptions,
   clientJourneyStatusLevels,
   getClientJourney,
   getNextJourneyStatus,
@@ -13,9 +14,18 @@ import {
 test('defines visible status levels for the client journey without exposing percentages', () => {
   assert.deepEqual(
     clientJourneyStatusLevels.map((level) => level.id),
-    ['new', 'triage', 'proposal', 'remarketing', 'presentation']
+    ['new', 'triage', 'proposal', 'presentation']
   );
+  assert.equal(clientJourneyStatusLevels.some((level) => level.id === 'remarketing'), false);
+  assert.equal(clientJourneyStatusLevels.some((level) => level.id === 'client'), false);
   assert.equal(clientJourneyStatusLevels.some((level) => 'progress' in level), false);
+});
+
+test('defines proposal decision options outside the main status ruler', () => {
+  assert.deepEqual(
+    clientJourneyDecisionOptions.map((option) => option.id),
+    ['remarketing', 'client']
+  );
 });
 
 test('groups service briefing responses by client without dropping repeated answers', () => {
@@ -143,7 +153,7 @@ test('builds a project pipeline with clients grouped under journey lanes', () =>
   assert.equal(pipeline.find((lane) => lane.id === 'triage').clients[0].projectName, 'Cliente Triagem');
   assert.deepEqual(
     pipeline.map((lane) => lane.id),
-    ['new', 'triage', 'proposal', 'remarketing', 'presentation']
+    ['new', 'triage', 'proposal', 'presentation', 'remarketing', 'client']
   );
 });
 
@@ -171,11 +181,35 @@ test('uses a manual admin status before automatic journey classification', () =>
   assert.equal(client.journey.note, 'Proposta ja foi apresentada por WhatsApp.');
 });
 
+test('supports marking a proposal as a converted client', () => {
+  const [client] = groupBriefingResponsesByClient([
+    {
+      id: 'client',
+      nome: 'Cliente Fechado',
+      email: 'cliente@exemplo.com',
+      whatsapp: '11999999999',
+      lead_type: 'service',
+      metadata: {
+        adminJourneyStatus: 'client',
+        solutionType: 'Site profissional',
+        projectStage: 'Tenho uma demanda urgente',
+        budgetRange: 'R$ 3.000 a R$ 6.000',
+        message: 'Vamos fechar o projeto.',
+      },
+      created_at: '2026-05-04T10:00:00.000Z',
+    },
+  ]);
+
+  assert.equal(client.journey.lane, 'client');
+  assert.equal(client.journey.label, 'Cliente');
+});
+
 test('moves leads forward and backward through the sales funnel stages', () => {
   assert.equal(getNextJourneyStatus('new'), 'triage');
-  assert.equal(getNextJourneyStatus('proposal'), 'remarketing');
+  assert.equal(getNextJourneyStatus('proposal'), 'presentation');
   assert.equal(getNextJourneyStatus('presentation'), 'presentation');
 
   assert.equal(getPreviousJourneyStatus('proposal'), 'triage');
+  assert.equal(getPreviousJourneyStatus('presentation'), 'proposal');
   assert.equal(getPreviousJourneyStatus('new'), 'new');
 });

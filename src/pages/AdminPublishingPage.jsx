@@ -5,6 +5,7 @@ import { categorias as staticCategories, recursos as staticTools } from '../data
 import {
   adminJourneyStatusOptions,
   buildClientProjectPipeline,
+  clientJourneyDecisionOptions,
   clientJourneyStatusLevels,
   groupBriefingResponsesByClient,
 } from '../utils/adminLeads.js';
@@ -456,7 +457,7 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                         <p className="mt-1 text-sm text-slate-300">{selectedClient.journey?.label || 'Entrada'}</p>
                       </div>
                     </div>
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                       {clientJourneyStatusLevels.map((level) => {
                         const active = selectedClient.journey?.lane === level.id;
 
@@ -482,6 +483,25 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                         );
                       })}
                     </div>
+                    {selectedClient.journey?.lane === 'proposal' ? (
+                      <div className="mt-4 border-t border-white/10 pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Decisao da proposta</p>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                          {clientJourneyDecisionOptions.map((option) => (
+                            <button
+                              key={option.id}
+                              type="button"
+                              onClick={() => changeSelectedClientStatus(option.id)}
+                              disabled={savingLead}
+                              className="rounded-lg border border-white/10 bg-slate-950/55 px-3 py-3 text-left text-slate-300 transition hover:border-cyan-300/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <span className="text-xs font-semibold uppercase tracking-widest">{option.label}</span>
+                              <span className="mt-1 block text-xs leading-relaxed text-slate-500">{option.description}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
