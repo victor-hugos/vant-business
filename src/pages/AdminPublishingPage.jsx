@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import { categorias as staticCategories, recursos as staticTools } from '../data/recursos.js';
-import { buildClientProjectPipeline, groupBriefingResponsesByClient } from '../utils/adminLeads.js';
+import { adminJourneyStatusOptions, buildClientProjectPipeline, groupBriefingResponsesByClient } from '../utils/adminLeads.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
 
 const localAuthKey = 'vant_admin_local_auth';
@@ -245,11 +245,13 @@ function AdminTabs({ active, onChange }) {
   );
 }
 
-function LeadsPanel({ leads }) {
+function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
   const clients = useMemo(() => groupBriefingResponsesByClient(leads), [leads]);
   const pipeline = useMemo(() => buildClientProjectPipeline(clients), [clients]);
   const [selectedKey, setSelectedKey] = useState('');
   const [activeLane, setActiveLane] = useState('all');
+  const [savingLead, setSavingLead] = useState(false);
+  const [leadForm, setLeadForm] = useState({ adminJourneyStatus: '', adminNote: '', adminNextAction: '' });
   const totalResponses = clients.reduce((total, client) => total + client.responses.length, 0);
   const visibleClients = activeLane === 'all'
     ? clients
@@ -257,6 +259,70 @@ function LeadsPanel({ leads }) {
   const selectedClient = clients.find((client) => client.key === selectedKey) || clients[0] || null;
   const selectedLead = selectedClient?.responses?.[0] || null;
   const selectedMetadata = selectedLead?.metadata || {};
+
+  useEffect(() => {
+    setLeadForm({
+      adminJourneyStatus: selectedMetadata.adminJourneyStatus || selectedClient?.journey?.lane || '',
+      adminNote: selectedMetadata.adminNote || '',
+      adminNextAction: selectedMetadata.adminNextAction || '',
+    });
+  }, [selectedClient?.key, selectedMetadata.adminJourneyStatus, selectedMetadata.adminNote, selectedMetadata.adminNextAction]);
+
+  async function saveLeadPatch(patch = {}) {
+    if (!selectedLead?.id) return;
+    if (localMode) {
+      onMessage?.('Edicao de status exige API/Supabase; no modo local esta acao nao salva.');
+      return;
+    }
+
+    setSavingLead(true);
+    try {
+      const response = await fetch('/api/admin-leads', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: selectedLead.id, ...patch }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'Falha ao atualizar lead');
+      await onRefresh?.();
+      onMessage?.('Status do projeto atualizado.');
+    } catch (error) {
+      onMessage?.(error.message);
+    } finally {
+      setSavingLead(false);
+    }
+  }
+
+  async function deleteSelectedClient() {
+    if (!selectedClient) return;
+    if (localMode) {
+      onMessage?.('Exclusao exige API/Supabase; no modo local esta acao nao salva.');
+      return;
+    }
+
+    const confirmed = window.confirm(`Excluir ${selectedClient.responses.length} resposta(s) deste projeto?`);
+    if (!confirmed) return;
+
+    setSavingLead(true);
+    try {
+      const response = await fetch('/api/admin-leads', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ids: selectedClient.responses.map((lead) => lead.id) }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'Falha ao excluir lead');
+      setSelectedKey('');
+      await onRefresh?.();
+      onMessage?.('Projeto excluido do painel.');
+    } catch (error) {
+      onMessage?.(error.message);
+    } finally {
+      setSavingLead(false);
+    }
+  }
 
   return (
     <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
@@ -368,7 +434,7 @@ function LeadsPanel({ leads }) {
                       </div>
                       <p className="text-3xl font-bold text-white">{selectedClient.journey?.progress || 0}%</p>
                     </div>
-                    <div className="mt-4 h-5 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
+                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
                       <div className="h-full rounded-full bg-cyan-300" style={{ width: `${selectedClient.journey?.progress || 0}%` }} />
                     </div>
                     <div className="mt-2 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-slate-600">
@@ -377,6 +443,73 @@ function LeadsPanel({ leads }) {
                       <span>Proposta</span>
                       <span>Apresentacao</span>
                     </div>
+                  </div>
+
+                  <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Editar jornada</p>
+                        <p className="mt-1 text-sm text-slate-400">Mude o status para o projeto andar manualmente.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={deleteSelectedClient}
+                        disabled={savingLead}
+                        className="rounded-lg border border-rose-300/25 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-300/10 disabled:opacity-50"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
+                      <label className="block">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Status</span>
+                        <select
+                          value={leadForm.adminJourneyStatus}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setLeadForm((current) => ({ ...current, adminJourneyStatus: value }));
+                            saveLeadPatch({ adminJourneyStatus: value });
+                          }}
+                          disabled={savingLead}
+                          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/50 disabled:opacity-50"
+                        >
+                          {adminJourneyStatusOptions.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="block">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</span>
+                        <input
+                          value={leadForm.adminNextAction}
+                          onChange={(event) => setLeadForm((current) => ({ ...current, adminNextAction: event.target.value }))}
+                          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-300/50"
+                          placeholder="Ex: enviar proposta ate sexta"
+                        />
+                      </label>
+                      <label className="block md:col-span-2">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Observacao interna</span>
+                        <textarea
+                          value={leadForm.adminNote}
+                          onChange={(event) => setLeadForm((current) => ({ ...current, adminNote: event.target.value }))}
+                          className="mt-2 min-h-20 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-300/50"
+                          placeholder="Contexto comercial, combinados ou follow-up."
+                        />
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => saveLeadPatch({
+                        adminJourneyStatus: leadForm.adminJourneyStatus,
+                        adminNote: leadForm.adminNote,
+                        adminNextAction: leadForm.adminNextAction,
+                      })}
+                      disabled={savingLead}
+                      className="mt-3 rounded-lg bg-cyan-300 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-cyan-200 disabled:opacity-50"
+                    >
+                      {savingLead ? 'Salvando...' : 'Salvar edicao'}
+                    </button>
                   </div>
 
                   <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">
@@ -410,6 +543,12 @@ function LeadsPanel({ leads }) {
                       <div className="md:col-span-2">
                         <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Briefing</p>
                         <p className="mt-1 leading-relaxed text-slate-300">{selectedMetadata.message}</p>
+                      </div>
+                    ) : null}
+                    {selectedClient.journey?.note ? (
+                      <div className="md:col-span-2">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Observacao interna</p>
+                        <p className="mt-1 leading-relaxed text-slate-300">{selectedClient.journey.note}</p>
                       </div>
                     ) : null}
                   </div>
@@ -1188,7 +1327,12 @@ function AdminPublishingPage() {
         </div>
       )}
 
-      <LeadsPanel leads={data.subscribers || []} />
+      <LeadsPanel
+        leads={data.subscribers || []}
+        localMode={Boolean(data.localPreview)}
+        onMessage={setMessage}
+        onRefresh={data.localPreview ? loadLocalData : loadData}
+      />
     </div>
   );
 }

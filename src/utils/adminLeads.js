@@ -73,9 +73,59 @@ export const clientJourneyLanes = [
   },
 ];
 
+export const adminJourneyStatusOptions = clientJourneyLanes.map((lane) => ({
+  value: lane.id,
+  label: lane.label,
+}));
+
+const manualJourneyConfig = {
+  new: {
+    progress: 20,
+    tone: 'cyan',
+    nextAction: 'Revisar briefing recebido e confirmar proximo passo.',
+  },
+  triage: {
+    progress: 40,
+    tone: 'amber',
+    nextAction: 'Validar dados pendentes antes de proposta.',
+  },
+  proposal: {
+    progress: 70,
+    tone: 'emerald',
+    nextAction: 'Preparar proposta e agendar apresentacao.',
+  },
+  remarketing: {
+    progress: 35,
+    tone: 'slate',
+    nextAction: 'Nutrir com diagnostico, prova de valor ou conversa curta antes de proposta.',
+  },
+  presentation: {
+    progress: 90,
+    tone: 'cyan',
+    nextAction: 'Registrar retorno da apresentacao e definir fechamento ou follow-up.',
+  },
+};
+
 export function getClientJourney(client = {}) {
   const lead = latestResponse(client);
   const metadata = lead.metadata || {};
+  const manualStatus = normalizeText(metadata.adminJourneyStatus);
+  const manualLane = clientJourneyLanes.find((lane) => lane.id === manualStatus);
+
+  if (manualLane) {
+    const config = manualJourneyConfig[manualLane.id] || manualJourneyConfig.new;
+    return {
+      lane: manualLane.id,
+      label: manualLane.label,
+      tone: config.tone,
+      nextAction: normalizeText(metadata.adminNextAction) || config.nextAction,
+      note: normalizeText(metadata.adminNote),
+      missing: [],
+      progress: config.progress,
+      manual: true,
+    };
+  }
+
   const missing = [];
 
   if (!client.email) missing.push('email');
@@ -92,7 +142,7 @@ export function getClientJourney(client = {}) {
       tone: 'amber',
       nextAction: `Pedir ${missing.slice(0, 2).join(' e ')} antes de proposta.`,
       missing,
-      progress: 40,
+      progress: 35,
     };
   }
 
@@ -103,7 +153,7 @@ export function getClientJourney(client = {}) {
       tone: 'slate',
       nextAction: 'Nutrir com diagnostico, prova de valor ou conversa curta antes de proposta.',
       missing: [],
-      progress: 55,
+      progress: 35,
     };
   }
 
@@ -114,7 +164,7 @@ export function getClientJourney(client = {}) {
       tone: 'emerald',
       nextAction: 'Preparar proposta e agendar apresentacao.',
       missing: [],
-      progress: 75,
+      progress: 70,
     };
   }
 
@@ -124,7 +174,7 @@ export function getClientJourney(client = {}) {
     tone: 'cyan',
     nextAction: 'Revisar briefing recebido e confirmar proximo passo.',
     missing: [],
-    progress: 25,
+    progress: 20,
   };
 }
 

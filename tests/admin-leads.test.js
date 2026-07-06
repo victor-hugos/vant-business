@@ -168,8 +168,33 @@ test('summarizes project journey progress for the admin progress bar', () => {
 
   const summary = getPipelineProgressSummary(clients);
 
-  assert.equal(summary.averageProgress, 58);
+  assert.equal(summary.averageProgress, 53);
   assert.equal(summary.totalProjects, 2);
   assert.equal(summary.steps.find((step) => step.id === 'proposal').count, 1);
   assert.equal(summary.steps.find((step) => step.id === 'triage').count, 1);
+});
+
+test('uses a manual admin status before automatic journey classification', () => {
+  const [client] = groupBriefingResponsesByClient([
+    {
+      id: 'manual',
+      nome: 'Cliente Manual',
+      email: 'manual@exemplo.com',
+      whatsapp: '11999999999',
+      lead_type: 'service',
+      metadata: {
+        adminJourneyStatus: 'presentation',
+        adminNote: 'Proposta ja foi apresentada por WhatsApp.',
+        solutionType: 'Ainda nao sei',
+        projectStage: 'Preciso comecar do zero',
+        budgetRange: 'Ainda quero entender valores',
+        message: 'Quero entender possibilidades.',
+      },
+      created_at: '2026-05-04T10:00:00.000Z',
+    },
+  ]);
+
+  assert.equal(client.journey.lane, 'presentation');
+  assert.equal(client.journey.progress, 90);
+  assert.equal(client.journey.note, 'Proposta ja foi apresentada por WhatsApp.');
 });
