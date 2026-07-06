@@ -111,13 +111,16 @@ test('light editorial pass removes overtly commercial copy from resources page',
 test('conversion page has a mobile-first compact layout pass', () => {
   assert.match(cssSource, /@media \(max-width: 640px\)/);
   assert.match(cssSource, /\.conversion-hero\s*{[^}]*flex-direction:\s*column/s);
-  assert.match(cssSource, /\.conversion-visual\s*{[^}]*order:\s*1/s);
-  assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*order:\s*2/s);
-  assert.match(cssSource, /\.conversion-brand-board\s*{[^}]*display:\s*grid/s);
+  assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*order:\s*1/s);
+  assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*min-height:\s*auto/s);
+  assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*justify-content:\s*flex-start/s);
+  assert.match(cssSource, /\.conversion-visual\s*{[^}]*order:\s*2/s);
+  assert.match(cssSource, /\.conversion-brand-board\s*{[^}]*display:\s*none/s);
+  assert.match(cssSource, /\.conversion-hero-line\s*{[^}]*display:\s*none/s);
   assert.match(cssSource, /\.conversion-hero-copy\s*{[^}]*padding:\s*1\.35rem 0\.95rem/s);
   assert.match(cssSource, /\.conversion-title\s*{[^}]*max-width:\s*680px/s);
   assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(2\.05rem, 3\.45vw, 3\.65rem\)/s);
-  assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(1\.95rem, 9\.25vw, 2\.45rem\)/s);
+  assert.match(cssSource, /\.conversion-title\s*{[^}]*font-size:\s*clamp\(1\.82rem, 8\.6vw, 2\.28rem\)/s);
   assert.match(cssSource, /\.conversion-system\s*{[^}]*display:\s*grid/s);
   assert.doesNotMatch(cssSource, /\.conversion-hero-proof/);
   assert.match(cssSource, /\.conversion-outcome-row\s*{[^}]*grid-template-columns:\s*28px 1fr/s);

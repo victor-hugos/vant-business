@@ -1439,7 +1439,9 @@ html {
   }
 
   .conversion-hero-copy {
-    order: 2;
+    order: 1;
+    min-height: auto;
+    justify-content: flex-start;
     padding: 1.35rem 0.95rem;
   }
 
@@ -1449,8 +1451,8 @@ html {
 
   .conversion-title {
     margin-top: 1rem;
-    font-size: clamp(1.95rem, 9.25vw, 2.45rem);
-    line-height: 1.04;
+    font-size: clamp(1.82rem, 8.6vw, 2.28rem);
+    line-height: 1.06;
   }
 
   .conversion-lead {
@@ -1471,11 +1473,12 @@ html {
     text-align: center;
   }
 
+  .conversion-hero-line {
+    display: none;
+  }
+
   .conversion-signature {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.7rem;
-    margin-top: 1.2rem;
+    display: none;
   }
 
   .conversion-signature span {
@@ -1483,9 +1486,11 @@ html {
   }
 
   .conversion-visual {
-    order: 1;
+    order: 2;
     display: block;
     min-height: auto;
+    border-left: 0;
+    border-top: 1px solid rgba(240, 240, 240, 0.12);
     background:
       linear-gradient(rgba(240, 240, 240, 0.024) 1px, transparent 1px),
       linear-gradient(90deg, rgba(240, 240, 240, 0.024) 1px, transparent 1px),
@@ -1499,14 +1504,11 @@ html {
   }
 
   .conversion-pipeline {
-    padding: 0 0.95rem 0.95rem;
+    padding: 0.95rem;
   }
 
   .conversion-brand-board {
-    display: grid;
-    min-height: 430px;
-    align-content: center;
-    padding: 1.25rem 0.9rem 1rem;
+    display: none;
   }
 
   .conversion-brand-emblem {

@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
   buildClientProjectPipeline,
   getClientJourney,
+  getNextJourneyStatus,
+  getPreviousJourneyStatus,
   getPipelineProgressSummary,
   groupBriefingResponsesByClient,
 } from '../src/utils/adminLeads.js';
@@ -197,4 +199,13 @@ test('uses a manual admin status before automatic journey classification', () =>
   assert.equal(client.journey.lane, 'presentation');
   assert.equal(client.journey.progress, 90);
   assert.equal(client.journey.note, 'Proposta ja foi apresentada por WhatsApp.');
+});
+
+test('moves leads forward and backward through the sales funnel stages', () => {
+  assert.equal(getNextJourneyStatus('new'), 'triage');
+  assert.equal(getNextJourneyStatus('proposal'), 'remarketing');
+  assert.equal(getNextJourneyStatus('presentation'), 'presentation');
+
+  assert.equal(getPreviousJourneyStatus('proposal'), 'triage');
+  assert.equal(getPreviousJourneyStatus('new'), 'new');
 });

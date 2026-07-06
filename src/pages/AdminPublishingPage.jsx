@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import { categorias as staticCategories, recursos as staticTools } from '../data/recursos.js';
-import { adminJourneyStatusOptions, buildClientProjectPipeline, groupBriefingResponsesByClient } from '../utils/adminLeads.js';
+import {
+  adminJourneyStatusOptions,
+  buildClientProjectPipeline,
+  getNextJourneyStatus,
+  getPreviousJourneyStatus,
+  groupBriefingResponsesByClient,
+} from '../utils/adminLeads.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
 
 const localAuthKey = 'vant_admin_local_auth';
@@ -251,6 +257,7 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
   const [selectedKey, setSelectedKey] = useState('');
   const [activeLane, setActiveLane] = useState('all');
   const [savingLead, setSavingLead] = useState(false);
+  const [editingLead, setEditingLead] = useState(false);
   const [leadForm, setLeadForm] = useState({ adminJourneyStatus: '', adminNote: '', adminNextAction: '' });
   const totalResponses = clients.reduce((total, client) => total + client.responses.length, 0);
   const visibleClients = activeLane === 'all'
@@ -267,6 +274,10 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
       adminNextAction: selectedMetadata.adminNextAction || '',
     });
   }, [selectedClient?.key, selectedMetadata.adminJourneyStatus, selectedMetadata.adminNote, selectedMetadata.adminNextAction]);
+
+  useEffect(() => {
+    setEditingLead(false);
+  }, [selectedClient?.key]);
 
   async function saveLeadPatch(patch = {}) {
     if (!selectedLead?.id) return;
@@ -322,6 +333,16 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
     } finally {
       setSavingLead(false);
     }
+  }
+
+  function moveSelectedClient(direction) {
+    const currentStatus = selectedClient?.journey?.lane || 'new';
+    const nextStatus = direction === 'forward'
+      ? getNextJourneyStatus(currentStatus)
+      : getPreviousJourneyStatus(currentStatus);
+
+    setLeadForm((current) => ({ ...current, adminJourneyStatus: nextStatus }));
+    saveLeadPatch({ adminJourneyStatus: nextStatus });
   }
 
   return (
@@ -443,73 +464,103 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                       <span>Proposta</span>
                       <span>Apresentacao</span>
                     </div>
+                    <div className="mt-4 grid gap-2 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+                      <button
+                        type="button"
+                        onClick={() => moveSelectedClient('back')}
+                        disabled={savingLead || selectedClient.journey?.lane === 'new'}
+                        className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        ← Voltar
+                      </button>
+                      <p className="text-center text-xs text-slate-500">
+                        Use as setas para mover o lead na régua do funil.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => moveSelectedClient('forward')}
+                        disabled={savingLead || selectedClient.journey?.lane === 'presentation'}
+                        className="rounded-lg border border-cyan-300/25 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Avançar →
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Editar jornada</p>
-                        <p className="mt-1 text-sm text-slate-400">Mude o status para o projeto andar manualmente.</p>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Ações do lead</p>
+                        <p className="mt-1 text-sm text-slate-400">Edição avançada fica fechada até ser solicitada.</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={deleteSelectedClient}
-                        disabled={savingLead}
-                        className="rounded-lg border border-rose-300/25 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-300/10 disabled:opacity-50"
-                      >
-                        Excluir
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditingLead((value) => !value)}
+                          className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-white/30"
+                        >
+                          {editingLead ? 'Fechar edição' : 'Editar'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={deleteSelectedClient}
+                          disabled={savingLead}
+                          className="rounded-lg border border-rose-300/25 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-300/10 disabled:opacity-50"
+                        >
+                          Excluir
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
-                      <label className="block">
-                        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Status</span>
-                        <select
-                          value={leadForm.adminJourneyStatus}
-                          onChange={(event) => {
-                            const value = event.target.value;
-                            setLeadForm((current) => ({ ...current, adminJourneyStatus: value }));
-                            saveLeadPatch({ adminJourneyStatus: value });
-                          }}
+                    {editingLead ? (
+                      <>
+                        <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
+                          <label className="block">
+                            <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Status</span>
+                            <select
+                              value={leadForm.adminJourneyStatus}
+                              onChange={(event) => setLeadForm((current) => ({ ...current, adminJourneyStatus: event.target.value }))}
+                              disabled={savingLead}
+                              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/50 disabled:opacity-50"
+                            >
+                              {adminJourneyStatusOptions.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="block">
+                            <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</span>
+                            <input
+                              value={leadForm.adminNextAction}
+                              onChange={(event) => setLeadForm((current) => ({ ...current, adminNextAction: event.target.value }))}
+                              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-300/50"
+                              placeholder="Ex: enviar proposta ate sexta"
+                            />
+                          </label>
+                          <label className="block md:col-span-2">
+                            <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Observacao interna</span>
+                            <textarea
+                              value={leadForm.adminNote}
+                              onChange={(event) => setLeadForm((current) => ({ ...current, adminNote: event.target.value }))}
+                              className="mt-2 min-h-20 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-300/50"
+                              placeholder="Contexto comercial, combinados ou follow-up."
+                            />
+                          </label>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => saveLeadPatch({
+                            adminJourneyStatus: leadForm.adminJourneyStatus,
+                            adminNote: leadForm.adminNote,
+                            adminNextAction: leadForm.adminNextAction,
+                          })}
                           disabled={savingLead}
-                          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/50 disabled:opacity-50"
+                          className="mt-3 rounded-lg bg-cyan-300 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-cyan-200 disabled:opacity-50"
                         >
-                          {adminJourneyStatusOptions.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="block">
-                        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</span>
-                        <input
-                          value={leadForm.adminNextAction}
-                          onChange={(event) => setLeadForm((current) => ({ ...current, adminNextAction: event.target.value }))}
-                          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-300/50"
-                          placeholder="Ex: enviar proposta ate sexta"
-                        />
-                      </label>
-                      <label className="block md:col-span-2">
-                        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Observacao interna</span>
-                        <textarea
-                          value={leadForm.adminNote}
-                          onChange={(event) => setLeadForm((current) => ({ ...current, adminNote: event.target.value }))}
-                          className="mt-2 min-h-20 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-300/50"
-                          placeholder="Contexto comercial, combinados ou follow-up."
-                        />
-                      </label>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => saveLeadPatch({
-                        adminJourneyStatus: leadForm.adminJourneyStatus,
-                        adminNote: leadForm.adminNote,
-                        adminNextAction: leadForm.adminNextAction,
-                      })}
-                      disabled={savingLead}
-                      className="mt-3 rounded-lg bg-cyan-300 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-cyan-200 disabled:opacity-50"
-                    >
-                      {savingLead ? 'Salvando...' : 'Salvar edicao'}
-                    </button>
+                          {savingLead ? 'Salvando...' : 'Salvar edicao'}
+                        </button>
+                      </>
+                    ) : null}
                   </div>
 
                   <div className="mt-5 grid gap-4 text-sm md:grid-cols-2">

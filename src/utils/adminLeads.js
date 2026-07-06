@@ -78,6 +78,18 @@ export const adminJourneyStatusOptions = clientJourneyLanes.map((lane) => ({
   label: lane.label,
 }));
 
+export function getNextJourneyStatus(currentStatus = '') {
+  const currentIndex = clientJourneyLanes.findIndex((lane) => lane.id === currentStatus);
+  if (currentIndex === -1) return clientJourneyLanes[0].id;
+  return clientJourneyLanes[Math.min(currentIndex + 1, clientJourneyLanes.length - 1)].id;
+}
+
+export function getPreviousJourneyStatus(currentStatus = '') {
+  const currentIndex = clientJourneyLanes.findIndex((lane) => lane.id === currentStatus);
+  if (currentIndex <= 0) return clientJourneyLanes[0].id;
+  return clientJourneyLanes[currentIndex - 1].id;
+}
+
 const manualJourneyConfig = {
   new: {
     progress: 20,
