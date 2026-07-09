@@ -56,8 +56,8 @@ test('homepage pillars explain VANT growth structure clearly', () => {
   assert.match(homePageSource, /não entrega apenas sites/);
 });
 
-test('homepage pillars CTA routes to digital solutions instead of a dedicated attendance screen', () => {
-  assert.match(homePageSource, /to="\/solucoes-digitais" className="reference-pillars-link"/);
+test('homepage pillars CTA routes to the v2 solutions path instead of a dedicated attendance screen', () => {
+  assert.match(homePageSource, /to="\/solucoes" className="reference-pillars-link"/);
   assert.match(homePageSource, /Conhecer soluções/);
   assert.doesNotMatch(homePageSource, /to="\/atendimento-digital"/);
   assert.doesNotMatch(homePageSource, /Ver como transformamos atendimento/);

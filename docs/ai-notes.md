@@ -294,3 +294,48 @@ Data: 2026-05-12
 - Escolher qual versao de bio do Instagram vira base oficial.
 - Confirmar se a hero da homepage deve usar a formula mais curta
   ("Presenca. IA. Crescimento.") ou a mais explicativa.
+
+## 2026-07-07 - Sugestao operacional: identidade visual verde-lima
+
+### Fatos
+
+- Victor enviou uma nova referencia visual da VANT com simbolo em destaque,
+  versao primary, versao reversed e assinatura "Automate. Intelligently. Grow.".
+- A primeira aplicacao local organizou os arquivos finais do Drive em
+  `public/assets/brand/`.
+- A identidade antiga em `public/assets/` foi preservada como fallback tecnico.
+
+### Sugestoes
+
+- Tratar `public/assets/brand/vant-identity-2026-green-board.png` como board de
+  referencia local ate aprovacao final.
+- Usar verde-lima como acento principal da marca, sem transformar todo o site em
+  uma interface monocromatica.
+- Priorizar a aplicacao em superficies publicas antes do admin: header, footer,
+  homepage, pagina de solucoes, pagina de conversao, emails e favicon.
+
+### Pontos para aprovacao do Victor
+
+- Confirmar se a assinatura em ingles deve ser definitiva no site inteiro.
+- Confirmar se os PNGs transparentes do Drive podem ser tratados como assets
+  oficiais finais da marca.
+
+## 2026-07-09 - Sugestao operacional: README alinhado a VANT v2
+
+### Fatos
+
+- O README foi reescrito para tratar a VANT v2 como site comercial de solucoes digitais, diagnostico, presenca, captacao, atendimento, automacao e crescimento operacional.
+- As rotas principais documentadas passaram a ser `/`, `/solucoes`, `/diagnostico`, `/cases` e `/admin-vant`.
+- As rotas antigas `/solucoes-digitais`, `/automatize`, `/conversao` e `/recursos` foram documentadas como compatibilidade/redirecionamento.
+- Conteudos, ferramentas, newsletter, ebooks e agentes foram mantidos como suporte operacional ou legado preservado, nao como promessa publica principal.
+
+### Inferencias
+
+- O README agora esta mais proximo da decisao aprovada em 2026-06-30 no BrainOS.
+- A proxima fonte com maior risco de residuo estrategico e a documentacao auxiliar: `docs/maintenance.md`, `docs/deploy-checklist.md`, `docs/coding-patterns.md` e possiveis componentes antigos preservados.
+
+### Sugestoes
+
+- Revisar `AGENTS.md`/instrucoes locais do repo, se existir, para refletir o posicionamento v2.
+- Fazer uma varredura controlada de residuos por bucket: core v2, suporte comercial, legado inativo e residuo deletavel.
+- Evitar remover arquivos de conteudo/ferramentas antes de confirmar dependencias do admin e das APIs.

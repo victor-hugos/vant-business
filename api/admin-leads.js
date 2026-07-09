@@ -8,7 +8,7 @@ function cleanIds(ids = []) {
 function cleanMetadataPatch(input = {}) {
   const patch = {};
 
-  ['adminJourneyStatus', 'adminNote', 'adminNextAction'].forEach((key) => {
+  ['adminJourneyStatus', 'adminPriority', 'adminNote', 'adminNextAction'].forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(input, key)) {
       patch[key] = String(input[key] || '').trim();
     }
