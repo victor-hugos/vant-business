@@ -79,9 +79,8 @@ function HomePage() {
       <section className="reference-hero">
         <div className="reference-hero-copy">
           <div className="reference-kicker">
-            <VantLogo size={30} alt="" className="reference-kicker-logo" />
             <span />
-            <p>Automate. Intelligently. Grow.</p>
+            <p>Estruture . Organize . Conecte.</p>
           </div>
 
           <h1>

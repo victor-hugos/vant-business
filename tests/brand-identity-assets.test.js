@@ -54,6 +54,7 @@ test('public brand surfaces use the official identity language', () => {
   assert.match(cssSource, /--vant-accent:\s*#9bdc00/);
   assert.match(headerSource, /Automate\. Intelligently\. Grow\./);
   assert.match(footerSource, /Automate\. Intelligently\. Grow\./);
-  assert.match(homeSource, /Automate\. Intelligently\. Grow\./);
+  assert.match(homeSource, /Estruture \. Organize \. Conecte\./);
+  assert.doesNotMatch(homeSource, /reference-kicker-logo/);
   assert.doesNotMatch(homeSource, /variant="symbolReversed"/);
 });
