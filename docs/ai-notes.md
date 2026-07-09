@@ -359,3 +359,20 @@ Data: 2026-05-12
 - Usar a branch de arquivo como fonte de recuperacao para qualquer modulo removido.
 - Fazer o proximo corte especificamente no admin: manter apenas o que apoia lead comercial, ou renomear/ocultar noticias/ferramentas/agentes se ainda forem uteis.
 - Nao apagar tabelas Supabase ou automacoes externas ate concluir a revisao do admin e das APIs.
+
+## 2026-07-09 - Sugestao de regra visual para primeira dobra
+
+### Fato informado pelo Victor
+
+- Ao abrir uma pagina, a primeira dobra nao deve cortar informacoes importantes no meio.
+- O layout deve se adaptar automaticamente ao tamanho do monitor, preservando responsividade por largura e altura.
+
+### Inferencia
+
+- Heroes e primeiras secoes da VANT devem evitar altura fixa rigida, `max-height` que corte conteudo e visuais secundarios grandes demais para telas menores.
+- Elementos secundarios podem compactar, esconder ou mudar de posicao quando a altura/largura disponivel nao comportar tudo.
+
+### Sugestao
+
+- Usar esta regra como checklist antes de concluir ajustes visuais: desktop grande, notebook, tablet e mobile devem abrir sem cortar mensagem principal, CTA ou bloco visual essencial.
+- Priorizar `svh`, `clamp()`, breakpoints por altura e conteudo secundario adaptavel nas primeiras dobras.

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import VantLogo from '../components/VantLogo.jsx';
 import { buildBriefingWhatsAppUrl } from '../utils/briefingWhatsApp.js';
 
-const defaultVantWhatsAppNumber = '5561981663028';
+const defaultVantWhatsAppNumber = '5561982099480';
 
 const serviceOptions = [
   'Presenca digital',

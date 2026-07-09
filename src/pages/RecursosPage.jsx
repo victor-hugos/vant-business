@@ -1,41 +1,41 @@
 import { Link } from 'react-router-dom';
 import VantLogo from '../components/VantLogo.jsx';
 
-const heroSignals = ['Sites', 'Atendimento', 'Automações', 'Sistemas personalizados'];
+const heroSignals = ['Presença digital', 'Atendimento', 'Automação', 'Conversão'];
 
 const journeyBreak = [
   {
     label: '01',
-    title: 'O cliente chega',
-    text: 'Site, Instagram, anúncio, WhatsApp ou indicação abrem uma oportunidade real.',
+    title: 'Existe interesse',
+    text: 'A empresa recebe visitas, mensagens, indicações e cliques, mas nem todo interesse vira uma oportunidade clara.',
   },
   {
     label: '02',
-    title: 'A operação se perde',
-    text: 'Mensagens, informações e próximos passos ficam espalhados entre canais e pessoas.',
+    title: 'Falta estrutura',
+    text: 'Cada canal funciona de um jeito e o contato depende de improviso, memória ou resposta manual.',
   },
   {
     label: '03',
-    title: 'A oportunidade esfria',
-    text: 'O retorno depende da memória da equipe e o cliente não sabe o que acontece agora.',
+    title: 'A decisão trava',
+    text: 'Sem triagem, contexto e próximo passo, o cliente perde ritmo e a empresa perde previsibilidade.',
   },
 ];
 
 const pillars = [
   {
     title: 'Captar',
-    text: 'Criamos os pontos de entrada certos para transformar visitantes em oportunidades identificadas.',
-    examples: 'Sites • Landing pages • Formulários • Canais digitais',
+    text: 'Transformamos presença digital em entrada comercial rastreável, com contexto e intenção claros.',
+    examples: 'Site • Landing page • Instagram • Formulário',
   },
   {
     title: 'Atender',
-    text: 'Organizamos a entrada, as informações e o direcionamento de cada contato.',
-    examples: 'WhatsApp • Qualificação • CRM • Agendamentos',
+    text: 'Padronizamos a primeira resposta, coletamos o essencial e deixamos o atendimento pronto para decidir.',
+    examples: 'WhatsApp • Briefing • Qualificação • Próximo passo',
   },
   {
     title: 'Converter',
-    text: 'Automatizamos os próximos passos para que oportunidades não sejam esquecidas.',
-    examples: 'Follow-ups • Propostas • Lembretes • Dados',
+    text: 'Criamos acompanhamento, registros e automações para manter a oportunidade viva até virar decisão.',
+    examples: 'Follow-up • Dados • Proposta • Conversão',
   },
 ];
 
@@ -51,31 +51,22 @@ const transformations = [
 function RecursosPage() {
   return (
     <div className="conversion-page mx-auto max-w-7xl lg:-mt-6">
-      <section className="conversion-hero">
+      <section className="conversion-hero lg:-mt-4">
         <div className="conversion-hero-copy">
           <div>
-            <div className="conversion-pills flex flex-wrap items-center gap-2">
-              <span className="brand-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
-                VANT.Business
-              </span>
-              <span className="brand-pill px-3 py-1 text-[11px] font-medium">
-                Presença digital • Atendimento • Automação
-              </span>
-            </div>
-
             <h1 className="conversion-title brand-title">
-              Sua empresa não precisa de mais ferramentas. Precisa de uma estrutura que faça tudo trabalhar junto.
+              Estrutura digital para <span className="conversion-text-accent">captar, atender e converter</span> com mais organização.
             </h1>
             <p className="conversion-lead">
-              A VANT conecta presença digital, atendimento e automação para transformar contatos em processos organizados e oportunidades em clientes.
+              A VANT conecta <span className="conversion-inline-accent">site, WhatsApp, dados e automação</span> em uma jornada clara para cada oportunidade comercial.
             </p>
 
             <div className="conversion-actions flex flex-col gap-3 sm:flex-row">
-              <Link to="/solucoes-digitais#briefing-form" className="brand-button-primary px-6 py-3 text-xs">
+              <Link to="/diagnostico#briefing-form" className="brand-button-primary px-6 py-3 text-xs">
                 Solicitar análise da operação
               </Link>
               <a href="#como-resolvemos" className="brand-button-secondary px-6 py-3 text-xs">
-                Ver a estrutura
+                Como funciona
               </a>
             </div>
 
@@ -89,31 +80,20 @@ function RecursosPage() {
           <div className="conversion-signature">
             <VantLogo size={48} />
             <span />
-            <p>Estratégia · Conexão · Resultados</p>
+            <p>Estruture . Organize . Conecte.</p>
           </div>
         </div>
 
         <aside className="conversion-visual">
-          <div className="conversion-brand-board" aria-hidden="true">
-            <div className="conversion-brand-emblem">
-              <VantLogo size={150} />
-            </div>
-            <p className="conversion-brand-name">VANT.BUSINESS</p>
-            <span className="conversion-brand-rule" />
-            <p className="conversion-brand-line">Estruture . Organize . Conecte.</p>
-          </div>
-
           <div className="conversion-pipeline" aria-label="Fluxo da VANT">
             <div className="conversion-pipeline-head">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/10 bg-white/[0.04]">
-                <VantLogo size={34} />
+              <div className="conversion-pipeline-logo">
+                <VantLogo size={82} />
               </div>
-              <div>
-                <p className="brand-title text-sm font-bold text-white">Jornada organizada</p>
-                <p className="mt-1 text-[0.62rem] uppercase tracking-[0.18em] text-[#7f7f7f]">
-                  captar → atender → converter
-                </p>
-              </div>
+              <p className="brand-title text-sm font-bold text-white">Jornada organizada</p>
+              <p className="mt-1 text-[0.62rem] uppercase tracking-[0.18em] text-[#7f7f7f]">
+                captar → atender → converter
+              </p>
             </div>
 
             <div className="conversion-outcomes">
@@ -136,13 +116,13 @@ function RecursosPage() {
         <div className="conversion-system-intro">
           <p className="brand-kicker">O problema</p>
           <h2 className="brand-title mt-3 text-3xl font-bold leading-tight text-white">
-            Muitas empresas não têm um problema de vendas. Têm um problema entre o interesse e a venda.
+            O problema não é falta de ferramenta. É a falta de uma <span className="conversion-inline-accent">jornada clara entre interesse e venda</span>.
           </h2>
           <p className="mt-4 text-sm leading-6 text-[#a6a6a6]">
-            O cliente pode chegar pelo site, Instagram, anúncio, WhatsApp ou indicação. O problema começa quando mensagens, informações e próximos passos ficam espalhados.
+            O cliente pode chegar pelo site, Instagram, anúncio, WhatsApp ou indicação. A perda acontece quando cada entrada vira uma conversa solta, sem triagem, prioridade ou próximo passo.
           </p>
           <p className="conversion-highlight">
-            Nós organizamos a jornada inteira: a VANT estrutura exatamente esse espaço entre o cliente demonstrar interesse e a empresa conseguir convertê-lo.
+            A VANT estrutura esse caminho para que presença digital, atendimento, automação e acompanhamento trabalhem juntos como uma operação comercial.
           </p>
         </div>
 
@@ -158,7 +138,7 @@ function RecursosPage() {
                   <p>{item.text}</p>
                 </div>
 
-                <span className="conversion-path-bridge">A VANT organiza</span>
+                <span className="conversion-path-bridge">A VANT estrutura</span>
 
                 <div>
                   <strong>{pillar.title}</strong>
@@ -175,7 +155,7 @@ function RecursosPage() {
         <div className="conversion-compare-head">
           <p className="brand-kicker">O que muda na prática</p>
           <h2 className="brand-title mt-3 text-3xl font-bold leading-tight text-white sm:text-4xl">
-            A operação deixa de depender de mensagens soltas e passa a conduzir oportunidades.
+            A operação deixa de depender de mensagens soltas e passa a <span className="conversion-inline-accent">conduzir oportunidades</span>.
           </h2>
         </div>
 
@@ -199,15 +179,15 @@ function RecursosPage() {
       <section className="conversion-final-cta">
         <p className="brand-kicker">Próximo passo</p>
         <h2 className="brand-title mx-auto mt-3 max-w-3xl text-3xl font-bold leading-tight text-white sm:text-4xl">
-          Onde sua empresa está perdendo oportunidades hoje?
+          Onde sua empresa está <span className="conversion-inline-accent">perdendo oportunidades</span> hoje?
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#a6a6a6]">
-          Pode ser no site. No WhatsApp. No atendimento. No acompanhamento. Ou na falta de conexão entre tudo isso.
+          Pode ser no <span className="conversion-inline-accent">site</span>. No <span className="conversion-inline-accent">WhatsApp</span>. No <span className="conversion-inline-accent">atendimento</span>. No acompanhamento. Ou na falta de conexão entre tudo isso.
         </p>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#d8d8d8]">
           A VANT analisa a jornada atual e identifica o que realmente precisa ser melhorado.
         </p>
-        <Link to="/solucoes-digitais#briefing-form" className="brand-button-primary mt-6 px-7 py-3 text-xs">
+        <Link to="/diagnostico#briefing-form" className="brand-button-primary mt-6 px-7 py-3 text-xs">
           Solicitar uma análise da minha operação
         </Link>
         <span>Sem pacote genérico. Primeiro entendemos o problema.</span>
