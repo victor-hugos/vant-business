@@ -11,14 +11,14 @@ const readmeSource = readFileSync(new URL('../README.md', import.meta.url), 'utf
 test('v2 blueprint documents the commercial route contract', () => {
   assert.match(blueprintSource, /\| `\/solucoes` \| Service areas and solution types \|/);
   assert.match(blueprintSource, /\| `\/diagnostico` \| Commercial briefing form \|/);
-  assert.match(blueprintSource, /\| `\/cases` \| Proof, examples or conceptual case studies \|/);
+  assert.match(blueprintSource, /Cases page is preserved in `draft\/vant-cases-page` and is not published in this release/);
   assert.match(blueprintSource, /visitor -> positioning -> solution\/diagnosis -> briefing -> lead -> admin/);
 });
 
 test('app exposes v2 public routes and keeps old routes as redirects', () => {
   assert.match(appSource, /path="\/solucoes"/);
   assert.match(appSource, /path="\/diagnostico"/);
-  assert.match(appSource, /path="\/cases"/);
+  assert.doesNotMatch(appSource, /path="\/cases"/);
   assert.match(appSource, /path="\/solucoes-digitais" element={<Navigate to="\/diagnostico" replace \/>}/);
   assert.match(appSource, /path="\/automatize" element={<Navigate to="\/diagnostico" replace \/>}/);
   assert.match(appSource, /path="\/conversao" element={<Navigate to="\/solucoes" replace \/>}/);
@@ -33,6 +33,8 @@ test('navigation points to the v2 commercial routes', () => {
   assert.match(headerSource, /to="\/diagnostico#briefing-form"/);
   assert.doesNotMatch(headerSource, /to: '\/conversao'/);
   assert.doesNotMatch(headerSource, /to: '\/solucoes-digitais'/);
+  assert.doesNotMatch(headerSource, /to: '\/cases'/);
+  assert.doesNotMatch(footerSource, /to="\/cases"/);
   assert.match(footerSource, /to="\/solucoes"/);
   assert.match(footerSource, /to="\/diagnostico#briefing-form"/);
 });
@@ -44,8 +46,8 @@ test('README documents VANT v2 as a commercial solutions site', () => {
   assert.ok(readmeSource.includes('Areas de solucao'));
   assert.ok(readmeSource.includes('/diagnostico'));
   assert.ok(readmeSource.includes('Entrada comercial principal'));
-  assert.ok(readmeSource.includes('/cases'));
-  assert.ok(readmeSource.includes('Exemplos conceituais'));
+  assert.ok(readmeSource.includes('draft/vant-cases-page'));
+  assert.doesNotMatch(readmeSource, /Exemplos conceituais/);
   assert.ok(readmeSource.includes('/solucoes-digitais'));
   assert.ok(readmeSource.includes('/conversao'));
   assert.ok(readmeSource.includes('Redireciona para'));

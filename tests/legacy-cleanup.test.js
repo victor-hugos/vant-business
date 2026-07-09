@@ -9,6 +9,7 @@ const legacyPublicFiles = [
   '../src/pages/BlogPage.jsx',
   '../src/pages/BlogPostPage.jsx',
   '../src/pages/EbookPage.jsx',
+  '../src/pages/CasesPage.jsx',
   '../src/components/EbookCover.jsx',
   '../src/components/NewsletterSignup.jsx',
   '../src/components/RecruiterMode.jsx',

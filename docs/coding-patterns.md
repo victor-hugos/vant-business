@@ -4,7 +4,7 @@ Padroes praticos para manter o projeto consistente com a VANT atual.
 
 ## Frontend
 
-- Priorizar as rotas `/`, `/solucoes`, `/diagnostico`, `/cases` e `/admin-vant`.
+- Priorizar as rotas `/`, `/solucoes`, `/diagnostico` e `/admin-vant`.
 - Manter CTAs publicos direcionados para diagnostico ou solucoes.
 - Evitar reintroduzir blog, ebook, portfolio ou newsletter como proposta principal.
 - Preferir componentes pequenos e alinhados ao fluxo comercial.

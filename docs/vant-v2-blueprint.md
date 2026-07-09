@@ -68,7 +68,7 @@ Recommended v2 routes:
 | `/` | Main positioning and direct CTA |
 | `/solucoes` | Service areas and solution types |
 | `/diagnostico` | Commercial briefing form |
-| `/cases` | Proof, examples or conceptual case studies |
+| `/cases` | Draft only; not published in this release |
 | `/admin-vant` | Private internal operation |
 
 Compatibility redirects:
@@ -330,3 +330,8 @@ Still pending:
 
 - Review active admin editorial/tooling modules before removing anything tied to APIs or Supabase.
 - Decide whether news/tools/agents stay as internal commercial support or move fully to archive in another cleanup patch.
+
+### 2026-07-09 - Cases kept as draft for main release
+
+- Cases page is preserved in `draft/vant-cases-page` and is not published in this release.
+- Main release keeps `/`, `/solucoes`, `/diagnostico` and `/admin-vant` public/internal.

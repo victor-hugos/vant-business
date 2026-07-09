@@ -9,7 +9,6 @@
 - [ ] Testar `/`
 - [ ] Testar `/solucoes`
 - [ ] Testar `/diagnostico`
-- [ ] Testar `/cases`
 - [ ] Testar redirects: `/solucoes-digitais`, `/automatize`, `/conversao` e `/recursos`
 - [ ] Testar `/admin-vant`
 - [ ] Testar captura de lead de diagnostico em ambiente controlado

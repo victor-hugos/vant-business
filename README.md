@@ -50,7 +50,6 @@ Quem entra no site deve conseguir:
 - entender rapidamente o que a VANT resolve;
 - acessar as areas de solucao;
 - pedir um diagnostico comercial;
-- ver exemplos conceituais de como a operacao pode funcionar;
 - entrar em contato com contexto suficiente para continuidade no admin e WhatsApp.
 
 ## Status do projeto
@@ -67,7 +66,7 @@ Quem entra no site deve conseguir:
 - Home com posicionamento comercial direto.
 - Pagina `/solucoes` com areas de solucao e estrutura da VANT.
 - Pagina `/diagnostico` com formulario comercial e lead source `diagnosis-page`.
-- Pagina `/cases` com exemplos conceituais, sem simular cases reais.
+- A tela de cases esta preservada em `draft/vant-cases-page` e nao entra nesta publicacao.
 - Redirecionamentos de compatibilidade para URLs antigas.
 - Captura de leads via `api/subscribe.js`, com historico para briefings comerciais.
 - Area administrativa privada em `/admin-vant` para leads, conteudo, ferramentas e operacao interna.
@@ -81,7 +80,6 @@ Quem entra no site deve conseguir:
 | `/` | Pagina inicial da VANT.Business |
 | `/solucoes` | Areas de solucao e estrutura comercial da VANT |
 | `/diagnostico` | Entrada comercial principal e formulario de diagnostico |
-| `/cases` | Exemplos conceituais de operacoes estruturadas |
 | `/admin-vant` | Painel administrativo privado |
 
 ## Rotas de compatibilidade
@@ -200,7 +198,6 @@ npm run check:tool-logos
 | Home | `src/pages/HomePage.jsx` |
 | Solucoes | `src/pages/RecursosPage.jsx` |
 | Diagnostico | `src/pages/AutomatizePage.jsx` |
-| Cases conceituais | `src/pages/CasesPage.jsx` |
 | Navegacao | `src/components/Header.jsx` e `src/components/Footer.jsx` |
 | Lead capture | `api/subscribe.js` |
 | WhatsApp handoff | `src/utils/briefingWhatsApp.js` e `src/utils/adminLeads.js` |
@@ -332,7 +329,6 @@ Depois do deploy, validar no minimo:
 - `/`
 - `/solucoes`
 - `/diagnostico`
-- `/cases`
 - redirects de `/solucoes-digitais`, `/automatize`, `/conversao` e `/recursos`
 - login em `/admin-vant`
 - envio de lead de diagnostico em ambiente controlado

@@ -11,7 +11,6 @@ O material antigo de blog publico, ebook publico, portfolio/recrutador e newslet
 | `/` | Home comercial |
 | `/solucoes` | Areas de solucao |
 | `/diagnostico` | Formulario principal de lead |
-| `/cases` | Exemplos conceituais |
 | `/admin-vant` | Operacao privada |
 
 Rotas antigas mantidas como redirect: `/solucoes-digitais`, `/automatize`, `/conversao` e `/recursos`.
@@ -94,7 +93,7 @@ npm run build
 - [ ] Conferir `git status`.
 - [ ] Rodar `npm test`.
 - [ ] Rodar `npm run build`.
-- [ ] Testar home, `/solucoes`, `/diagnostico` e `/cases`.
+- [ ] Testar home, `/solucoes` e `/diagnostico`.
 - [ ] Testar redirects antigos.
 - [ ] Testar `/admin-vant`.
 - [ ] Testar captura de lead em ambiente controlado.

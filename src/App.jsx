@@ -5,7 +5,6 @@ import ScrollToTop from './components/ScrollToTop.jsx';
 import HomePage from './pages/HomePage.jsx';
 import RecursosPage from './pages/RecursosPage.jsx';
 import AutomatizePage from './pages/AutomatizePage.jsx';
-import CasesPage from './pages/CasesPage.jsx';
 import AdminPublishingPage from './pages/AdminPublishingPage.jsx';
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/solucoes" element={<RecursosPage />} />
             <Route path="/diagnostico" element={<AutomatizePage />} />
-            <Route path="/cases" element={<CasesPage />} />
             <Route path="/conversao" element={<Navigate to="/solucoes" replace />} />
             <Route path="/recursos" element={<Navigate to="/solucoes" replace />} />
             <Route path="/solucoes-digitais" element={<Navigate to="/diagnostico" replace />} />

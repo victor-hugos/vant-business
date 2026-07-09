@@ -5,7 +5,6 @@ import VantLogo from './VantLogo.jsx';
 const navItems = [
   { label: 'Início', to: '/' },
   { label: 'Soluções', to: '/solucoes' },
-  { label: 'Cases', to: '/cases' },
   { label: 'Diagnóstico', to: '/diagnostico' },
 ];
 

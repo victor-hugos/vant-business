@@ -23,7 +23,6 @@ function Footer() {
           <p className="brand-kicker mb-3">Navegação</p>
           <ul className="space-y-2 text-sm text-[#a6a6a6]">
             <li><Link to="/solucoes" className="transition hover:text-white">Soluções</Link></li>
-            <li><Link to="/cases" className="transition hover:text-white">Cases e exemplos</Link></li>
             <li><Link to="/diagnostico#briefing-form" className="transition hover:text-white">Diagnóstico</Link></li>
           </ul>
         </div>
