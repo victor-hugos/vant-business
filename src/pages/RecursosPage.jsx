@@ -87,7 +87,7 @@ function RecursosPage() {
           </div>
 
           <div className="conversion-signature">
-            <VantLogo size={42} />
+            <VantLogo size={48} />
             <span />
             <p>Estratégia · Conexão · Resultados</p>
           </div>
@@ -96,17 +96,17 @@ function RecursosPage() {
         <aside className="conversion-visual">
           <div className="conversion-brand-board" aria-hidden="true">
             <div className="conversion-brand-emblem">
-              <VantLogo size={138} />
+              <VantLogo size={150} />
             </div>
             <p className="conversion-brand-name">VANT.BUSINESS</p>
             <span className="conversion-brand-rule" />
-            <p className="conversion-brand-line">Impulsionamos negócios. Geramos valor.</p>
+            <p className="conversion-brand-line">Automate. Intelligently. Grow.</p>
           </div>
 
           <div className="conversion-pipeline" aria-label="Fluxo da VANT">
             <div className="conversion-pipeline-head">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/10 bg-white/[0.04]">
-                <VantLogo size={30} />
+                <VantLogo size={34} />
               </div>
               <div>
                 <p className="brand-title text-sm font-bold text-white">Jornada organizada</p>

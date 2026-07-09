@@ -247,6 +247,79 @@ export function groupBriefingResponsesByClient(leads = []) {
     .sort((a, b) => sortByNewest({ created_at: a.latestAt }, { created_at: b.latestAt }));
 }
 
+const commercialPriorityConfig = {
+  high: { id: 'high', label: 'Alta prioridade', tone: 'rose' },
+  medium: { id: 'medium', label: 'Prioridade media', tone: 'amber' },
+  low: { id: 'low', label: 'Baixa prioridade', tone: 'slate' },
+};
+
+function priorityFromMetadata(value = '') {
+  const priority = normalizeText(value).toLowerCase();
+  if (['high', 'alta', 'urgente'].includes(priority)) return commercialPriorityConfig.high;
+  if (['medium', 'media', 'média'].includes(priority)) return commercialPriorityConfig.medium;
+  if (['low', 'baixa', 'fria'].includes(priority)) return commercialPriorityConfig.low;
+  return null;
+}
+
+function isUrgentStage(value = '') {
+  const stage = normalizeText(value).toLowerCase();
+  return stage.includes('urgente') || stage.includes('demanda urgente');
+}
+
+function normalizePhoneForWhatsApp(value = '') {
+  const digits = normalizeText(value).replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('55')) return digits;
+  return '55' + digits;
+}
+
+export function getClientCommercialPriority(client = {}) {
+  const lead = latestResponse(client);
+  const metadata = lead.metadata || {};
+  const manualPriority = priorityFromMetadata(metadata.adminPriority);
+
+  if (manualPriority) return manualPriority;
+
+  const journey = client.journey || getClientJourney(client);
+
+  if (journey.missing?.length) return commercialPriorityConfig.low;
+  if (['proposal', 'presentation'].includes(journey.lane)) return commercialPriorityConfig.high;
+  if (journey.lane === 'remarketing') return commercialPriorityConfig.low;
+  if (isUrgentStage(metadata.projectStage) && !isColdBudget(metadata.budgetRange)) return commercialPriorityConfig.high;
+
+  return commercialPriorityConfig.medium;
+}
+
+export function buildClientWhatsAppHandoffMessage(client = {}) {
+  const lead = latestResponse(client);
+  const metadata = lead.metadata || {};
+  const journey = client.journey || getClientJourney(client);
+  const projectName = getProjectName(client);
+
+  return [
+    'Oi! Vi seu briefing na VANT.Business e quero continuar por aqui.',
+    '',
+    'Projeto: ' + projectName,
+    'Solucao: ' + (normalizeText(metadata.solutionType) || normalizeText(lead.product_title) || '-'),
+    'Objetivo: ' + (normalizeText(metadata.mainGoal) || '-'),
+    'Momento: ' + (normalizeText(metadata.projectStage) || '-'),
+    'Investimento: ' + (normalizeText(metadata.budgetRange) || '-'),
+    'Proxima acao VANT: ' + (journey.nextAction || '-'),
+    '',
+    'Resumo:',
+    normalizeText(metadata.message) || '-',
+  ].join('\n');
+}
+
+export function buildClientWhatsAppHandoffUrl(client = {}) {
+  const phone = normalizePhoneForWhatsApp(client.whatsapp);
+  const message = buildClientWhatsAppHandoffMessage(client);
+
+  if (!phone) return '';
+
+  return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+}
+
 export function buildClientProjectPipeline(clients = []) {
   return clientJourneyLanes.map((lane) => ({
     ...lane,

@@ -4,8 +4,9 @@ import VantLogo from './VantLogo.jsx';
 
 const navItems = [
   { label: 'Início', to: '/' },
-  { label: 'VANT', to: '/conversao' },
-  { label: 'Soluções', to: '/solucoes-digitais' },
+  { label: 'Soluções', to: '/solucoes' },
+  { label: 'Cases', to: '/cases' },
+  { label: 'Diagnóstico', to: '/diagnostico' },
 ];
 
 function Header() {
@@ -24,13 +25,13 @@ function Header() {
             onClick={closeMenu}
             className="flex items-center gap-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
-            <VantLogo size={38} />
+            <VantLogo size={46} variant="symbolReversed" />
             <div className="flex flex-col">
               <span className="brand-title text-xs font-bold leading-none text-white sm:text-sm">
                 VANT.BUSINESS
               </span>
-              <span className="mt-1 hidden text-[9px] uppercase tracking-[0.2em] text-[#a6a6a6] sm:block">
-                Estratégia · Conexão · Resultados
+              <span className="mt-1 hidden text-[9px] uppercase tracking-[0.2em] text-[var(--vant-accent)] sm:block">
+                Automate. Intelligently. Grow.
               </span>
             </div>
           </Link>
@@ -67,7 +68,7 @@ function Header() {
           </nav>
 
           <Link
-            to="/solucoes-digitais#briefing-form"
+            to="/diagnostico#briefing-form"
             className="brand-button-secondary !hidden px-5 py-2 text-[11px] lg:!inline-flex"
           >
             Falar sobre seu projeto ›

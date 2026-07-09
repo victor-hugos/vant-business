@@ -1,106 +1,115 @@
 # VANT.Business
 
-Site oficial da **VANT.Business**, uma marca unica que combina agencia premium de identidade digital, presenca online, solucoes digitais, IA aplicada, curadoria de ferramentas, conteudo estrategico e captura de leads.
+Site oficial da **VANT.Business**. A VANT v2 posiciona o projeto como uma operacao comercial para solucoes digitais: presenca, captacao, atendimento, follow-up, automacao, IA aplicada e crescimento operacional.
 
-O projeto combina uma vitrine pública com páginas de recursos, blog, ebooks, formulários de captura, rastreamento de cliques e uma área administrativa privada para curadoria de conteúdo e operação dos agentes.
+O site existe para transformar visitantes em briefings comerciais qualificados. Conteudos, noticias, ferramentas, ebooks e agentes continuam documentados como suporte, prova de repertorio ou operacao interna, mas nao sao a promessa principal da marca.
 
 ## Proposta oficial do site
 
-A **VANT.Business** existe para ajudar empresas e criadores a crescer com tecnologia, IA, automacao, identidade digital e posicionamento online.
+A **VANT.Business** ajuda empresas a estruturar presenca digital, captacao, atendimento e automacao para transformar interesse em processo comercial organizado.
 
-O site deve funcionar como uma ponte entre descoberta e execução: a pessoa encontra ferramentas confiáveis, entende como aplicar IA no próprio contexto, recebe conteúdos úteis e pode avançar para automações personalizadas quando precisar de implementação.
-
-### Promessa central
+Promessa operacional:
 
 ```txt
-Identidade digital, IA e estrategia para transformar presenca em crescimento.
+diagnostico, estrategia, implementacao e organizacao comercial para crescer com presenca digital, IA e automacao.
 ```
 
-### Posicionamento
+### Posicionamento v2
 
-A VANT.Business não é apenas um portfólio, uma lista de links ou um blog de tecnologia. Ela é uma agencia e plataforma editorial-operacional focada em:
+A VANT vende estrutura e execucao, nao apenas ideias soltas ou acesso a ferramentas. O foco publico do site e conduzir o visitante para um diagnostico claro e acionavel.
 
-- captar clientes interessados em identidade digital, sites, Instagram,
-  Google Meu Negocio, funis e solucoes digitais;
-- curar ferramentas de IA úteis;
-- explicar aplicações reais sem enrolação;
-- capturar leads interessados em IA, automação, produtividade e crescimento
-  digital;
-- conectar conteúdo, ebooks e newsletter a oportunidades comerciais;
-- organizar demanda para projetos de automação e sistemas personalizados.
+A operacao deve priorizar:
 
-### Público-alvo
+- diagnosticar onde a empresa perde oportunidades;
+- organizar presenca, captacao, atendimento, follow-up e conversao;
+- implementar solucoes digitais, automacoes, IA aplicada e integracoes;
+- capturar briefings comerciais com contexto suficiente para follow-up;
+- dar ao admin um caminho rapido para priorizar, responder e gerar proposta.
 
-- Empreendedores que querem melhorar presenca digital, captar clientes e
-  automatizar processos.
-- Criadores que querem produzir mais com IA.
-- Pequenas empresas que precisam vender, atender e operar melhor.
-- Profissionais que querem escolher boas ferramentas sem perder tempo testando tudo.
-- Leads interessados em implementar agentes, integrações e automações.
+### Publico-alvo
+
+- Empresas pequenas e negocios locais que precisam parecer mais fortes no digital.
+- Empreendedores que recebem interesse, mas perdem leads por falta de estrutura.
+- Operacoes que querem organizar atendimento, follow-up, captacao e conversao.
+- Projetos que precisam de site, presenca, automacao, IA aplicada ou integracoes.
+- Clientes que querem direcao antes de comprar uma ferramenta ou contratar trafego.
 
 ### Pilares da marca
 
-- **Estratégia**: escolher o que faz sentido antes de automatizar.
-- **Conexão**: ligar ferramentas, dados, canais e processos.
-- **Resultados**: priorizar ganho real de tempo, clareza, vendas ou operação.
-- **Valor**: transformar conhecimento e tecnologia em ativos úteis.
+- **Diagnostico**: entender o gargalo real antes da entrega.
+- **Presenca**: organizar a vitrine digital para gerar confianca.
+- **Captacao**: transformar canais em entradas comerciais rastreaveis.
+- **Atendimento**: reduzir perda de contexto entre interesse e resposta.
+- **Automacao**: conectar tarefas, dados, IA e follow-up com criterio.
+- **Crescimento**: priorizar resultado operacional, nao volume de recursos.
 
-### Experiência esperada
+### Experiencia esperada
 
-Quem entra no site deve sair com pelo menos um destes próximos passos:
+Quem entra no site deve conseguir:
 
-- testar uma ferramenta recomendada;
-- ler um conteúdo ou notícia curada;
-- baixar ou acessar um ebook;
-- entrar na newsletter;
-- solicitar uma identidade digital, site, melhoria de presença online ou
-  solução digital;
-- conhecer melhor a proposta da VANT.Business.
+- entender rapidamente o que a VANT resolve;
+- acessar as areas de solucao;
+- pedir um diagnostico comercial;
+- ver exemplos conceituais de como a operacao pode funcionar;
+- entrar em contato com contexto suficiente para continuidade no admin e WhatsApp.
 
 ## Status do projeto
 
-- Produção: <https://vant.business>
-- Repositório: <https://github.com/victor-hugos/vant-business>
+- Producao: <https://vant.business>
+- Repositorio: <https://github.com/victor-hugos/vant-business>
 - Projeto principal na Vercel: `vant-business`
 - Stack principal: React, Vite, Tailwind CSS, Vercel Serverless Functions, Supabase e SMTP
-- Identidade visual atual: tema escuro premium, logomarca oficial em `public/assets`
+- Identidade visual atual: tema escuro premium e ativos em `public/assets/brand/`
+- Blueprint operacional: `docs/vant-v2-blueprint.md`
 
 ## O que o site entrega
 
-- Home com posicionamento de marca: automação, IA e escala.
-- Biblioteca de ferramentas de IA em `/recursos`.
-- Página comercial para identidade digital e soluções digitais em `/solucoes-digitais` com compatibilidade em `/automatize`.
-- Blog e curadoria de notícias em `/blog`.
-- Páginas de ebook com formulário de captura em `/ebook/:slug`.
-- Newsletter com leads salvos no Supabase.
-- Rastreamento de cliques em ferramentas e links externos.
-- Área administrativa privada em `/admin-vant`.
-- Fluxo de curadoria com agentes internos e notícias aprovadas manualmente.
-- Deploy centralizado na Vercel usando o projeto `vant-business`.
+- Home com posicionamento comercial direto.
+- Pagina `/solucoes` com areas de solucao e estrutura da VANT.
+- Pagina `/diagnostico` com formulario comercial e lead source `diagnosis-page`.
+- Pagina `/cases` com exemplos conceituais, sem simular cases reais.
+- Redirecionamentos de compatibilidade para URLs antigas.
+- Captura de leads via `api/subscribe.js`, com historico para briefings comerciais.
+- Area administrativa privada em `/admin-vant` para leads, conteudo, ferramentas e operacao interna.
+- Handoff para WhatsApp a partir dos dados do briefing.
+- Base interna preservada para noticias, ferramentas e agentes quando apoiarem a operacao comercial.
 
 ## Rotas principais
 
-| Rota | Função |
+| Rota | Funcao |
 | --- | --- |
-| `/` | Página inicial da VANT.Business |
-| `/recursos` | Biblioteca de ferramentas de IA |
-| `/solucoes-digitais` | Página comercial para identidade digital e soluções digitais |
-| `/automatize` | Compatibilidade para links antigos da página comercial |
-| `/blog` | Notícias, conteúdos e curadoria |
-| `/blog/:slug` | Página individual de artigo |
-| `/ebook/:slug` | Captura de lead para ebook |
+| `/` | Pagina inicial da VANT.Business |
+| `/solucoes` | Areas de solucao e estrutura comercial da VANT |
+| `/diagnostico` | Entrada comercial principal e formulario de diagnostico |
+| `/cases` | Exemplos conceituais de operacoes estruturadas |
 | `/admin-vant` | Painel administrativo privado |
+
+## Rotas de compatibilidade
+
+| Rota antiga | Comportamento atual |
+| --- | --- |
+| `/solucoes-digitais` | Redireciona para `/diagnostico` |
+| `/automatize` | Redireciona para `/diagnostico` |
+| `/conversao` | Redireciona para `/solucoes` |
+| `/recursos` | Redireciona para `/solucoes` |
+
+Mantenha esses redirects enquanto links externos, posts, bios ou materiais antigos ainda puderem apontar para essas URLs.
+
+## Modulos internos preservados
+
+- `src/data/recursos.js`: catalogo estatico usado como fallback/admin, nao como promessa publica principal.
+- `api/newsletter-digest.js`, `api/news.js`, `api/out.js` e agentes: suporte operacional/editorial interno enquanto fizerem sentido para o admin ou campanhas.
+- Blog publico, rota de ebook, componentes de portfolio/recrutador e newsletter visual foram movidos para a branch de arquivo `archive/pre-vant-v2-cleanup-2026-07-09`.
 
 ## Tecnologias
 
 - **React**: interface, componentes e rotas.
-- **React Router**: navegação entre páginas públicas e painel admin.
-- **Vite**: desenvolvimento local e build de produção.
-- **Tailwind CSS**: base visual, responsividade e utilitários.
-- **Supabase**: armazenamento de leads, notícias, rascunhos e eventos.
+- **React Router**: navegacao entre paginas publicas e painel admin.
+- **Vite**: desenvolvimento local e build de producao.
+- **Tailwind CSS**: base visual, responsividade e utilitarios.
+- **Supabase**: armazenamento de leads, noticias, rascunhos e eventos.
 - **Vercel Functions**: APIs serverless em `api/`.
-- **Resend**: envio de emails transacionais e newsletter.
-- **Marked + gray-matter**: leitura de posts em Markdown.
+- **Resend/Nodemailer**: envio de emails transacionais e notificacoes.
 
 ## Estrutura
 
@@ -112,15 +121,14 @@ vant-business/
 │   ├── admin-*.js
 │   └── track-click.js
 ├── docs/
+│   ├── ai-notes.md
 │   ├── deploy-checklist.md
 │   ├── maintenance.md
-│   └── supabase-setup.sql
+│   ├── supabase-setup.sql
+│   └── vant-v2-blueprint.md
 ├── public/
 │   ├── assets/
-│   │   ├── vant-logo-white.png
-│   │   ├── vant-logo-black.png
-│   │   ├── vant-identity-board.png
-│   │   └── vant-site-reference.png
+│   │   └── brand/
 │   └── data/
 ├── scripts/
 │   └── news-agent.mjs
@@ -128,13 +136,13 @@ vant-business/
 │   ├── components/
 │   ├── data/
 │   ├── pages/
-│   ├── posts/
 │   ├── utils/
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
 ├── supabase/
 │   └── migrations/
+├── tests/
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
@@ -143,7 +151,7 @@ vant-business/
 
 ## Como rodar localmente
 
-1. Instale as dependências:
+1. Instale as dependencias:
 
 ```bash
 npm install
@@ -163,107 +171,137 @@ http://localhost:5173
 
 Se a porta `5173` estiver ocupada, o Vite pode abrir em outra porta, como `5174`.
 
-## Scripts disponíveis
+## Scripts disponiveis
 
 ```bash
 npm run dev
+npm test
 npm run build
 npm run preview
 npm run agent:news
+npm run check:tool-logos
 ```
 
 - `npm run dev`: abre o frontend local com Vite.
-- `npm run build`: gera a versão de produção em `dist/`.
+- `npm test`: roda a suite de testes em `tests/*.test.js`.
+- `npm run build`: gera a versao de producao em `dist/`.
 - `npm run preview`: testa localmente o build gerado.
-- `npm run agent:news`: executa o agente local de curadoria de notícias.
+- `npm run agent:news`: executa o agente local de curadoria de noticias.
+- `npm run check:tool-logos`: valida logos do catalogo preservado de ferramentas.
 
-## Variáveis de ambiente
+## Guia de orientacao do site
 
-As variáveis abaixo devem ficar na Vercel ou em um `.env` local não versionado.
+### Fontes da verdade
 
-| Variável | Uso |
+| Tema | Fonte |
+| --- | --- |
+| Rotas ativas | `src/App.jsx` |
+| Posicionamento v2 | `docs/vant-v2-blueprint.md` e este README |
+| Home | `src/pages/HomePage.jsx` |
+| Solucoes | `src/pages/RecursosPage.jsx` |
+| Diagnostico | `src/pages/AutomatizePage.jsx` |
+| Cases conceituais | `src/pages/CasesPage.jsx` |
+| Navegacao | `src/components/Header.jsx` e `src/components/Footer.jsx` |
+| Lead capture | `api/subscribe.js` |
+| WhatsApp handoff | `src/utils/briefingWhatsApp.js` e `src/utils/adminLeads.js` |
+| Admin ativo | `src/pages/AdminPublishingPage.jsx` |
+| Estilos globais | `src/index.css` |
+
+### Ajustes comuns
+
+| Quero ajustar... | Arquivo principal | Verificacao minima |
+| --- | --- | --- |
+| Promessa da home | `src/pages/HomePage.jsx` | `npm run build` |
+| Menu e CTA | `src/components/Header.jsx` | `npm test` |
+| Rodape | `src/components/Footer.jsx` | `npm test` |
+| Rotas ou redirects | `src/App.jsx` | `node --test tests/v2-route-contract.test.js` |
+| Formulario de diagnostico | `src/pages/AutomatizePage.jsx` | `node --test tests/subscribe.test.js tests/editorial-pages-copy.test.js` |
+| Payload/API de lead | `api/subscribe.js` | `node --test tests/subscribe.test.js` |
+| Prioridade/handoff no admin | `src/utils/adminLeads.js` e `src/pages/AdminPublishingPage.jsx` | `node --test tests/admin-leads.test.js` |
+| Cores, cards e responsividade | `src/index.css` | `npm run build` e revisao visual |
+| Logos e marca | `public/assets/brand/` e `src/components/VantLogo.jsx` | `npm test` e revisao visual |
+| Banco de dados | `docs/supabase-setup.sql` e `supabase/migrations/` | conferir producao antes de depender de coluna nova |
+
+## Fluxo comercial v2
+
+```txt
+visitante -> posicionamento -> solucoes/diagnostico -> briefing -> lead -> admin -> WhatsApp/follow-up -> proposta
+```
+
+O formulario de diagnostico envia leads de tipo `service`, com `ebook` padrao `diagnostico-vant`, `source` `diagnosis-page` e metadados comerciais como gargalo principal, estagio, objetivo e orcamento.
+
+## Admin privado
+
+A rota ativa do admin e `/admin-vant`, implementada por `src/pages/AdminPublishingPage.jsx`.
+
+O admin deve ajudar Victor a responder rapidamente:
+
+- quem entrou em contato;
+- qual gargalo principal foi informado;
+- qual prioridade comercial o lead tem;
+- qual status o lead esta;
+- qual mensagem pode continuar a conversa no WhatsApp.
+
+Em localhost, parte do admin pode usar fallback local para rascunhos e pre-visualizacao. Em producao, as acoes dependem das APIs em `api/` e das variaveis configuradas na Vercel.
+
+## Variaveis de ambiente
+
+As variaveis abaixo devem ficar na Vercel ou em um `.env` local nao versionado.
+
+| Variavel | Uso |
 | --- | --- |
 | `SUPABASE_URL` | URL do projeto Supabase |
 | `SUPABASE_SERVICE_KEY` | Chave server-side para APIs e admin |
 | `RESEND_API_KEY` | Chave da API Resend para envio de emails |
-| `EMAIL_FROM` | Remetente verificado, exemplo `VANT Business <noreply@vant.business>` |
+| `EMAIL_FROM` | Remetente verificado |
 | `LEAD_NOTIFY_EMAIL` | Email que recebe notificacoes internas de novos leads |
 | `ADMIN_EMAIL` | Email autorizado no painel admin |
 | `ADMIN_PASSWORD` | Senha do painel admin |
 | `ADMIN_ACCESS_CODE` | Alternativa para senha admin |
-| `ADMIN_SESSION_SECRET` | Segredo para assinar sessão admin |
+| `ADMIN_SESSION_SECRET` | Segredo para assinar sessao admin |
 | `CRON_SECRET` | Segredo para rotas agendadas |
-| `VITE_VANT_WHATSAPP_NUMBER` | Numero da VANT em formato internacional, exemplo `5561981663028`, para abrir o briefing direto no WhatsApp |
-| `NEWS_AGENT_LIMIT` | Limite opcional de itens no agente de notícias |
+| `VITE_VANT_WHATSAPP_NUMBER` | Numero da VANT em formato internacional para abrir briefing no WhatsApp |
+| `NEWS_AGENT_LIMIT` | Limite opcional de itens no agente de noticias |
 
-Em produção, configure `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`. Não use credenciais padrão para operar o painel administrativo.
+Nao versionar `.env`, tokens, senhas SMTP, service keys ou credenciais.
 
 ## APIs serverless
 
-As rotas em `api/` rodam como funções serverless na Vercel.
-
-| Arquivo | Função |
+| Arquivo | Funcao |
 | --- | --- |
 | `api/subscribe.js` | Captura lead, salva no Supabase e envia email |
-| `api/newsletter-digest.js` | Envia digest de newsletter |
-| `api/news.js` | Entrega itens de notícia |
+| `api/admin-leads.js` | Atualiza status, notas e prioridade de leads |
+| `api/admin-login.js` | Login da area administrativa |
+| `api/admin-data.js` | Dados do painel administrativo |
+| `api/admin-run-agent.js` | Execucao logica dos agentes internos |
+| `api/admin-content-drafts.js` | Rascunhos de conteudo |
+| `api/admin-news-update.js` | Atualizacao de status das noticias/newsletter |
+| `api/newsletter-digest.js` | Envia digest de newsletter, quando esse fluxo estiver ativo |
+| `api/news.js` | Entrega itens de noticia, quando esse fluxo estiver ativo |
 | `api/out.js` | Redireciona links externos com rastreamento |
 | `api/track-click.js` | Registra eventos de clique |
-| `api/admin-login.js` | Login da área administrativa |
-| `api/admin-data.js` | Dados do painel administrativo |
-| `api/admin-run-agent.js` | Execução lógica dos agentes |
-| `api/admin-content-drafts.js` | Rascunhos de conteúdo |
-| `api/admin-news-update.js` | Atualização de status das notícias |
 
-Para testar o fluxo completo de APIs localmente, use um ambiente compatível com funções da Vercel e as variáveis configuradas.
+## Conteudo, ferramentas e newsletter
 
-## Conteúdo e manutenção
+Esses modulos continuam no codigo porque podem apoiar repertorio, admin, conteudo futuro, afiliados ou campanhas. A regra v2 e simples: eles nao devem tomar o lugar do diagnostico comercial como CTA principal.
 
-### Ferramentas
+Antes de reativar qualquer modulo publico de conteudo, conferir:
 
-As ferramentas exibidas em `/recursos` ficam em:
+- se a rota esta registrada em `src/App.jsx`;
+- se a pagina reforca a VANT como implementadora de solucoes;
+- se existe proximo passo para `/diagnostico` ou `/solucoes`;
+- se nao cria uma promessa paralela de catalogo, blog ou biblioteca como produto central.
 
-```txt
-src/data/recursos.js
-```
+## Supabase
 
-Cada item pode conter nome, categoria, descrição, link, UTM, badge e indicação de plano gratuito.
-
-### Posts e ebooks
-
-Os conteúdos em Markdown ficam em:
-
-```txt
-src/posts/
-```
-
-Posts com metadados de ebook alimentam as páginas `/ebook/:slug` e os cards de captura.
-
-### Identidade visual
-
-Os arquivos oficiais de marca ficam em:
-
-```txt
-public/assets/
-```
-
-Arquivos principais:
-
-- `vant-logo-white.png`
-- `vant-logo-black.png`
-- `vant-identity-board.png`
-- `vant-site-reference.png`
-
-### Supabase
-
-A base inicial e os campos esperados estão documentados em:
+A base inicial e os campos esperados estao documentados em:
 
 ```txt
 docs/supabase-setup.sql
 supabase/migrations/
 ```
 
-Antes de publicar mudanças que dependem do banco, confira se as tabelas, índices e colunas existem no Supabase de produção.
+Antes de publicar mudancas que dependem do banco, confira se as tabelas, indices e colunas existem no Supabase de producao. Mudancas de schema devem ser planejadas como etapa propria.
 
 ## Deploy
 
@@ -273,44 +311,44 @@ O deploy oficial deve ficar centralizado no projeto Vercel:
 vant-business
 ```
 
-Configuração esperada:
+Configuracao esperada:
 
 - Framework: Vite
 - Build command: `npm run build`
 - Output directory: `dist`
-- Domínios: `vant.business` e `www.vant.business`
-- Branch de produção: `main`
+- Dominios: `vant.business` e `www.vant.business`
+- Branch de producao: `main`
 
-Checklist operacional:
+Checklist local antes de deploy:
 
 ```bash
 git status
+npm test
 npm run build
 ```
 
-Depois do deploy, validar:
+Depois do deploy, validar no minimo:
 
-- Home
-- `/recursos`
-- `/solucoes-digitais`
-- `/automatize`
-- `/blog`
-- captura em `/ebook/:slug`
+- `/`
+- `/solucoes`
+- `/diagnostico`
+- `/cases`
+- redirects de `/solucoes-digitais`, `/automatize`, `/conversao` e `/recursos`
 - login em `/admin-vant`
-- eventos de clique
-- envio de email
+- envio de lead de diagnostico em ambiente controlado
+- notificacao interna e handoff de WhatsApp
 
-## Segurança operacional
+## Seguranca operacional
 
-- Não versionar `.env`, senhas SMTP, service keys ou tokens.
+- Nao versionar `.env`, senhas, service keys ou tokens.
 - Manter `SUPABASE_SERVICE_KEY` apenas no servidor.
 - Proteger `/admin-vant` com `ADMIN_EMAIL`, `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`.
 - Proteger rotas agendadas com `CRON_SECRET`.
-- Revisar permissões do Supabase antes de abrir novas tabelas.
+- Revisar permissoes do Supabase antes de abrir novas tabelas.
 - Rodar `npm audit --omit=dev` periodicamente.
 
 ## Autor
 
 **Victor Hugo Santos de Jesus**
 
-VANT.Business: automação, IA aplicada, conexão e resultados.
+VANT.Business: diagnostico, presenca digital, IA aplicada, automacao e crescimento operacional.

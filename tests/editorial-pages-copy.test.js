@@ -2,11 +2,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const blogPageSource = readFileSync(
-  new URL('../src/pages/BlogPage.jsx', import.meta.url),
-  'utf8'
-);
-
 const recursosPageSource = readFileSync(
   new URL('../src/pages/RecursosPage.jsx', import.meta.url),
   'utf8'
@@ -32,14 +27,6 @@ const cssSource = readFileSync(
   'utf8'
 );
 
-test('blog page keeps an editorial curation tone in hero and card CTA copy', () => {
-  assert.match(blogPageSource, /Curadoria · IA · Oportunidades/);
-  assert.match(blogPageSource, /Seu cadastro vira acesso a curadoria aplicada/);
-  assert.match(blogPageSource, /transformar novidades em ideias, automacoes e oportunidades praticas/);
-  assert.match(blogPageSource, /Usaremos o WhatsApp apenas para contato futuro/);
-  assert.match(blogPageSource, /Abrir matéria →/);
-});
-
 test('app keeps only the three primary public screens in navigation', () => {
   assert.doesNotMatch(appSource, /path="\/sobre"/);
   assert.doesNotMatch(appSource, /SobrePage/);
@@ -49,10 +36,12 @@ test('app keeps only the three primary public screens in navigation', () => {
   assert.doesNotMatch(footerSource, /Ferramentas IA/);
   assert.match(headerSource, /label: 'Início'/);
   assert.doesNotMatch(headerSource, /label: 'Conversão'/);
-  assert.match(headerSource, /label: 'VANT'/);
-  assert.match(headerSource, /to: '\/conversao'/);
   assert.match(headerSource, /label: 'Soluções'/);
-  assert.match(appSource, /path="\/conversao"/);
+  assert.match(headerSource, /to: '\/solucoes'/);
+  assert.match(headerSource, /label: 'Diagnóstico'/);
+  assert.match(headerSource, /to: '\/diagnostico'/);
+  assert.match(appSource, /path="\/solucoes"/);
+  assert.match(appSource, /path="\/diagnostico"/);
 });
 
 test('resources page is fully focused on VANT solution conversion', () => {
@@ -132,18 +121,21 @@ const solutionsPageSource = readFileSync(
   "utf8"
 );
 
-test("solutions page keeps the desktop sales layout with accessible lead capture", () => {
+test("diagnosis page keeps the v2 commercial diagnosis layout with accessible lead capture", () => {
   assert.match(solutionsPageSource, /VANT\.BUSINESS/);
-  assert.match(solutionsPageSource, /Estrategia · Conexao · Resultados/);
-  assert.match(solutionsPageSource, /Estruture uma presenca digital/);
-  assert.match(solutionsPageSource, /com percepcao premium/);
-  assert.match(solutionsPageSource, /Posicionamento digital/);
-  assert.match(solutionsPageSource, /Percepcao premium/);
+  assert.match(solutionsPageSource, /Automate\. Intelligently\. Grow\./);
+  assert.match(solutionsPageSource, /Diagnostico VANT/);
+  assert.match(solutionsPageSource, /Onde sua empresa perde oportunidades hoje/);
+  assert.match(solutionsPageSource, /presenca, captacao, atendimento, follow-up, automacao ou conversao/);
+  assert.match(solutionsPageSource, /Gargalo principal/);
+  assert.match(solutionsPageSource, /diagnosis-page/);
   assert.doesNotMatch(solutionsPageSource, /Empresas que confiam na VANT/);
-  assert.match(solutionsPageSource, /Vamos conversar sobre seu projeto/);
+  assert.match(solutionsPageSource, /Vamos diagnosticar sua operacao/);
   assert.match(solutionsPageSource, /id="briefing-form"/);
-  assert.match(solutionsPageSource, /Solicitar analise/);
-  assert.match(solutionsPageSource, /O que muda depois da VANT/);
+  assert.match(solutionsPageSource, /Solicitar diagnostico/);
+  assert.match(solutionsPageSource, /O que a VANT analisa primeiro/);
+  assert.doesNotMatch(solutionsPageSource, /Solução desejada/);
+  assert.doesNotMatch(solutionsPageSource, /source: 'digital-solutions-page'/);
   assert.doesNotMatch(solutionsPageSource, /A PRIMEIRA VENDA/);
   assert.doesNotMatch(solutionsPageSource, /Sua empresa sofre com isso/);
 });

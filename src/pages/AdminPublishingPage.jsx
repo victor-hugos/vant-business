@@ -4,9 +4,11 @@ import AdminLoginScreen from '../components/AdminLoginScreen.jsx';
 import { categorias as staticCategories, recursos as staticTools } from '../data/recursos.js';
 import {
   adminJourneyStatusOptions,
+  buildClientWhatsAppHandoffUrl,
   buildClientProjectPipeline,
   clientJourneyDecisionOptions,
   clientJourneyStatusLevels,
+  getClientCommercialPriority,
   groupBriefingResponsesByClient,
 } from '../utils/adminLeads.js';
 import { getAdminNewsStatusLabel, isPublishedStatus, sortAdminNewsItems } from '../utils/adminPublishing.js';
@@ -22,6 +24,13 @@ const newsStatuses = [
   { value: 'aguardando_avaliacao', label: 'Em revisao' },
   { value: 'aprovada', label: 'Publicada' },
   { value: 'reprovada', label: 'Arquivada' },
+];
+
+const adminPriorityOptions = [
+  { value: '', label: 'Automatica' },
+  { value: 'high', label: 'Alta prioridade' },
+  { value: 'medium', label: 'Prioridade media' },
+  { value: 'low', label: 'Baixa prioridade' },
 ];
 
 const affiliateStatuses = [
@@ -258,7 +267,7 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
   const [activeLane, setActiveLane] = useState('all');
   const [savingLead, setSavingLead] = useState(false);
   const [editingLead, setEditingLead] = useState(false);
-  const [leadForm, setLeadForm] = useState({ adminJourneyStatus: '', adminNote: '', adminNextAction: '' });
+  const [leadForm, setLeadForm] = useState({ adminJourneyStatus: '', adminPriority: '', adminNote: '', adminNextAction: '' });
   const totalResponses = clients.reduce((total, client) => total + client.responses.length, 0);
   const visibleClients = activeLane === 'all'
     ? clients
@@ -266,6 +275,8 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
   const selectedClient = clients.find((client) => client.key === selectedKey) || clients[0] || null;
   const selectedLead = selectedClient?.responses?.[0] || null;
   const selectedMetadata = selectedLead?.metadata || {};
+  const selectedPriority = selectedClient ? getClientCommercialPriority(selectedClient) : null;
+  const selectedWhatsAppUrl = selectedClient ? buildClientWhatsAppHandoffUrl(selectedClient) : '';
   const visualJourneyLane = ['remarketing', 'client'].includes(selectedClient?.journey?.lane)
     ? 'proposal'
     : selectedClient?.journey?.lane;
@@ -277,10 +288,11 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
   useEffect(() => {
     setLeadForm({
       adminJourneyStatus: selectedMetadata.adminJourneyStatus || selectedClient?.journey?.lane || '',
+      adminPriority: selectedMetadata.adminPriority || '',
       adminNote: selectedMetadata.adminNote || '',
       adminNextAction: selectedMetadata.adminNextAction || '',
     });
-  }, [selectedClient?.key, selectedMetadata.adminJourneyStatus, selectedMetadata.adminNote, selectedMetadata.adminNextAction]);
+  }, [selectedClient?.key, selectedMetadata.adminJourneyStatus, selectedMetadata.adminPriority, selectedMetadata.adminNote, selectedMetadata.adminNextAction]);
 
   useEffect(() => {
     setEditingLead(false);
@@ -362,7 +374,7 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
           <p className="text-xs uppercase tracking-widest text-cyan-400">Jornada comercial</p>
           <h2 className="mt-2 text-xl font-bold text-white">Projetos recebidos pelo site</h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
-            Visao ampla dos clientes que preencheram o pre-briefing, com etapa, pendencias e proxima acao.
+            Visao ampla dos clientes que preencheram o pre-briefing, com etapa, pendencias e proxima acao para captar, atender, acompanhar e converter melhor.
           </p>
         </div>
         <StatusPill tone="emerald">{totalResponses} respostas</StatusPill>
@@ -454,7 +466,10 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                       <p className="mt-1 break-all text-sm text-cyan-300">{selectedClient.email || 'email nao informado'}</p>
                       {selectedClient.whatsapp ? <p className="mt-1 text-xs text-slate-400">{selectedClient.whatsapp}</p> : null}
                     </div>
-                    <StatusPill tone={selectedClient.journey?.tone || 'cyan'}>{selectedClient.journey?.label || 'Entrada'}</StatusPill>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPriority ? <StatusPill tone={selectedPriority.tone}>Prioridade comercial: {selectedPriority.label}</StatusPill> : null}
+                      <StatusPill tone={selectedClient.journey?.tone || 'cyan'}>{selectedClient.journey?.label || 'Entrada'}</StatusPill>
+                    </div>
                   </div>
 
                   <div className="mt-5 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-4">
@@ -574,6 +589,19 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                             </select>
                           </label>
                           <label className="block">
+                            <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Prioridade comercial</span>
+                            <select
+                              value={leadForm.adminPriority}
+                              onChange={(event) => setLeadForm((current) => ({ ...current, adminPriority: event.target.value }))}
+                              disabled={savingLead}
+                              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/50 disabled:opacity-50"
+                            >
+                              {adminPriorityOptions.map((option) => (
+                                <option key={option.value || 'auto'} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="block">
                             <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</span>
                             <input
                               value={leadForm.adminNextAction}
@@ -596,6 +624,7 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                           type="button"
                           onClick={() => saveLeadPatch({
                             adminJourneyStatus: leadForm.adminJourneyStatus,
+                            adminPriority: leadForm.adminPriority,
                             adminNote: leadForm.adminNote,
                             adminNextAction: leadForm.adminNextAction,
                           })}
@@ -612,6 +641,16 @@ function LeadsPanel({ leads, onRefresh, localMode = false, onMessage }) {
                     <div className="md:col-span-2">
                       <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Proxima acao</p>
                       <p className="mt-1 leading-relaxed text-slate-200">{selectedClient.journey?.nextAction}</p>
+                      {selectedWhatsAppUrl ? (
+                        <a
+                          href={selectedWhatsAppUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15"
+                        >
+                          Continuar no WhatsApp
+                        </a>
+                      ) : null}
                     </div>
                     {selectedClient.journey?.missing?.length ? (
                       <div className="md:col-span-2">
@@ -1397,7 +1436,7 @@ function AdminPublishingPage() {
             <p className="text-xs uppercase tracking-widest text-cyan-400">Admin VANT</p>
             <h1 className="mt-2 text-3xl font-bold text-white">Jornada do cliente</h1>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
-              Acompanhe cada lead desde o pre-briefing ate proposta, remarketing e apresentacao comercial.
+              Acompanhe cada oportunidade desde o pre-briefing ate atendimento, follow-up, proposta ou remarketing.
             </p>
           </div>
           <button

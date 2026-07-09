@@ -12,7 +12,7 @@ const VICTOR_EMAIL = getLeadNotificationEmail();
 export function buildEmailBrandHeaderHtml() {
   return `
     <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
-      <img src="https://vant-business-victor-hugos-projects-378ea6a7.vercel.app/assets/vant-logo-black.png" alt="VANT Business" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;object-fit:contain;padding-right:6px;" />
+      <img src="https://vant-business-victor-hugos-projects-378ea6a7.vercel.app/assets/brand/vant-favicon.png" alt="VANT Business" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;object-fit:contain;padding-right:6px;" />
       <div>
         <p style="margin:0;color:#0f172a;font-size:14px;font-weight:800;letter-spacing:.04em;">VANT Business</p>
         <p style="margin:3px 0 0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">IA · Automacao · Presenca digital</p>
@@ -81,7 +81,7 @@ export function normalizeSubscribePayload(input = {}, context = {}) {
   const cleanLeadType = ['ebook', 'newsletter', 'service'].includes(rawLeadType)
     ? rawLeadType
     : 'ebook';
-  const cleanEbook = normalize(ebook) || (cleanLeadType === 'service' ? 'solucoes-digitais' : '');
+  const cleanEbook = normalize(ebook) || (cleanLeadType === 'service' ? 'diagnostico-vant' : '');
   const cleanProductTitle = normalize(productTitle) || cleanEbook;
   const wantsNewsletter = cleanLeadType === 'newsletter' || Boolean(newsletterOptIn);
 
@@ -188,7 +188,7 @@ function buildServiceConfirmationHtml(nome, { productTitle }) {
       <div style="margin-top:20px;padding:18px;border-radius:18px;background:#0f172a;color:#f8fafc;">
         <p style="margin:0 0 8px;color:#67e8f9;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Proximo passo</p>
         <p style="margin:0;font-size:15px;line-height:1.65;">
-          A VANT avalia identidade digital, presenca online, site, perfil profissional, funil e solucoes digitais antes de sugerir uma entrega.
+          A VANT avalia presenca, captacao, atendimento, follow-up, automacao e conversao antes de sugerir uma entrega.
         </p>
       </div>
       <p style="margin:20px 0 0;color:#64748b;font-size:12px;line-height:1.6;">
