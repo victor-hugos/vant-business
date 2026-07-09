@@ -52,8 +52,8 @@ test('VANT logo component exposes only the official logo from one source of trut
 
 test('public brand surfaces use the official identity language', () => {
   assert.match(cssSource, /--vant-accent:\s*#9bdc00/);
-  assert.match(headerSource, /Automate\. Intelligently\. Grow\./);
-  assert.match(footerSource, /Automate\. Intelligently\. Grow\./);
+  assert.match(headerSource, /Estruture \. Organize \. Conecte\./);
+  assert.match(footerSource, /Estruture \. Organize \. Conecte\./);
   assert.match(homeSource, /Estruture \. Organize \. Conecte\./);
   assert.doesNotMatch(homeSource, /reference-kicker-logo/);
   assert.doesNotMatch(homeSource, /variant="symbolReversed"/);

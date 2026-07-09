@@ -31,7 +31,7 @@ function Header() {
                 VANT.BUSINESS
               </span>
               <span className="mt-1 hidden text-[9px] uppercase tracking-[0.2em] text-[var(--vant-accent)] sm:block">
-                Automate. Intelligently. Grow.
+                Estruture . Organize . Conecte.
               </span>
             </div>
           </Link>

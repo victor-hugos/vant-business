@@ -123,7 +123,7 @@ const solutionsPageSource = readFileSync(
 
 test("diagnosis page keeps the v2 commercial diagnosis layout with accessible lead capture", () => {
   assert.match(solutionsPageSource, /VANT\.BUSINESS/);
-  assert.match(solutionsPageSource, /Automate\. Intelligently\. Grow\./);
+  assert.match(solutionsPageSource, /Estruture \. Organize \. Conecte\./);
   assert.match(solutionsPageSource, /Diagnostico VANT/);
   assert.match(solutionsPageSource, /Onde sua empresa perde oportunidades hoje/);
   assert.match(solutionsPageSource, /presenca, captacao, atendimento, follow-up, automacao ou conversao/);

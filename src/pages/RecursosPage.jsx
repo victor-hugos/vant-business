@@ -100,7 +100,7 @@ function RecursosPage() {
             </div>
             <p className="conversion-brand-name">VANT.BUSINESS</p>
             <span className="conversion-brand-rule" />
-            <p className="conversion-brand-line">Automate. Intelligently. Grow.</p>
+            <p className="conversion-brand-line">Estruture . Organize . Conecte.</p>
           </div>
 
           <div className="conversion-pipeline" aria-label="Fluxo da VANT">

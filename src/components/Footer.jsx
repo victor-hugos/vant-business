@@ -11,7 +11,7 @@ function Footer() {
             <div>
               <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
               <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--vant-accent)]">
-                Automate. Intelligently. Grow.
+                Estruture . Organize . Conecte.
               </p>
             </div>
           </div>

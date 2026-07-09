@@ -171,7 +171,7 @@ function AutomatizePage() {
               </div>
               <div>
                 <p className="brand-title text-xs font-bold text-white">VANT.BUSINESS</p>
-                <p className="mt-1 text-[0.5rem] uppercase tracking-[0.22em] text-[var(--vant-accent)]">Automate. Intelligently. Grow.</p>
+                <p className="mt-1 text-[0.5rem] uppercase tracking-[0.22em] text-[var(--vant-accent)]">Estruture . Organize . Conecte.</p>
               </div>
             </div>
 
