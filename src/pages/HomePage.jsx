@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import VantLogo from '../components/VantLogo.jsx';
 
 const pillars = [
   {
@@ -78,9 +79,8 @@ function HomePage() {
       <section className="reference-hero">
         <div className="reference-hero-copy">
           <div className="reference-kicker">
-            <img className="reference-kicker-logo" src="/assets/vant-logo-white.png" alt="" aria-hidden="true" />
             <span />
-            <p>Tecnologia · Estratégia · Resultados</p>
+            <p>Estruture . Organize . Conecte.</p>
           </div>
 
           <h1>
@@ -94,22 +94,23 @@ function HomePage() {
           </p>
 
           <div className="reference-actions">
-            <Link to="/solucoes-digitais" className="reference-button reference-button-primary">
+            <Link to="/diagnostico" className="reference-button reference-button-primary">
               Conhecer soluções
               <span>›</span>
             </Link>
-            <Link to="/solucoes-digitais" className="reference-button reference-button-secondary">Ver soluções digitais</Link>
+            <Link to="/solucoes" className="reference-button reference-button-secondary">Ver soluções digitais</Link>
           </div>
 
           <div className="reference-proof">
-            <img className="reference-proof-logo" src="/assets/vant-logo-white.png" alt="VANT.Business" />
-            <p>Branding, presença digital, automação, conteúdo e inteligência comercial na mesma marca.</p>
+            <span>Presença digital</span>
+            <span>Automação</span>
+            <span>Crescimento</span>
           </div>
         </div>
 
         <div className="reference-hero-mark">
           <div className="reference-orbit" aria-hidden="true" />
-          <img src="/assets/vant-logo-white.png" alt="VANT.Business" />
+          <VantLogo width="min(28vw, 300px)" height="min(31vw, 336px)" alt="VANT.Business" />
           <div className="reference-light" aria-hidden="true" />
           <div className="reference-index" aria-label="Seções do destaque">
             <span className="is-active">01</span>
@@ -144,7 +145,7 @@ function HomePage() {
         <p className="reference-pillars-note">
           A VANT.Business não entrega apenas sites. Entregamos estruturas digitais para empresas que querem atender melhor, vender com mais clareza e crescer com mais organização.
         </p>
-        <Link to="/solucoes-digitais" className="reference-pillars-link">
+        <Link to="/solucoes" className="reference-pillars-link">
           Conhecer soluções
           <span>›</span>
         </Link>

@@ -8,19 +8,19 @@ export function normalizeWhatsAppNumber(value = '') {
 
 export function buildBriefingWhatsAppMessage(data = {}) {
   const lines = [
-    'Ola, Victor. Vim pelo site VANT.Business e quero apresentar meu projeto.',
+    'Ola, Victor. Vim pelo diagnostico VANT.Business e quero entender o melhor proximo passo.',
     '',
     `Nome: ${clean(data.nome) || '-'}`,
     `Empresa/projeto: ${clean(data.empresa) || '-'}`,
     `Instagram: ${clean(data.instagram) || '-'}`,
     `Email: ${clean(data.email) || '-'}`,
     `WhatsApp: ${clean(data.whatsapp) || '-'}`,
-    `Solucao: ${clean(data.solucao) || '-'}`,
+    `Gargalo principal: ${clean(data.solucao) || '-'}`,
     `Momento: ${clean(data.momento) || '-'}`,
     `Objetivo: ${clean(data.objetivo) || '-'}`,
     `Faixa de investimento: ${clean(data.orcamento) || '-'}`,
     '',
-    'Briefing:',
+    'Diagnostico:',
     clean(data.descricao) || '-',
   ];
 

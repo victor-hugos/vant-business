@@ -1,205 +1,107 @@
-# Guia de manutenção — VANT Business
+# Guia de manutencao - VANT Business v2
 
-Este guia explica como manter o conteúdo do VANT Business atualizado sem precisar alterar a estrutura principal da interface.
+Este guia cobre a VANT atual: site comercial, diagnostico, captura de leads, admin e handoff para WhatsApp.
 
-## Como adicionar um novo projeto
+O material antigo de blog publico, ebook publico, portfolio/recrutador e newsletter visual foi arquivado na branch `archive/pre-vant-v2-cleanup-2026-07-09`.
 
-Os projetos ficam em:
+## Rotas atuais
 
-```txt
-src/data/projects.js
-```
+| Rota | Funcao |
+| --- | --- |
+| `/` | Home comercial |
+| `/solucoes` | Areas de solucao |
+| `/diagnostico` | Formulario principal de lead |
+| `/admin-vant` | Operacao privada |
 
-Passo a passo:
+Rotas antigas mantidas como redirect: `/solucoes-digitais`, `/automatize`, `/conversao` e `/recursos`.
 
-1. Abra o arquivo `src/data/projects.js`.
-2. Localize o array `projects`.
-3. Copie a estrutura de um projeto existente.
-4. Cole um novo objeto no array.
-5. Altere os campos com os dados do novo projeto.
-6. Garanta que o `id` seja único.
-7. Preencha `relatedAreas`, pois esse campo alimenta os filtros da seção de projetos.
-8. Preencha `githubUrl` e `liveUrl` somente quando existirem.
-9. Salve o arquivo e teste a seção de projetos.
+## Como alterar a home
 
-Campos principais:
-
-- `id`
-- `name`
-- `type`
-- `shortDescription`
-- `fullDescription`
-- `technologies`
-- `relatedAreas`
-- `highlights`
-- `problem`
-- `solution`
-- `status`
-- `githubUrl`
-- `liveUrl`
-
-## Como adicionar uma nova habilidade
-
-As habilidades ficam em:
+Arquivo principal:
 
 ```txt
-src/data/skills.js
+src/pages/HomePage.jsx
 ```
 
-Passo a passo:
+Ao alterar a home:
 
-1. Abra o arquivo `src/data/skills.js`.
-2. Localize o array `skills`.
-3. Adicione um novo objeto seguindo o padrão existente.
-4. Use um `name` claro, pois esse nome também pode ser usado pelo Modo Recrutador.
-5. Defina a `category` para agrupar a habilidade visualmente.
-6. Informe o `level`.
-7. Preencha `relatedAreas` com áreas ligadas à habilidade.
-8. Escreva uma `description` curta e objetiva.
-9. Salve o arquivo e confira a seção de habilidades.
+1. Mantenha a VANT como solucao comercial, nao como hub editorial.
+2. Direcione CTAs para `/solucoes` ou `/diagnostico`.
+3. Rode `npm test` e `npm run build`.
 
-Campos principais:
+## Como alterar solucoes
 
-- `name`
-- `category`
-- `level`
-- `relatedAreas`
-- `description`
-
-## Como adicionar uma nova experiência
-
-As experiências ficam em:
+Arquivo principal:
 
 ```txt
-src/data/experiences.js
+src/pages/RecursosPage.jsx
 ```
 
-Passo a passo:
+Apesar do nome historico do arquivo, esta pagina representa `/solucoes`. Ela deve explicar areas de solucao, gargalos e como a VANT estrutura a operacao.
 
-1. Abra o arquivo `src/data/experiences.js`.
-2. Localize o array `experiences`.
-3. Adicione um novo objeto com os dados da experiência.
-4. Preencha `company`, `role`, `period`, `type` e `description`.
-5. Adicione atividades no array `activities`.
-6. Preencha `relatedAreas` com as áreas conectadas à experiência.
-7. Salve o arquivo e confira a seção de currículo.
+## Como alterar diagnostico
 
-Campos principais:
-
-- `company`
-- `role`
-- `period`
-- `type`
-- `description`
-- `activities`
-- `relatedAreas`
-
-## Como adicionar uma nova área no Modo Recrutador
-
-As áreas do Modo Recrutador ficam em:
+Arquivos principais:
 
 ```txt
-src/data/roles.js
+src/pages/AutomatizePage.jsx
+api/subscribe.js
+src/utils/briefingWhatsApp.js
+src/utils/adminLeads.js
 ```
 
-Passo a passo:
+O diagnostico envia lead do tipo `service` com source `diagnosis-page` e produto `diagnostico-vant`.
 
-1. Abra o arquivo `src/data/roles.js`.
-2. Localize o objeto `roles`.
-3. Crie uma nova chave para a área, por exemplo `dataAutomation`.
-4. Adicione `title`, `description` e `recommendedSummary`.
-5. Preencha `prioritySkills` com nomes existentes em `skills.js`.
-6. Preencha `priorityProjects` com ids existentes em `projects.js`.
-7. Preencha `relatedExperiences` com nomes de empresas existentes em `experiences.js`.
-8. Salve o arquivo.
-9. Teste o Modo Recrutador selecionando a nova área.
+Ao mudar campos do formulario:
 
-Campos principais:
+1. Ajuste o payload em `AutomatizePage.jsx`.
+2. Confira a normalizacao em `api/subscribe.js`.
+3. Atualize a mensagem em `briefingWhatsApp.js`, se necessario.
+4. Rode `node --test tests/subscribe.test.js tests/editorial-pages-copy.test.js`.
 
-- `title`
-- `description`
-- `recommendedSummary`
-- `prioritySkills`
-- `priorityProjects`
-- `relatedExperiences`
+## Como alterar o admin
 
-Importante:
-
-- Os nomes em `prioritySkills` devem bater com `skill.name`.
-- Os ids em `priorityProjects` devem bater com `project.id`.
-- Os nomes em `relatedExperiences` devem bater com `experience.company`.
-
-## Como trocar o currículo PDF
-
-O currículo PDF deve ficar em:
+Arquivo principal:
 
 ```txt
-public/curriculo-victor-hugo.pdf
+src/pages/AdminPublishingPage.jsx
 ```
 
-Para trocar o arquivo:
+O admin deve priorizar leads, status, notas, contexto comercial e continuidade no WhatsApp.
 
-1. Gere ou baixe a nova versão do currículo em PDF.
-2. Renomeie o arquivo para `curriculo-victor-hugo.pdf`.
-3. Substitua o arquivo existente dentro da pasta `public`.
-4. Mantenha exatamente o mesmo nome para que os botões do site continuem funcionando.
-5. Rode o projeto e teste o link do currículo.
+Antes de mexer em noticias, ferramentas ou agentes internos, confirme se o modulo ainda apoia a operacao comercial atual. Se for apenas editorial, trate como legado preservado no backup.
 
-## Como atualizar links profissionais
+## Como alterar marca
 
-Os links profissionais aparecem em alguns pontos da aplicação.
-
-Procure principalmente em:
+Arquivos principais:
 
 ```txt
-src/components/ContactSection.jsx
-src/components/ResumeSection.jsx
-src/components/RecruiterMode.jsx
-src/components/Hero.jsx
+public/assets/brand/
+src/components/VantLogo.jsx
+index.html
 ```
 
-O que conferir:
+Depois de alterar marca, rode:
 
-- Link do GitHub
-- Link do LinkedIn
-- Link do Trailhead
-- Link do currículo PDF
-- Link do portfólio
-- Email de contato
-
-Sempre evite deixar links vazios visíveis na interface.
+```bash
+npm test
+npm run build
+```
 
 ## Checklist antes de publicar
 
-- [ ] Rodar `npm run dev`
-- [ ] Testar menu
-- [ ] Testar Modo Recrutador
-- [ ] Testar filtros de projetos
-- [ ] Testar modal de estudo de caso
-- [ ] Testar links externos
-- [ ] Testar currículo PDF
-- [ ] Testar responsividade
-- [ ] Fazer commit no Git
-- [ ] Fazer push para o GitHub
-- [ ] Conferir deploy na Vercel
+- [ ] Conferir `git status`.
+- [ ] Rodar `npm test`.
+- [ ] Rodar `npm run build`.
+- [ ] Testar home, `/solucoes` e `/diagnostico`.
+- [ ] Testar redirects antigos.
+- [ ] Testar `/admin-vant`.
+- [ ] Testar captura de lead em ambiente controlado.
+- [ ] Conferir handoff de WhatsApp.
 
-## Area administrativa
+## Segurança
 
-A rota administrativa nao aparece no menu publico:
-
-```txt
-/admin-vant
-```
-
-Ela depende das variaveis `ADMIN_EMAIL`, `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET` no Vercel.
-
-O painel mostra:
-
-- fila de ferramentas afiliadas e sem afiliado configurado;
-- agentes separados por etapa;
-- respostas armazenadas para avaliacao;
-- cronograma operacional;
-- cliques capturados por ferramenta ou ebook.
-
-As respostas dos agentes ficam na tabela `ai_agent_reviews`.
-Os cliques ficam na tabela `analytics_events`.
+- Nunca versionar `.env`, tokens, service keys ou senhas.
+- Manter `SUPABASE_SERVICE_KEY` apenas em ambiente server-side.
+- Proteger admin com `ADMIN_EMAIL`, `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`.
+- Mudancas de banco devem ser planejadas como etapa propria.

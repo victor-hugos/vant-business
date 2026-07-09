@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+  buildClientWhatsAppHandoffUrl,
   buildClientProjectPipeline,
   clientJourneyDecisionOptions,
   clientJourneyStatusLevels,
+  getClientCommercialPriority,
   getClientJourney,
   getNextJourneyStatus,
   getPreviousJourneyStatus,
@@ -212,4 +215,106 @@ test('moves leads forward and backward through the sales funnel stages', () => {
   assert.equal(getPreviousJourneyStatus('proposal'), 'triage');
   assert.equal(getPreviousJourneyStatus('presentation'), 'proposal');
   assert.equal(getPreviousJourneyStatus('new'), 'new');
+});
+
+
+test('classifies commercial priority for the VANT v2 lead operation', () => {
+  const [urgentProposal, coldLead, manualPriority] = groupBriefingResponsesByClient([
+    {
+      id: 'urgent',
+      nome: 'Cliente Urgente',
+      email: 'urgente@exemplo.com',
+      whatsapp: '11999999999',
+      lead_type: 'service',
+      metadata: {
+        solutionType: 'Site profissional',
+        projectStage: 'Tenho uma demanda urgente',
+        budgetRange: 'R$ 3.000 a R$ 6.000',
+        message: 'Preciso organizar minha captacao.',
+      },
+      created_at: '2026-05-04T10:00:00.000Z',
+    },
+    {
+      id: 'cold',
+      nome: 'Cliente Frio',
+      email: 'frio@exemplo.com',
+      whatsapp: '11888888888',
+      lead_type: 'service',
+      metadata: {
+        solutionType: 'Ainda nao sei',
+        projectStage: 'Preciso comecar do zero',
+        budgetRange: 'Ainda quero entender valores',
+        message: 'Quero entender possibilidades.',
+      },
+      created_at: '2026-05-03T10:00:00.000Z',
+    },
+    {
+      id: 'manual',
+      nome: 'Cliente Manual',
+      email: 'manual@exemplo.com',
+      whatsapp: '11777777777',
+      lead_type: 'service',
+      metadata: {
+        adminPriority: 'high',
+        solutionType: 'Automacao leve ou IA aplicada',
+        projectStage: 'Ja tenho algo, mas preciso melhorar',
+        budgetRange: 'Ate R$ 1.500',
+        message: 'Preciso de uma melhoria pontual.',
+      },
+      created_at: '2026-05-02T10:00:00.000Z',
+    },
+  ]);
+
+  assert.equal(getClientCommercialPriority(urgentProposal).id, 'high');
+  assert.equal(getClientCommercialPriority(coldLead).id, 'low');
+  assert.equal(getClientCommercialPriority(manualPriority).id, 'high');
+});
+
+test('builds a WhatsApp handoff URL with the lead briefing context', () => {
+  const [client] = groupBriefingResponsesByClient([
+    {
+      id: 'handoff',
+      nome: 'Cliente Handoff',
+      email: 'handoff@exemplo.com',
+      whatsapp: '(11) 99999-9999',
+      lead_type: 'service',
+      metadata: {
+        businessName: 'Studio Handoff',
+        solutionType: 'Site profissional',
+        mainGoal: 'Gerar mais oportunidades',
+        projectStage: 'Tenho uma demanda urgente',
+        budgetRange: 'R$ 3.000 a R$ 6.000',
+        message: 'Quero organizar a entrada de clientes.',
+      },
+      created_at: '2026-05-04T10:00:00.000Z',
+    },
+  ]);
+
+  const url = buildClientWhatsAppHandoffUrl(client);
+
+  assert.match(url, /^https:\/\/wa\.me\/5511999999999\?text=/);
+  assert.match(decodeURIComponent(url), /Studio Handoff/);
+  assert.match(decodeURIComponent(url), /Site profissional/);
+  assert.match(decodeURIComponent(url), /Gerar mais oportunidades/);
+  assert.match(decodeURIComponent(url), /Preparar proposta e agendar apresentacao/);
+});
+
+
+test('admin leads panel exposes VANT v2 priority and WhatsApp handoff actions', () => {
+  const adminSource = readFileSync(new URL('../src/pages/AdminPublishingPage.jsx', import.meta.url), 'utf8');
+
+  assert.match(adminSource, /getClientCommercialPriority/);
+  assert.match(adminSource, /buildClientWhatsAppHandoffUrl/);
+  assert.match(adminSource, /Prioridade comercial/);
+  assert.match(adminSource, /adminPriority/);
+  assert.match(adminSource, /Continuar no WhatsApp/);
+});
+
+
+test('admin leads API accepts adminPriority as editable metadata', () => {
+  const apiSource = readFileSync(new URL('../api/admin-leads.js', import.meta.url), 'utf8');
+
+  assert.match(apiSource, /adminPriority/);
+  assert.match(apiSource, /adminJourneyStatus/);
+  assert.match(apiSource, /adminNextAction/);
 });

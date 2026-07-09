@@ -5,12 +5,12 @@ import { buildBriefingWhatsAppUrl } from '../utils/briefingWhatsApp.js';
 const defaultVantWhatsAppNumber = '5561981663028';
 
 const serviceOptions = [
-  'Presenca digital e identidade',
-  'Site profissional',
-  'Instagram profissional',
-  'Google Meu Negocio',
-  'Captacao e funil',
-  'Automacao leve ou IA aplicada',
+  'Presenca digital',
+  'Captacao de leads',
+  'Atendimento e follow-up',
+  'Automacao e IA aplicada',
+  'Conversao em proposta ou venda',
+  'Organizacao interna da operacao',
   'Ainda nao sei',
 ];
 
@@ -41,41 +41,41 @@ const goalOptions = [
 const trustPillars = [
   {
     label: 'Estrategia',
-    title: 'Posicionamento digital',
-    text: 'Presenca que transmite valor e diferencia sua empresa.',
+    title: 'Diagnostico antes da execucao',
+    text: 'Antes de implementar, identificamos onde a jornada comercial realmente quebra.',
   },
   {
-    label: 'Design',
-    title: 'Percepcao premium',
-    text: 'Identidade visual e experiencia que geram confianca.',
+    label: 'Atendimento',
+    title: 'Entrada preparada',
+    text: 'Diagnostico, WhatsApp e proximos passos claros para nenhum contato chegar solto.',
   },
   {
-    label: 'Resultados',
-    title: 'Mais oportunidades',
-    text: 'Estrutura pensada para captar, filtrar e converter melhor.',
+    label: 'Conversao',
+    title: 'Acompanhamento real',
+    text: 'Fluxo para captar, atender, acompanhar e converter com mais consistencia.',
   },
 ];
 
 const solutionCards = [
   {
-    title: 'Profissionalismo em cada etapa',
-    text: 'Atendimento padronizado com jornada clara e acompanhamento contínuo, liberando tempo para o que realmente importa.',
-    meta: 'Jornada de atendimento',
+    title: 'Entrada com destino claro',
+    text: 'A campanha deixa de mandar pessoas para uma presença improvisada e passa a apontar para uma estrutura pronta para receber, entender e conduzir cada oportunidade.',
+    meta: 'Captacao preparada',
   },
   {
-    title: 'Seja encontrado por quem procura',
-    text: 'Google Meu Negocio e estrutura local para transformar buscas em contatos mais qualificados.',
-    meta: 'Google + presenca',
+    title: 'Diagnostico que qualifica',
+    text: 'O primeiro contato ja chega com contexto suficiente para separar curiosidade, oportunidade real, urgencia e melhor proximo passo.',
+    meta: 'Entrada comercial',
   },
   {
-    title: 'Construa autoridade diariamente',
-    text: 'Instagram organizado para comunicar valor, aumentar confianca e sustentar sua marca no dia a dia.',
-    meta: 'Instagram + conteudo',
+    title: 'Atendimento que nao perde o timing',
+    text: 'WhatsApp, formulario e follow-up trabalham juntos para que o lead nao dependa de memoria, improviso ou resposta tardia.',
+    meta: 'Atendimento + follow-up',
   },
   {
-    title: 'Ganhe tempo para tarefas que importam',
-    text: 'Atendimento padronizado e automacoes inteligentes para reduzir retrabalho e liberar foco no crescimento do seu negócio.',
-    meta: 'Automacao + IA',
+    title: 'Conversao com processo',
+    text: 'A oportunidade sai do contato inicial com status, pendencias e caminho comercial mais claro para proposta, remarketing ou triagem.',
+    meta: 'Conversao organizada',
   },
 ];
 
@@ -104,7 +104,7 @@ function AutomatizePage() {
       instagram: data.get('instagram'),
       email: data.get('email'),
       whatsapp: data.get('whatsapp'),
-      solucao: data.get('solucao'),
+      solucao: data.get('gargalo'),
       momento: data.get('momento'),
       objetivo: data.get('objetivo'),
       orcamento: data.get('orcamento'),
@@ -119,14 +119,15 @@ function AutomatizePage() {
       nome: formValues.nome,
       email: formValues.email,
       whatsapp: formValues.whatsapp,
-      ebook: 'solucoes-digitais',
-      productTitle: 'Identidade digital e solucoes digitais',
+      ebook: 'diagnostico-vant',
+      productTitle: 'Diagnostico VANT',
       leadType: 'service',
-      source: 'digital-solutions-page',
+      source: 'diagnosis-page',
       metadata: {
         businessName: formValues.empresa,
         instagramHandle: formValues.instagram,
         solutionType: formValues.solucao,
+        mainBottleneck: formValues.solucao,
         mainGoal: formValues.objetivo,
         projectStage: formValues.momento,
         budgetRange: formValues.orcamento,
@@ -151,7 +152,7 @@ function AutomatizePage() {
       setSent(true);
     } catch (err) {
       setWhatsAppUrl(nextWhatsAppUrl);
-      setDeliveryWarning('Nao consegui registrar automaticamente agora, mas seu briefing ja esta pronto para continuar pelo WhatsApp.');
+      setDeliveryWarning('Nao consegui registrar automaticamente agora, mas seu diagnostico ja esta pronto para continuar pelo WhatsApp.');
       form.reset();
       setSent(true);
     } finally {
@@ -166,23 +167,23 @@ function AutomatizePage() {
           <div className="lg:pl-2">
             <div className="flex w-full max-w-[330px] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:max-w-[360px]">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05]">
-                <VantLogo size={24} />
+                <VantLogo size={30} />
               </div>
               <div>
                 <p className="brand-title text-xs font-bold text-white">VANT.BUSINESS</p>
-                <p className="mt-1 text-[0.5rem] uppercase tracking-[0.22em] text-[#7f7f7f]">Estrategia · Conexao · Resultados</p>
+                <p className="mt-1 text-[0.5rem] uppercase tracking-[0.22em] text-[var(--vant-accent)]">Estruture . Organize . Conecte.</p>
               </div>
             </div>
 
             <h1 className="brand-title mt-7 max-w-3xl text-[2.2rem] font-bold leading-[0.98] text-white sm:text-5xl lg:mt-6 lg:max-w-[650px] lg:text-[3rem] xl:text-[3.25rem]">
-              Estruture uma presenca digital
-              <span className="brand-metal block">com percepcao premium</span>
+              Diagnostico VANT
+              <span className="brand-metal block">Onde sua empresa perde oportunidades hoje?</span>
             </h1>
             <p className="mt-5 max-w-[600px] text-sm leading-6 text-[#cfcfcf] sm:text-base lg:mt-4 lg:text-[0.82rem] lg:leading-5">
-              Sua empresa pode ate ser boa no que faz. Mas a forma como ela aparece define o quanto sera escolhida.
+              A VANT identifica se o gargalo esta em presenca, captacao, atendimento, follow-up, automacao ou conversao antes de sugerir qualquer implementacao.
             </p>
             <p className="mt-2 max-w-[620px] text-sm leading-6 text-[#a6a6a6] lg:text-[0.78rem] lg:leading-5">
-              Criamos estruturas digitais que geram confianca, autoridade e oportunidades reais de crescimento.
+              O diagnostico transforma uma entrada solta em contexto comercial: onde a jornada quebra, qual prioridade vem primeiro e qual proximo passo faz sentido.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:mt-6 lg:max-w-[660px] lg:gap-2.5">
@@ -200,21 +201,21 @@ function AutomatizePage() {
             {sent ? (
               <div className="grid gap-3 py-4 text-center lg:text-left">
                 <div>
-                  <p className="brand-title text-2xl font-bold text-white">Recebi seu briefing</p>
-                  <p className="mt-2 text-sm leading-6 text-[#a6a6a6]">Vou analisar sua necessidade e responder com a direcao mais coerente para aumentar confianca, autoridade e oportunidades.</p>
+                  <p className="brand-title text-2xl font-bold text-white">Recebi seu diagnostico</p>
+                  <p className="mt-2 text-sm leading-6 text-[#a6a6a6]">Vou analisar onde sua jornada perde oportunidades e qual estrutura precisa vir primeiro.</p>
                   {deliveryWarning ? <p className="mt-3 text-sm leading-6 text-amber-100">{deliveryWarning}</p> : null}
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                   {whatsAppUrl ? <a href={whatsAppUrl} target="_blank" rel="noreferrer" className="brand-button-primary px-6 py-3 text-xs">Continuar no WhatsApp</a> : null}
-                  <button type="button" onClick={() => { setSent(false); setDeliveryWarning(''); setWhatsAppUrl(''); }} className="brand-button-secondary px-6 py-3 text-xs">Enviar outro briefing</button>
+                  <button type="button" onClick={() => { setSent(false); setDeliveryWarning(''); setWhatsAppUrl(''); }} className="brand-button-secondary px-6 py-3 text-xs">Enviar outro diagnostico</button>
                 </div>
               </div>
             ) : (
               <>
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div>
-                    <p className="brand-title text-[0.72rem] font-bold leading-4 text-white">Vamos conversar sobre seu projeto</p>
-                    <p className="mt-1 text-[0.64rem] leading-4 text-[#808080]">Briefing rapido para entender o melhor caminho.</p>
+                    <p className="brand-title text-[0.72rem] font-bold leading-4 text-white">Vamos diagnosticar sua operacao</p>
+                    <p className="mt-1 text-[0.64rem] leading-4 text-[#808080]">Entrada rapida para entender onde oportunidades se perdem antes da proposta.</p>
                   </div>
                   <span className="mt-0.5 text-sm text-white/70">+</span>
                 </div>
@@ -240,8 +241,8 @@ function AutomatizePage() {
                     <input id="instagram" name="instagram" type="text" placeholder="@suaempresa" className={inputClassName} />
                   </div>
                   <div className="sm:col-span-1">
-                    <label className={labelClassName} htmlFor="solucao">Solução desejada</label>
-                    <select id="solucao" name="solucao" required className={`${inputClassName} appearance-none`}>
+                    <label className={labelClassName} htmlFor="gargalo">Gargalo principal</label>
+                    <select id="gargalo" name="gargalo" required className={`${inputClassName} appearance-none`}>
                       <option value="">Selecione</option>
                       {serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
@@ -268,11 +269,11 @@ function AutomatizePage() {
                   </div>
                   <div className="sm:col-span-2">
                     <label className={labelClassName} htmlFor="descricao">Conte-nos mais sobre seu projeto</label>
-                    <textarea id="descricao" name="descricao" required rows={3} placeholder="O que precisa parecer mais forte, confiavel ou pronto para crescer?" className={`${inputClassName} min-h-[86px] resize-none py-3 lg:min-h-[76px] lg:py-2`} />
+                    <textarea id="descricao" name="descricao" required rows={3} placeholder="Hoje, onde as oportunidades se perdem entre trafego, atendimento, follow-up ou conversao?" className={`${inputClassName} min-h-[86px] resize-none py-3 lg:min-h-[76px] lg:py-2`} />
                   </div>
                   <div className="sm:col-span-2">
                     <button type="submit" disabled={isSubmitting} className="brand-button-primary h-[40px] w-full px-6 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60 lg:h-[38px] lg:py-2 lg:text-[0.62rem]">
-                      {isSubmitting ? 'Enviando...' : 'Solicitar analise'}
+                      {isSubmitting ? 'Enviando...' : 'Solicitar diagnostico'}
                     </button>
                   </div>
                   {error ? <p className="sm:col-span-2 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-100">{error}</p> : null}
@@ -286,9 +287,9 @@ function AutomatizePage() {
 
       <section className="brand-panel px-4 py-5 sm:px-8 lg:px-10 lg:py-5">
         <p className="brand-kicker">Resultado</p>
-        <h2 className="brand-title mt-3 text-2xl font-bold leading-tight text-white sm:text-4xl">O que muda depois da VANT?</h2>
+        <h2 className="brand-title mt-3 text-2xl font-bold leading-tight text-white sm:text-4xl">O que a VANT analisa primeiro</h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#c9c9c9]">
-          Criamos estruturas digitais que aumentam autoridade, percepcao de valor e geracao de oportunidades antes mesmo do primeiro contato.
+          A primeira leitura separa percepcao, entrada comercial, atendimento, follow-up e automacao para definir o que realmente precisa ser implementado.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
           {solutionCards.map((solution) => (

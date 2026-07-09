@@ -365,3 +365,76 @@ Validacao:
 
 Proximo passo:
 - Fazer novo deploy de producao e enviar um email de teste para validar o template renderizado.
+
+## 2026-07-06 - Visao de trafego, pre-briefing e conversao
+
+Pedido:
+- Atualizar o ambiente de pre-briefing e solucoes com a visao de que gerar trafego e apenas o inicio.
+- Reforcar que antes de investir para trazer mais pessoas, a empresa precisa ter estrutura para captar, atender, acompanhar e converter oportunidades.
+
+Arquivos alterados:
+- `src/pages/AutomatizePage.jsx`
+- `src/pages/AdminPublishingPage.jsx`
+- `tests/editorial-pages-copy.test.js`
+- `logs/codex-session.md`
+
+Sugestao operacional:
+- Usar a frase como direcao de copy comercial da VANT em telas de solucoes e pre-briefing.
+- Tratar trafego como entrada do sistema, nao como promessa isolada.
+- Manter o pre-briefing como mecanismo de qualificacao e proximo passo antes de proposta ou entrega.
+
+Validacao:
+- Feita: `npm test` passou com 41 testes.
+- Feita: `npm run build` passou.
+- Feita: `git diff --check` sem problemas.
+
+Riscos:
+- Confirmar se Victor quer aplicar a mesma narrativa tambem na home e na pagina de conversao.
+
+## 2026-07-09 - README alinhado ao reposicionamento VANT v2
+
+Pedido:
+- Continuar o reposicionamento do site, agora pela documentacao e eliminacao de residuos do posicionamento antigo.
+
+Arquivos alterados:
+- `README.md`
+- `tests/v2-route-contract.test.js`
+- `docs/ai-notes.md`
+- `docs/vant-v2-blueprint.md`
+- `logs/codex-session.md`
+
+Validacao:
+- Feita: teste TDD adicionado primeiro em `tests/v2-route-contract.test.js` e visto falhar pelo README antigo.
+- Feita: `node --test tests/v2-route-contract.test.js` passou com 4 testes apos atualizar o README.
+
+Riscos:
+- Ainda existem documentos e componentes com narrativa antiga de conteudo, ferramentas, newsletter e portfolio. Eles devem ser classificados antes de qualquer remocao.
+- O workspace ja tinha mudancas pendentes fora deste corte; preservar essas alteracoes continua sendo necessario.
+
+Proximo passo:
+- Atualizar documentacao auxiliar e criar uma lista de residuos classificados por acao: manter, ocultar, arquivar ou remover depois de verificacao.
+
+## 2026-07-09 - Backup remoto e limpeza de legado inativo
+
+Pedido:
+- Criar um backup em Git e manter no repo atual apenas o necessario para a VANT atual.
+
+Arquivos/areas alteradas:
+- Branch de backup criada e enviada: `archive/pre-vant-v2-cleanup-2026-07-09`.
+- Branch de trabalho criada: `chore/vant-v2-cleanup`.
+- Removidos modulos publicos inativos de blog, ebook, portfolio/recrutador, curriculo PDF, admin antigo e componentes/dados associados.
+- Atualizados `README.md`, `docs/maintenance.md`, `docs/deploy-checklist.md` e `docs/coding-patterns.md` para VANT v2.
+- Removidas dependencias sem uso `marked` e `gray-matter`.
+- Adicionado `tests/legacy-cleanup.test.js` para impedir retorno acidental do legado publico inativo.
+
+Validacao:
+- Feita: `node --test tests/legacy-cleanup.test.js` passou com 3 testes.
+- Feita: `npm test` passou com 54 testes.
+- Feita: `npm run build` passou com 55 modulos transformados.
+
+Riscos:
+- O admin ainda contem modulos internos de noticias, ferramentas e agentes. Eles nao foram removidos neste corte porque ainda possuem APIs/testes e podem apoiar operacao comercial.
+- O npm audit reportou 7 vulnerabilidades; nao foi executado `npm audit fix` para evitar mudancas fora do escopo.
+
+Proximo passo:
+- Revisar o admin ativo e APIs editoriais para decidir o que vira suporte comercial interno, o que fica oculto e o que pode ser removido em novo corte.

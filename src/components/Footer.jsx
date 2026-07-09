@@ -7,11 +7,11 @@ function Footer() {
       <div className="mx-auto max-w-7xl grid gap-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <VantLogo size={40} />
+            <VantLogo size={48} />
             <div>
               <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#6f6f6f]">
-                Automação. IA. Escala.
+              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--vant-accent)]">
+                Estruture . Organize . Conecte.
               </p>
             </div>
           </div>
@@ -22,8 +22,8 @@ function Footer() {
         <div>
           <p className="brand-kicker mb-3">Navegação</p>
           <ul className="space-y-2 text-sm text-[#a6a6a6]">
-            <li><Link to="/conversao" className="transition hover:text-white">VANT</Link></li>
-            <li><Link to="/solucoes-digitais#briefing-form" className="transition hover:text-white">Soluções digitais</Link></li>
+            <li><Link to="/solucoes" className="transition hover:text-white">Soluções</Link></li>
+            <li><Link to="/diagnostico#briefing-form" className="transition hover:text-white">Diagnóstico</Link></li>
           </ul>
         </div>
         <div>

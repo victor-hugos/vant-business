@@ -11,20 +11,21 @@ test('normalizes service leads with digital solution metadata', () => {
       whatsapp: ' (11) 99999-9999 ',
       leadType: 'service',
       ebook: '',
-      productTitle: 'Identidade digital e soluções digitais',
-      source: 'digital-solutions-page',
+      productTitle: 'Diagnóstico VANT',
+      source: 'diagnosis-page',
       metadata: {
         businessName: 'Studio Exemplo',
-        solutionType: 'Identidade digital',
+        solutionType: 'Atendimento e follow-up',
         instagramHandle: '@studioexemplo',
         budgetRange: 'R$ 1.500 a R$ 3.000',
         projectStage: 'Preciso começar do zero',
-        message: 'Quero organizar minha presença digital.',
+        mainBottleneck: 'Atendimento e follow-up',
+        message: 'Quero organizar minha entrada comercial.',
       },
     },
     {
       userAgent: 'node-test',
-      referer: 'https://vant.business/automatize',
+      referer: 'https://vant.business/diagnostico',
     }
   );
 
@@ -32,18 +33,19 @@ test('normalizes service leads with digital solution metadata', () => {
   assert.equal(payload.cleanEmail, 'cliente@exemplo.com');
   assert.equal(payload.cleanWhatsapp, '(11) 99999-9999');
   assert.equal(payload.cleanLeadType, 'service');
-  assert.equal(payload.cleanEbook, 'solucoes-digitais');
-  assert.equal(payload.cleanProductTitle, 'Identidade digital e soluções digitais');
+  assert.equal(payload.cleanEbook, 'diagnostico-vant');
+  assert.equal(payload.cleanProductTitle, 'Diagnóstico VANT');
   assert.equal(payload.wantsNewsletter, false);
   assert.deepEqual(payload.metadata, {
     businessName: 'Studio Exemplo',
-    solutionType: 'Identidade digital',
+    solutionType: 'Atendimento e follow-up',
     instagramHandle: '@studioexemplo',
     budgetRange: 'R$ 1.500 a R$ 3.000',
     projectStage: 'Preciso começar do zero',
-    message: 'Quero organizar minha presença digital.',
+    mainBottleneck: 'Atendimento e follow-up',
+    message: 'Quero organizar minha entrada comercial.',
     userAgent: 'node-test',
-    referer: 'https://vant.business/automatize',
+    referer: 'https://vant.business/diagnostico',
   });
 });
 
@@ -121,19 +123,19 @@ test('builds a WhatsApp briefing message from the service form fields', () => {
     email: 'cliente@example.com',
     whatsapp: '(11) 99999-9999',
     instagram: '@studioexemplo',
-    solucao: 'Site profissional',
+    solucao: 'Atendimento e follow-up',
     momento: 'Ja tenho algo, mas preciso melhorar',
     objetivo: 'Gerar mais contatos e oportunidades',
     orcamento: 'R$ 1.500 a R$ 3.000',
-    descricao: 'Preciso organizar minha presenca digital.',
+    descricao: 'Os contatos chegam pelo WhatsApp, mas o retorno demora.',
   });
 
   assert.match(message, /VANT\.Business/);
   assert.match(message, /Nome: Cliente VANT/);
   assert.match(message, /Empresa\/projeto: Studio Exemplo/);
   assert.match(message, /Instagram: @studioexemplo/);
-  assert.match(message, /Solucao: Site profissional/);
-  assert.match(message, /Briefing:\nPreciso organizar minha presenca digital\./);
+  assert.match(message, /Gargalo principal: Atendimento e follow-up/);
+  assert.match(message, /Diagnostico:\nOs contatos chegam pelo WhatsApp, mas o retorno demora\./);
 });
 
 test('builds a WhatsApp URL with an optional target number and encoded briefing', () => {
@@ -156,7 +158,7 @@ test('email brand header uses the VANT logo as a remote image without attachment
 
   assert.match(html, /VANT Business/);
   assert.match(html, /<img/i);
-  assert.match(html, /https:\/\/vant-business-victor-hugos-projects-378ea6a7\.vercel\.app\/assets\/vant-logo-black\.png/);
+  assert.match(html, /https:\/\/vant-business-victor-hugos-projects-378ea6a7\.vercel\.app\/assets\/brand\/vant-logo-official\.png/);
   assert.match(html, /gap:18px/);
   assert.match(html, /padding-right:6px/);
   assert.doesNotMatch(html, /cid:vant-logo/);

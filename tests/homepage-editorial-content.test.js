@@ -56,12 +56,27 @@ test('homepage pillars explain VANT growth structure clearly', () => {
   assert.match(homePageSource, /não entrega apenas sites/);
 });
 
-test('homepage pillars CTA routes to digital solutions instead of a dedicated attendance screen', () => {
-  assert.match(homePageSource, /to="\/solucoes-digitais" className="reference-pillars-link"/);
+test('homepage pillars CTA routes to the v2 solutions path instead of a dedicated attendance screen', () => {
+  assert.match(homePageSource, /to="\/solucoes" className="reference-pillars-link"/);
   assert.match(homePageSource, /Conhecer soluções/);
   assert.doesNotMatch(homePageSource, /to="\/atendimento-digital"/);
   assert.doesNotMatch(homePageSource, /Ver como transformamos atendimento/);
   assert.doesNotMatch(appSource, /AtendimentoDigitalPage/);
   assert.doesNotMatch(appSource, /path="\/atendimento-digital"/);
   assert.doesNotMatch(headerSource, /label: 'Atendimento'/);
+});
+
+const cssSource = readFileSync(
+  new URL('../src/index.css', import.meta.url),
+  'utf8'
+);
+
+test('homepage first viewport is framed without clipping the hero content', () => {
+  assert.match(cssSource, /\.reference-hero\s*{[^}]*min-height:\s*clamp\(560px, calc\(100svh - 116px\), 720px\)/s);
+  assert.match(cssSource, /\.reference-hero\s*{[^}]*max-height:\s*calc\(100svh - 88px\)/s);
+  assert.match(cssSource, /\.reference-hero\s*{[^}]*overflow:\s*clip/s);
+  assert.match(cssSource, /\.reference-hero-copy\s*{[^}]*align-self:\s*center/s);
+  assert.match(cssSource, /\.reference-hero-mark\s*{[^}]*min-height:\s*min\(48vw, 430px\)/s);
+  assert.match(cssSource, /\.reference-hero-mark img\s*{[^}]*max-height:\s*min\(48vh, 430px\)/s);
+  assert.match(cssSource, /\.reference-pillars\s*{[^}]*margin-top:\s*clamp\(1rem, 2vw, 1\.5rem\)/s);
 });

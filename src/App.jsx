@@ -5,7 +5,6 @@ import ScrollToTop from './components/ScrollToTop.jsx';
 import HomePage from './pages/HomePage.jsx';
 import RecursosPage from './pages/RecursosPage.jsx';
 import AutomatizePage from './pages/AutomatizePage.jsx';
-import EbookPage from './pages/EbookPage.jsx';
 import AdminPublishingPage from './pages/AdminPublishingPage.jsx';
 
 function App() {
@@ -17,11 +16,12 @@ function App() {
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/conversao" element={<RecursosPage />} />
-            <Route path="/recursos" element={<Navigate to="/conversao" replace />} />
-            <Route path="/solucoes-digitais" element={<AutomatizePage />} />
-            <Route path="/automatize" element={<AutomatizePage />} />
-            <Route path="/ebook/:slug" element={<EbookPage />} />
+            <Route path="/solucoes" element={<RecursosPage />} />
+            <Route path="/diagnostico" element={<AutomatizePage />} />
+            <Route path="/conversao" element={<Navigate to="/solucoes" replace />} />
+            <Route path="/recursos" element={<Navigate to="/solucoes" replace />} />
+            <Route path="/solucoes-digitais" element={<Navigate to="/diagnostico" replace />} />
+            <Route path="/automatize" element={<Navigate to="/diagnostico" replace />} />
             <Route path="/admin-vant" element={<AdminPublishingPage />} />
           </Routes>
         </main>
