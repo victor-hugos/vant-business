@@ -165,22 +165,12 @@ function AutomatizePage() {
       <section className="overflow-hidden rounded-none border-y border-white/10 bg-[#050505] sm:border lg:min-h-[520px]">
         <div className="brand-mark-panel px-4 py-8 sm:px-8 lg:grid lg:min-h-[520px] lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)] lg:items-start lg:gap-8 lg:px-8 lg:py-4 xl:gap-10">
           <div className="lg:pl-2">
-            <div className="flex w-full max-w-[330px] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:max-w-[360px]">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05]">
-                <VantLogo size={30} />
-              </div>
-              <div>
-                <p className="brand-title text-xs font-bold text-white">VANT.BUSINESS</p>
-                <p className="mt-1 text-[0.5rem] uppercase tracking-[0.22em] text-[var(--vant-accent)]">Estruture . Organize . Conecte.</p>
-              </div>
-            </div>
-
-            <h1 className="brand-title mt-7 max-w-3xl text-[2.2rem] font-bold leading-[0.98] text-white sm:text-5xl lg:mt-6 lg:max-w-[650px] lg:text-[3rem] xl:text-[3.25rem]">
+            <h1 className="brand-title mt-0 max-w-3xl text-[2.2rem] font-bold leading-[0.98] text-white sm:text-5xl lg:mt-2 lg:max-w-[650px] lg:text-[3rem] xl:text-[3.25rem]">
               Diagnostico VANT
-              <span className="brand-metal block">Onde sua empresa perde oportunidades hoje?</span>
+              <span className="brand-metal block">Onde sua empresa <span className="diagnosis-text-accent">perde oportunidades</span> hoje?</span>
             </h1>
             <p className="mt-5 max-w-[600px] text-sm leading-6 text-[#cfcfcf] sm:text-base lg:mt-4 lg:text-[0.82rem] lg:leading-5">
-              A VANT identifica se o gargalo esta em presenca, captacao, atendimento, follow-up, automacao ou conversao antes de sugerir qualquer implementacao.
+              A VANT identifica se o gargalo esta em <span className="diagnosis-inline-accent">presenca, captacao, atendimento, follow-up, automacao ou conversao</span> antes de sugerir qualquer implementacao.
             </p>
             <p className="mt-2 max-w-[620px] text-sm leading-6 text-[#a6a6a6] lg:text-[0.78rem] lg:leading-5">
               O diagnostico transforma uma entrada solta em contexto comercial: onde a jornada quebra, qual prioridade vem primeiro e qual proximo passo faz sentido.
@@ -188,8 +178,8 @@ function AutomatizePage() {
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:mt-6 lg:max-w-[660px] lg:gap-2.5">
               {trustPillars.map((pillar) => (
-                <article key={pillar.label} className="rounded-lg border border-white/10 bg-white/[0.035] p-3 transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.055] lg:min-h-[86px]">
-                  <p className="brand-kicker text-[0.55rem] tracking-[0.18em] text-[#b8b8b8]">{pillar.label}</p>
+                <article key={pillar.label} className="diagnosis-card-accent rounded-lg border border-white/10 bg-white/[0.035] p-3 transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.055] lg:min-h-[86px]">
+                  <p className="brand-kicker text-[0.55rem] tracking-[0.18em]">{pillar.label}</p>
                   <h2 className="mt-2 text-[0.72rem] font-semibold text-white lg:text-[0.66rem]">{pillar.title}</h2>
                   <p className="mt-1.5 text-[0.66rem] leading-4 text-[#8f8f8f] lg:text-[0.58rem] lg:leading-4">{pillar.text}</p>
                 </article>
@@ -197,7 +187,7 @@ function AutomatizePage() {
             </div>
           </div>
 
-          <div id="briefing-form" className="mt-8 scroll-mt-24 rounded-lg border border-white/10 bg-black/55 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-5 lg:mt-0 lg:scroll-mt-[120px] lg:p-5">
+          <div id="briefing-form" className="diagnosis-panel-accent mt-8 scroll-mt-24 rounded-lg border border-white/10 bg-black/55 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-5 lg:mt-0 lg:scroll-mt-[120px] lg:p-5">
             {sent ? (
               <div className="grid gap-3 py-4 text-center lg:text-left">
                 <div>
@@ -215,9 +205,9 @@ function AutomatizePage() {
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div>
                     <p className="brand-title text-[0.72rem] font-bold leading-4 text-white">Vamos diagnosticar sua operacao</p>
-                    <p className="mt-1 text-[0.64rem] leading-4 text-[#808080]">Entrada rapida para entender onde oportunidades se perdem antes da proposta.</p>
+                    <p className="mt-1 text-[0.64rem] leading-4 text-[#808080]">Entrada rapida para entender onde <span className="diagnosis-inline-accent">oportunidades se perdem</span> antes da proposta.</p>
                   </div>
-                  <span className="mt-0.5 text-sm text-white/70">+</span>
+                  <span className="diagnosis-plus mt-0.5 text-sm">+</span>
                 </div>
                 <form onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-2 lg:gap-x-2 lg:gap-y-1.5">
                   <div className="sm:col-span-1">
@@ -287,14 +277,14 @@ function AutomatizePage() {
 
       <section className="brand-panel px-4 py-5 sm:px-8 lg:px-10 lg:py-5">
         <p className="brand-kicker">Resultado</p>
-        <h2 className="brand-title mt-3 text-2xl font-bold leading-tight text-white sm:text-4xl">O que a VANT analisa primeiro</h2>
+        <h2 className="brand-title mt-3 text-2xl font-bold leading-tight text-white sm:text-4xl">O que a VANT <span className="diagnosis-text-accent">analisa primeiro</span></h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#c9c9c9]">
-          A primeira leitura separa percepcao, entrada comercial, atendimento, follow-up e automacao para definir o que realmente precisa ser implementado.
+          A primeira leitura separa <span className="diagnosis-inline-accent">percepcao, entrada comercial, atendimento, follow-up e automacao</span> para definir o que realmente precisa ser implementado.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
           {solutionCards.map((solution) => (
-            <article key={solution.title} className="brand-card rounded-xl p-4 lg:p-5">
-              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[#7f7f7f]">{solution.meta}</p>
+            <article key={solution.title} className="brand-card diagnosis-card-accent rounded-xl p-4 lg:p-5">
+              <p className="diagnosis-meta text-[0.65rem] uppercase tracking-[0.18em]">{solution.meta}</p>
               <h3 className="brand-title mt-3 text-lg font-bold leading-tight text-white">{solution.title}</h3>
               <p className="mt-3 text-sm leading-6 text-[#a6a6a6]">{solution.text}</p>
             </article>

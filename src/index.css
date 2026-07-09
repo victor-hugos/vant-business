@@ -180,6 +180,45 @@ html {
   box-shadow: 0 0 0 1px var(--vant-accent-soft);
 }
 
+.diagnosis-text-accent {
+  background: none;
+  color: var(--vant-accent);
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: var(--vant-accent);
+  text-shadow: 0 0 22px rgba(155, 220, 0, 0.2);
+}
+
+.diagnosis-inline-accent,
+.diagnosis-meta,
+.diagnosis-plus {
+  color: var(--vant-accent);
+}
+
+.diagnosis-panel-accent {
+  border-color: rgba(155, 220, 0, 0.24);
+  background:
+    linear-gradient(145deg, rgba(155, 220, 0, 0.08), transparent 32%),
+    rgba(0, 0, 0, 0.64);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(155, 220, 0, 0.08);
+}
+
+.diagnosis-panel-accent label {
+  color: rgba(155, 220, 0, 0.72);
+}
+
+.diagnosis-panel-accent .brand-input {
+  border-color: rgba(155, 220, 0, 0.16);
+}
+
+.diagnosis-card-accent {
+  border-color: rgba(155, 220, 0, 0.18);
+}
+
+.diagnosis-card-accent:hover {
+  border-color: var(--vant-accent-line);
+}
+
 .brand-rule {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(240, 240, 240, 0.28), transparent);
