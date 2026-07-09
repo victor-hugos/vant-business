@@ -25,7 +25,7 @@ function Header() {
             onClick={closeMenu}
             className="flex items-center gap-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
-            <VantLogo size={46} variant="symbolReversed" />
+            <VantLogo size={46} />
             <div className="flex flex-col">
               <span className="brand-title text-xs font-bold leading-none text-white sm:text-sm">
                 VANT.BUSINESS

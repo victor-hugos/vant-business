@@ -7,7 +7,7 @@ function Footer() {
       <div className="mx-auto max-w-7xl grid gap-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <VantLogo size={48} variant="symbolReversed" />
+            <VantLogo size={48} />
             <div>
               <p className="brand-title text-sm font-bold text-white">VANT.BUSINESS</p>
               <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--vant-accent)]">

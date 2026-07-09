@@ -24,7 +24,7 @@ function CasesPage() {
     <div className="mx-auto max-w-6xl space-y-10 py-8">
       <section className="grid gap-8 border-y border-white/10 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="flex h-32 w-32 items-center justify-center border border-white/10 bg-white/[0.03]">
-          <VantLogo size={96} variant="symbolReversed" />
+          <VantLogo size={96} />
         </div>
         <div>
           <p className="brand-kicker">Provas e exemplos</p>

@@ -158,7 +158,7 @@ test('email brand header uses the VANT logo as a remote image without attachment
 
   assert.match(html, /VANT Business/);
   assert.match(html, /<img/i);
-  assert.match(html, /https:\/\/vant-business-victor-hugos-projects-378ea6a7\.vercel\.app\/assets\/brand\/vant-favicon\.png/);
+  assert.match(html, /https:\/\/vant-business-victor-hugos-projects-378ea6a7\.vercel\.app\/assets\/brand\/vant-logo-official\.png/);
   assert.match(html, /gap:18px/);
   assert.match(html, /padding-right:6px/);
   assert.doesNotMatch(html, /cid:vant-logo/);

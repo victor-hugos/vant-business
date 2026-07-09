@@ -1,21 +1,16 @@
 const logoSources = {
-  primary: '/assets/brand/vant-logo-primary.png',
-  reversed: '/assets/brand/vant-logo-reversed.png',
-  symbolReversed: '/assets/brand/vant-symbol-reversed.png',
-  favicon: '/assets/brand/vant-favicon.png',
-  white: '/assets/vant-logo-white.png',
-  black: '/assets/vant-logo-black.png',
+  official: '/assets/brand/vant-logo-official.png',
 };
 
 function VantLogo({
   size = 40,
   width,
   height,
-  variant = 'symbolReversed',
+  variant = 'official',
   alt = '',
   className = '',
 }) {
-  const source = logoSources[variant] || logoSources.symbolReversed;
+  const source = logoSources[variant] || logoSources.official;
   const resolvedSize = typeof size === 'number' ? `${size}px` : size;
   const resolvedWidth = width || resolvedSize;
   const resolvedHeight = height || resolvedSize;

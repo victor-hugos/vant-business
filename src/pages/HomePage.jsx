@@ -79,7 +79,7 @@ function HomePage() {
       <section className="reference-hero">
         <div className="reference-hero-copy">
           <div className="reference-kicker">
-            <VantLogo size={30} variant="symbolReversed" alt="" className="reference-kicker-logo" />
+            <VantLogo size={30} alt="" className="reference-kicker-logo" />
             <span />
             <p>Automate. Intelligently. Grow.</p>
           </div>
@@ -111,7 +111,7 @@ function HomePage() {
 
         <div className="reference-hero-mark">
           <div className="reference-orbit" aria-hidden="true" />
-          <VantLogo width="min(28vw, 300px)" height="min(31vw, 336px)" variant="symbolReversed" alt="VANT.Business" />
+          <VantLogo width="min(28vw, 300px)" height="min(31vw, 336px)" alt="VANT.Business" />
           <div className="reference-light" aria-hidden="true" />
           <div className="reference-index" aria-label="Seções do destaque">
             <span className="is-active">01</span>

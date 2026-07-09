@@ -12,7 +12,7 @@ const VICTOR_EMAIL = getLeadNotificationEmail();
 export function buildEmailBrandHeaderHtml() {
   return `
     <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
-      <img src="https://vant-business-victor-hugos-projects-378ea6a7.vercel.app/assets/brand/vant-favicon.png" alt="VANT Business" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;object-fit:contain;padding-right:6px;" />
+      <img src="https://vant-business-victor-hugos-projects-378ea6a7.vercel.app/assets/brand/vant-logo-official.png" alt="VANT Business" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;object-fit:contain;padding-right:6px;" />
       <div>
         <p style="margin:0;color:#0f172a;font-size:14px;font-weight:800;letter-spacing:.04em;">VANT Business</p>
         <p style="margin:3px 0 0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">IA · Automacao · Presenca digital</p>
